@@ -1297,6 +1297,7 @@ function initToggles(){Object.keys(SET).forEach(k=>applyToggle(k,SET[k]));}
  mk('bldBtn','🏢 ভবনের তলা দেখুন',()=>{const f=document.getElementById('floors');if(f.classList.contains('show'))floorSel('all');else{floorSel(floorMode);f.classList.add('show');}});
  mk('recBtn','🎬 ২ মিনিটের ভিডিও (প্রায় ৭৫ MB)',startRec);
  mk('planBtn','🗺 ২ডি ম্যাপ ও জমির হিসাব',()=>window.showPlan2D());
+ mk('bizVisitBtn','📅 খামার দেখতে আসতে চাই',()=>{});
  more.appendChild(el('small',{text:'সব লেখা ও লেবেল এখান থেকে বন্ধ করা যায়। আপনার পছন্দ এই ডিভাইসে মনে থাকবে।'}));}
 // ফোন ধীর হলে নিজে থেকে হালকা মোডে যাওয়া
 let fpsT=0,fpsN=0,lowN=0,toastTm=0;
@@ -1359,10 +1360,6 @@ try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','�
 #bizPanel .bpBar{height:9px;background:#294331;border-radius:9px;overflow:hidden}.bpBar i{display:block;height:100%;background:#d8ad50}
 @media(max-width:560px){#bizPanel{padding:12px 10px 110px}#bizDock button{font-size:12px;padding:11px 12px}}
 </style>
-<div id="bizDock">
- <button id="bizDashBtn" class="gold">📊 আয়-ব্যয়ের হিসাব</button>
- <button id="bizVisitBtn">📅 খামার দেখতে আসতে চাই</button>
-</div>
 <div id="bizPanel" aria-live="polite">
  <div class="bpHead"><b id="bpTitle">খামারের ব্যবসায়িক তথ্য</b><button id="bpClose">✕ বন্ধ</button></div>
  <div id="bpContent"></div>
