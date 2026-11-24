@@ -1508,4 +1508,41 @@ function render(t){
 })();
 </script>
 
+
+<style id="settingsOrganizerStyle">
+#more{width:min(340px,calc(100vw - 24px))!important;max-height:calc(100dvh - 86px)!important;overflow-y:auto!important;overscroll-behavior:contain}
+#more .settingsGroup{display:flex;flex-direction:column;gap:7px;padding:8px 4px;border-bottom:1px solid var(--line)}
+#more .settingsGroup h4{margin:0 2px 3px;color:var(--accent);font-size:13px}
+#more .settingsGroup>button,#more .settingsGroup>#tm,#more .settingsGroup>#chips,#more .settingsGroup>#bizDock{width:100%;box-sizing:border-box}
+#more .settingsGroup>#tm{position:static;display:flex!important;flex-wrap:wrap;align-items:center;border-radius:10px;padding:8px;background:rgba(255,255,255,.06)}
+#more .settingsGroup>#tm input[type=range]{flex:1;min-width:120px}
+#more .settingsGroup>#chips{display:flex!important;flex-wrap:wrap;overflow:visible;padding:2px}
+#more .settingsGroup>#chips .btn{white-space:normal;justify-content:center}
+#more .settingsGroup>#bizDock{position:static!important;display:flex!important;flex-direction:column;gap:7px;padding:0;background:none;box-shadow:none}
+#more .settingsGroup>#bizDock button{width:100%;border-radius:10px;padding:9px 10px}
+#more .settingsGroup>#animalQuickView,#more .settingsGroup>#farmMgmtBtn{position:static!important;display:block!important;width:100%;text-align:left;box-sizing:border-box;margin:0}
+#more .settingsGroup>#animalQuickView small{display:inline;margin-left:5px}
+#more .settingsGroup>#guideBtn,#more .settingsGroup>#play{width:100%;text-align:left;border-radius:10px}
+#more .settingsGroup>#scaleNote{position:static!important;display:block!important;max-width:none;margin:0}
+@media(max-width:560px){#more{max-height:calc(100dvh - 76px)!important}}
+</style>
+<script id="settingsOrganizerV1">
+(function(){
+ const menu=document.getElementById('more');
+ if(!menu||menu.dataset.organized==='1')return;
+ menu.dataset.organized='1';
+ function group(title,ids){
+   const box=document.createElement('section');box.className='settingsGroup';
+   const h=document.createElement('h4');h.textContent=title;box.appendChild(h);
+   ids.forEach(id=>{const node=document.getElementById(id);if(node)box.appendChild(node);});
+   if(box.children.length>1)menu.insertBefore(box,menu.firstChild);
+ }
+ group('🎮 ভিউ ও ট্যুর',['guideBtn','play','tm','chips']);
+ group('🐄 খামার ও প্রাণী',['animalQuickView','farmMgmtBtn']);
+ group('📊 ব্যবসা ও বুকিং',['bizDock']);
+ group('📏 অতিরিক্ত তথ্য',['scaleNote']);
+ const top=document.querySelector('#tl>div');
+ if(top){top.style.display='flex';top.style.gap='8px';top.style.justifyContent='flex-end';}
+})();
+</script>
 </body></html>
