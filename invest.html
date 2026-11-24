@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>বিনিয়োগ সারসংক্ষেপ — খামারবাড়ি</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1a13;--panel:#14281d;--panel2:#193325;--line:rgba(255,255,255,.14);--fg:#f4f7ef;--mute:#a9bcab;--accent:#f0b84a;--leaf:#86d492;--bad:#ef8a7a;--font:'Hind Siliguri','Noto Sans Bengali','Segoe UI',system-ui,sans-serif;color-scheme:dark;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:500 15px/1.5 var(--font);padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:0 auto;padding:16px 14px 48px}
+h1,h2{margin:0;font-weight:700;line-height:1.25}
+h2{font-size:18px;margin:28px 0 10px}
+.sub{color:var(--mute);font-size:13px;margin:2px 0 0}
+.title{width:100%;background:transparent;border:0;border-bottom:1px dashed var(--line);color:var(--fg);font:700 22px/1.3 var(--font);padding:4px 0}
+.title:focus{outline:2px solid var(--accent);outline-offset:3px}
+.note{display:flex;gap:10px;align-items:flex-start;background:rgba(240,184,74,.12);border:1px solid rgba(240,184,74,.45);border-radius:10px;padding:10px 12px;margin:14px 0;font-size:13.5px}
+.note button{flex:none}
+.note[hidden]{display:none}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi small{display:block;color:var(--mute);font-size:12.5px}
+.kpi b{display:block;font-size:20px;margin-top:2px}
+.kpi.main{grid-column:1/-1;background:linear-gradient(135deg,#1d3b2a,#14281d);border-color:rgba(240,184,74,.5)}
+.kpi.main b{font-size:32px;color:var(--accent)}
+.pos{color:var(--leaf)}.neg{color:var(--bad)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:flex-end}
+.row .f{flex:1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.f{display:block;min-width:0}
+.f span{display:block;font-size:12px;color:var(--mute);margin-bottom:3px}
+input,textarea{width:100%;background:#0f2017;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:500 15px/1.4 var(--font)}
+textarea{resize:vertical;min-height:62px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:600 14px var(--font);background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:9px 13px;cursor:pointer}
+button.pri{background:var(--accent);color:#1b1500;border-color:var(--accent)}
+button.x{padding:9px 11px;color:var(--bad);flex:none}
+.mini{margin-top:8px;font-size:13px;color:var(--mute)}
+.mini b{color:var(--fg)}
+.bar{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:13.5px}
+.bar .nm{flex:0 0 38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{flex:1;height:14px;background:#0f2017;border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.bar .fl{height:100%;background:var(--leaf);border-radius:7px;min-width:2px}
+.bar .fl.a{background:var(--accent)}
+.bar .vl{flex:0 0 auto;min-width:88px;text-align:right;color:var(--mute)}
+.proj{width:100%;border-collapse:collapse;font-size:13.5px}
+.proj th,.proj td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line)}
+.proj th:first-child,.proj td:first-child{text-align:left}
+.proj th{color:var(--mute);font-weight:500;font-size:12.5px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--line)}
+.gr{max-width:200px}
+.empty{color:var(--mute);font-size:13.5px;padding:8px 0}
+@media print{body{background:#fff;color:#000}.tools,.x,.note,.foot{display:none!important}.card,.kpi{border-color:#999;background:#fff}input,textarea{background:#fff;color:#000;border-color:#bbb}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<input class="title" id="title" aria-label="প্রকল্পের নাম">
+<p class="sub">বিনিয়োগ সারসংক্ষেপ</p>
+
+<div class="note" id="sampleNote">
+  <div><b>নমুনা সংখ্যা।</b> নিচের সব টাকার অঙ্ক বানানো। প্রেজেন্টেশনের আগে প্রতিটা ঘরে নিজের আসল হিসাব বসাও।</div>
+  <button id="sampleOk">বসিয়েছি</button>
+</div>
+
+<div class="kpis">
+  <div class="kpi main"><small>বছরের নিট লাভ</small><b id="kProfit"></b></div>
+  <div class="kpi"><small>মোট বিনিয়োগ</small><b id="kInv"></b></div>
+  <div class="kpi"><small>বছরের আয়</small><b id="kInc"></b></div>
+  <div class="kpi"><small>বছরের খরচ</small><b id="kExp"></b></div>
+  <div class="kpi"><small>বার্ষিক রিটার্ন</small><b id="kRoi"></b></div>
+  <div class="kpi" style="grid-column:1/-1"><small>বিনিয়োগ ফেরত আসতে সময়</small><b id="kPay"></b></div>
+</div>
+
+<h2>খাতভিত্তিক হিসাব</h2>
+<div id="sectors"></div>
+<div class="tools"><button class="pri" id="addSec">+ নতুন খাত</button></div>
+
+<h2>বিনিয়োগের টাকা কোথায় যাবে</h2>
+<div class="card" id="alloc"></div>
+
+<h2>কোন খাত থেকে লাভ আসবে</h2>
+<div class="card" id="profitBars"></div>
+
+<h2>৩ বছরের প্রক্ষেপণ</h2>
+<div class="card">
+  <label class="f gr"><span>বছরে লাভ বাড়বে (%)</span><input type="number" inputmode="decimal" id="growth"></label>
+  <div class="mini">প্রথম বছরের লাভ ধরে প্রতি বছর এই হারে বাড়বে বলে ধরা হয়েছে।</div>
+  <div style="overflow-x:auto;margin-top:8px">
+    <table class="proj"><thead><tr><th>বছর</th><th>লাভ</th><th>জমা লাভ</th><th>বিনিয়োগ ফেরত</th></tr></thead><tbody id="projBody"></tbody></table>
+  </div>
+  <div id="projBars" style="margin-top:8px"></div>
+</div>
+
+<h2>ঝুঁকি ও সমাধান</h2>
+<div id="risks"></div>
+<div class="tools"><button class="pri" id="addRisk">+ নতুন ঝুঁকি</button></div>
+
+<div class="foot">
+  <div class="sub">ডেটা এই ফোনের ব্রাউজারেই সেভ হয়। ব্রাউজার ক্লিয়ার করলে মুছে যাবে, তাই মাঝেমধ্যে এক্সপোর্ট করে রাখো।</div>
+  <div class="tools">
+    <button id="exp">এক্সপোর্ট</button>
+    <button id="imp">ইমপোর্ট</button>
+    <button id="prt">প্রিন্ট / PDF</button>
+    <button id="rst">নমুনায় ফেরত</button>
+  </div>
+  <input type="file" id="file" accept="application/json,.json" hidden>
+</div>
+
+</div>
+<script>
+(function(){
+'use strict';
+var KEY='khamarbari_invest_v1';
+var DEF={
+  title:'১০ বিঘা সমন্বিত খামার',
+  growth:10,
+  sample:true,
+  sectors:[
+    {n:'মাছ চাষ',inv:500000,inc:600000,exp:300000},
+    {n:'চিংড়ি',inv:800000,inc:1200000,exp:700000},
+    {n:'ডিম (হাঁস/মুরগি)',inv:300000,inc:400000,exp:250000},
+    {n:'দুধ (গরু)',inv:600000,inc:500000,exp:300000},
+    {n:'সবজি ও ফল',inv:100000,inc:150000,exp:70000}
+  ],
+  risks:[
+    {r:'মাছ/চিংড়ির রোগ',s:'নিয়মিত পানি পরীক্ষা, ভালো পোনা, রোগ প্রতিরোধের সময়সূচি'},
+    {r:'বাজারদর পড়ে যাওয়া',s:'একাধিক খাতে আয়, সরাসরি ক্রেতার সঙ্গে চুক্তি'},
+    {r:'ঝড়, জলোচ্ছ্বাস, লবণাক্ততা',s:'বাঁধ মজবুত করা, বীমা বা সঞ্চয় তহবিল'}
+  ]
+};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function valid(o){return o&&typeof o==='object'&&Array.isArray(o.sectors)&&Array.isArray(o.risks);}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(valid(o))return o;}}catch(e){}
+  return clone(DEF);
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+var S=load();
+function $(id){return document.getElementById(id);}
+function bn(n){return Number(n).toLocaleString('bn-BD',{maximumFractionDigits:0});}
+function bn1(n){return Number(n).toLocaleString('bn-BD',{maximumFractionDigits:1});}
+function tk(n){return '৳ '+bn(n);}
+function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+function num(v){var n=parseFloat(v);return isFinite(n)&&n>=0?n:0;}
+
+function field(label,val,type,cb){
+  var w=el('label','f');w.appendChild(el('span','',label));
+  var i=document.createElement(type==='area'?'textarea':'input');
+  if(type==='number'){i.type='number';i.inputMode='decimal';i.min='0';}
+  else if(type==='text'){i.type='text';}
+  i.value=val;
+  i.addEventListener('input',function(){cb(type==='number'?num(i.value):i.value);});
+  w.appendChild(i);return w;
+}
+
+function buildSectors(){
+  var box=$('sectors');box.replaceChildren();
+  if(!S.sectors.length){box.appendChild(el('div','empty','কোনো খাত নেই। "+ নতুন খাত" চাপো।'));}
+  S.sectors.forEach(function(s,i){
+    var c=el('div','card');
+    var top=el('div','row');
+    top.appendChild(field('খাতের নাম',s.n,'text',function(v){s.n=v;upd();}));
+    var d=el('button','x','✕');d.setAttribute('aria-label','খাতটি মুছুন');
+    d.onclick=function(){S.sectors.splice(i,1);buildSectors();upd();};
+    top.appendChild(d);c.appendChild(top);
+    var g=el('div','grid3');
+    g.appendChild(field('বিনিয়োগ (৳)',s.inv,'number',function(v){s.inv=v;upd();}));
+    g.appendChild(field('বছরের আয় (৳)',s.inc,'number',function(v){s.inc=v;upd();}));
+    g.appendChild(field('বছরের খরচ (৳)',s.exp,'number',function(v){s.exp=v;upd();}));
+    c.appendChild(g);
+    var m=el('div','mini');m.id='sp'+i;c.appendChild(m);
+    box.appendChild(c);
+  });
+}
+
+function buildRisks(){
+  var box=$('risks');box.replaceChildren();
+  if(!S.risks.length){box.appendChild(el('div','empty','কোনো ঝুঁকি যোগ করা নেই।'));}
+  S.risks.forEach(function(k,i){
+    var c=el('div','card');
+    var top=el('div','row');
+    top.appendChild(field('ঝুঁকি',k.r,'text',function(v){k.r=v;save();}));
+    var d=el('button','x','✕');d.setAttribute('aria-label','ঝুঁকিটি মুছুন');
+    d.onclick=function(){S.risks.splice(i,1);buildRisks();save();};
+    top.appendChild(d);c.appendChild(top);
+    var w=el('div','');w.style.marginTop='8px';
+    w.appendChild(field('সমাধান',k.s,'area',function(v){k.s=v;save();}));
+    c.appendChild(w);box.appendChild(c);
+  });
+}
+
+function barRow(name,pct,valText,alt){
+  var r=el('div','bar');
+  r.appendChild(el('span','nm',name||'নামহীন'));
+  var tr=el('div','tr');var fl=el('div','fl'+(alt?' a':''));
+  fl.style.width=Math.max(0,Math.min(100,pct))+'%';tr.appendChild(fl);r.appendChild(tr);
+  r.appendChild(el('span','vl',valText));return r;
+}
+
+function upd(){
+  var inv=0,inc=0,exp=0;
+  S.sectors.forEach(function(s,i){
+    inv+=s.inv;inc+=s.inc;exp+=s.exp;
+    var m=$('sp'+i);
+    if(m){var p=s.inc-s.exp;m.replaceChildren();m.appendChild(document.createTextNode('বছরের লাভ: '));
+      var b=el('b',p>=0?'pos':'neg',tk(p));m.appendChild(b);}
+  });
+  var profit=inc-exp;
+  $('kInv').textContent=tk(inv);
+  $('kInc').textContent=tk(inc);
+  $('kExp').textContent=tk(exp);
+  var kp=$('kProfit');kp.textContent=tk(profit);kp.className=profit>=0?'':'neg';
+  var roi=inv>0?profit/inv*100:0;
+  var kr=$('kRoi');kr.textContent=inv>0?bn1(roi)+'%':'—';kr.className=roi>=0?'pos':'neg';
+  var pay=$('kPay');
+  if(inv>0&&profit>0){var mo=inv/(profit/12);pay.textContent=mo<=12?bn1(mo)+' মাস':bn1(mo/12)+' বছর ('+bn(Math.ceil(mo))+' মাস)';}
+  else{pay.textContent=inv>0?'লাভ না হলে ফেরত আসবে না':'—';}
+
+  var a=$('alloc');a.replaceChildren();
+  if(inv>0){S.sectors.forEach(function(s){a.appendChild(barRow(s.n,s.inv/inv*100,bn1(s.inv/inv*100)+'% · '+tk(s.inv)));});}
+  else{a.appendChild(el('div','empty','বিনিয়োগের অঙ্ক বসালে এখানে ভাগ দেখাবে।'));}
+
+  var pb=$('profitBars');pb.replaceChildren();
+  var maxP=0;S.sectors.forEach(function(s){maxP=Math.max(maxP,Math.abs(s.inc-s.exp));});
+  if(maxP>0){S.sectors.forEach(function(s){var p=s.inc-s.exp;pb.appendChild(barRow(s.n,Math.abs(p)/maxP*100,tk(p),true));});}
+  else{pb.appendChild(el('div','empty','আয়-খরচ বসালে এখানে লাভের তুলনা দেখাবে।'));}
+
+  var g=S.growth;
+  var body=$('projBody');body.replaceChildren();
+  var cum=0,maxC=inv;var rows=[];
+  for(var y=1;y<=3;y++){
+    var p=profit*Math.pow(1+g/100,y-1);cum+=p;rows.push({y:y,p:p,c:cum});maxC=Math.max(maxC,cum);
+  }
+  rows.forEach(function(r){
+    var tr=el('tr','');
+    tr.appendChild(el('td','', 'বছর '+bn(r.y)));
+    tr.appendChild(el('td',r.p>=0?'pos':'neg',tk(r.p)));
+    tr.appendChild(el('td','',tk(r.c)));
+    tr.appendChild(el('td','',inv>0?bn1(r.c/inv*100)+'%':'—'));
+    body.appendChild(tr);
+  });
+  var pj=$('projBars');pj.replaceChildren();
+  if(maxC>0){
+    pj.appendChild(barRow('বিনিয়োগ',inv/maxC*100,tk(inv)));
+    rows.forEach(function(r){pj.appendChild(barRow('জমা লাভ, বছর '+bn(r.y),Math.max(0,r.c)/maxC*100,tk(r.c),true));});
+  }
+  save();
+}
+
+function syncStatic(){
+  $('title').value=S.title||'';
+  $('growth').value=S.growth;
+  $('sampleNote').hidden=!S.sample;
+}
+function rebuild(){syncStatic();buildSectors();buildRisks();upd();}
+
+$('title').addEventListener('input',function(e){S.title=e.target.value;save();});
+$('growth').addEventListener('input',function(e){var v=parseFloat(e.target.value);S.growth=isFinite(v)?v:0;upd();});
+$('sampleOk').onclick=function(){S.sample=false;$('sampleNote').hidden=true;save();};
+$('addSec').onclick=function(){S.sectors.push({n:'নতুন খাত',inv:0,inc:0,exp:0});buildSectors();upd();};
+$('addRisk').onclick=function(){S.risks.push({r:'',s:''});buildRisks();save();};
+$('prt').onclick=function(){window.print();};
+$('rst').onclick=function(){
+  if(confirm('সব ডেটা মুছে নমুনায় ফিরবে। নিশ্চিত?')){S=clone(DEF);rebuild();}
+};
+$('exp').onclick=function(){
+  try{
+    var blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    var u=URL.createObjectURL(blob);var a=document.createElement('a');
+    a.href=u;a.download='khamarbari-invest.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},1500);
+  }catch(e){alert('এক্সপোর্ট হয়নি। অন্য ব্রাউজারে চেষ্টা করো।');}
+};
+$('imp').onclick=function(){$('file').click();};
+$('file').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{var o=JSON.parse(r.result);
+      if(!valid(o))throw new Error('bad');
+      o.sectors=o.sectors.map(function(s){return {n:String(s.n||''),inv:num(s.inv),inc:num(s.inc),exp:num(s.exp)};});
+      o.risks=o.risks.map(function(k){return {r:String(k.r||''),s:String(k.s||'')};});
+      o.title=String(o.title||'');o.growth=isFinite(parseFloat(o.growth))?parseFloat(o.growth):0;o.sample=!!o.sample;
+      S=o;rebuild();
+    }catch(err){alert('ফাইলটি ঠিক নেই। আগে এক্সপোর্ট করা ফাইল দাও।');}
+  };
+  r.readAsText(f);e.target.value='';
+});
+
+rebuild();
+})();
+</script>
+</body>
+</html>
