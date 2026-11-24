@@ -1,9 +1,107 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">  <link rel="stylesheet" href="./style.css?v=3">
-</head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>১০ বিঘা সমন্বিত খামার</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<style>
+/* Layout: full-screen 3D canvas, glass overlays: caption top-left, controls top-right, floor selector right, zone dock bottom */
+:root{--bg:#0d1a13;--panel:rgba(12,24,18,.74);--line:rgba(255,255,255,.16);--fg:#f4f7ef;--mute:#b6c6b8;--accent:#f0b84a;--leaf:#86d492;--font:'Hind Siliguri','Noto Sans Bengali','Segoe UI',system-ui,sans-serif;color-scheme:dark}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:500 14px/1.45 var(--font);overflow:hidden;position:relative;-webkit-tap-highlight-color:transparent}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#c:active{cursor:grabbing}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;font-size:12.5px;font-weight:600;padding:3px 7px;border-radius:99px;background:rgba(10,20,15,.78);border:1px solid rgba(255,255,255,.22);color:#fff;transform:translate(-50%,-100%);will-change:transform;display:flex;align-items:center;gap:0}
+.lb .ic{font-size:16px;line-height:1}
+.lb .tx{max-width:0;overflow:hidden;opacity:0;transition:max-width .25s,opacity .25s,margin .25s}
+.lb.open{padding:3px 10px 3px 7px}
+.lb.open .tx{max-width:260px;opacity:1;margin-left:6px}
+.lb b{color:var(--accent);font-weight:700;margin-left:6px}
+#stats{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+#stats span{background:rgba(255,255,255,.09);border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:13px;font-weight:600}
+#stats b{color:var(--accent);font-weight:700}
+@media (max-width:560px){#floors{bottom:128px!important}#tl{top:138px}}
+#guideBtn.on{background:#e0573a;border-color:#e0573a;color:#fff}
+#flowKey{position:absolute;left:12px;bottom:112px;display:none;flex-wrap:wrap;gap:4px 12px;padding:8px 12px;border-radius:12px;font-size:12.5px;font-weight:600;max-width:calc(100% - 180px)}
+#flowKey.show{display:flex}
+#legend.show~#flowKey.show{bottom:auto;top:12px;left:auto;right:12px;display:none}
+#cap{cursor:pointer}
+#cap p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#cap.more p{-webkit-line-clamp:unset;display:block}
+#cap .hint{font-size:11px;color:var(--accent);margin-top:2px}
+#cap{position:absolute;left:12px;top:12px;max-width:min(420px,calc(100% - 24px));padding:10px 14px 12px;border-radius:14px}
+#cap .k{font-size:11.5px;letter-spacing:.04em;color:var(--accent);font-weight:600}
+#cap h1{margin:0;font-size:19px;line-height:1.3;font-weight:700}
+#cap p{margin:4px 0 0;color:var(--mute);font-size:13.5px}
+#tl{position:absolute;right:12px;top:12px;display:flex;gap:8px;flex-direction:column;align-items:flex-end;max-width:calc(100% - 24px)}
+.btn{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:7px 13px;border-radius:99px;font-weight:600;font-size:13.5px;white-space:nowrap}
+.btn.on{background:var(--accent);color:#1b1608;border-color:var(--accent)}
+#play{min-width:96px}
+#floors{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:6px;padding:8px;border-radius:14px}
+#floors.show{display:flex}
+#floors small{color:var(--mute);font-size:11.5px;text-align:center;font-weight:600}
+#floors .btn{border-radius:10px;padding:6px 12px}
+#dock{position:absolute;left:0;right:0;bottom:0;padding:0 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
+#tm{display:flex;align-items:center;gap:10px;align-self:flex-start;padding:6px 12px;border-radius:99px;font-size:13px}
+#tm input[type=range]{width:min(190px,36vw);accent-color:var(--accent)}
+#tm output{min-width:68px;font-weight:600}
+#chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+#chips::-webkit-scrollbar{display:none}
+#chips .btn{flex:0 0 auto}
+#chips .btn{padding:6px 11px;display:flex;align-items:center}
+#chips .btn.cur{border-color:var(--accent);color:var(--accent);background:rgba(240,184,74,.18)}
+#more{display:none;flex-direction:column;gap:8px;align-items:flex-end}
+#more.show{display:flex}
+#legend{position:absolute;left:12px;bottom:112px;padding:12px 14px;border-radius:14px;display:none;width:min(370px,calc(100% - 24px));max-height:calc(100vh - 200px);overflow-y:auto}
+#legend.show{display:block}
+#legend h2{margin:0 0 6px;font-size:14px}
+#zname{font-size:12.5px;color:var(--mute);min-height:18px;margin-top:6px}
+#legend p{margin:6px 0 0;font-size:11.5px;color:var(--mute)}
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);font-size:17px;font-weight:600;transition:opacity .6s;z-index:5}
+#load.off{opacity:0;pointer-events:none}
+#recbar{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:8px 12px;border-radius:16px;max-width:calc(100% - 24px);font-weight:600}
+body.rec #cap,body.rec #tl,body.rec #floors,body.rec #dock,body.rec #legend,body.rec #labels{display:none!important}
+#c{object-position:center}
+@media (max-width:560px){#cap h1{font-size:16.5px}#cap p{font-size:12.5px}#floors{top:auto;bottom:128px;transform:none}#legend{bottom:128px}.lb{font-size:11.5px}}
+@media (prefers-reduced-motion:reduce){#load{transition:none}}
+/* সেটিংস প্যানেল, ২ডি ম্যাপ, স্কেল নোট */
+#more{max-height:calc(100vh - 150px);overflow-y:auto;width:min(300px,calc(100vw - 24px));padding:10px;border-radius:14px;gap:2px;align-items:stretch}
+#more h3{margin:2px 4px 6px;font-size:13px;color:var(--accent);letter-spacing:.03em}
+#more .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 6px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer}
+#more .row:hover{background:rgba(255,255,255,.07)}
+#more .row input{position:absolute;opacity:0;pointer-events:none}
+#more .sw{flex:0 0 auto;width:38px;height:22px;border-radius:99px;background:rgba(255,255,255,.22);position:relative;transition:background .2s}
+#more .sw::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+#more input:checked+.sw{background:var(--accent)}
+#more input:checked+.sw::after{transform:translateX(16px);background:#1b1608}
+#more input:focus-visible+.sw{outline:2px solid var(--accent);outline-offset:2px}
+#more .act{margin-top:6px;text-align:left;border-radius:10px}
+#more hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+#more small{color:var(--mute);font-size:11.5px;padding:2px 6px 0}
+#scaleNote{position:absolute;right:12px;bottom:112px;padding:6px 12px;border-radius:12px;font-size:12px;font-weight:600;max-width:min(330px,calc(100% - 24px));color:var(--mute)}
+#scaleNote b{color:var(--accent)}
+@media (max-width:560px){#scaleNote{bottom:auto;top:auto;right:12px;bottom:170px;font-size:11px}}
+body.rec #scaleNote,body.rec #toast{display:none!important}
+#toast{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;z-index:6;max-width:calc(100% - 24px);text-align:center}
+.plan{position:fixed;inset:0;z-index:20;overflow:auto;background:var(--bg);color:var(--fg);padding:14px 14px 40px;font:500 14px/1.5 var(--font)}
+.plan .planhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.plan h1{font-size:19px;margin:0}
+.plan .plannote{color:var(--mute);font-size:13px;margin:10px 0}
+.ptab{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+.ptab th,.ptab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+.ptab th{color:var(--accent);font-weight:700;font-size:12.5px}
+.ptab .tot td{font-weight:700;border-top:2px solid var(--line);color:var(--accent)}
+.ptab i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px}
+#legend table{width:100%;border-collapse:collapse;margin-top:4px;font-size:12.5px}
+#legend td,#legend th{padding:3px 4px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}
+#legend th{color:var(--accent);font-size:11.5px}
+#legend td:nth-child(n+2),#legend th:nth-child(n+2){text-align:right;white-space:nowrap}
+#legend tr.zr{cursor:pointer}
+#legend tr.tot td{font-weight:700;color:var(--accent);border-top:1px solid var(--line)}
+#legend .sq{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+</style>
 <canvas id="c" aria-label="১০ বিঘা সমন্বিত খামারের ৩ডি দৃশ্য"></canvas>
 <div id="labels"></div>
 <div id="cap" class="glass"><div class="k" id="capk"></div><h1 id="capt">১০ বিঘা সমন্বিত খামার</h1><p id="capp"></p><div id="stats"><span>🐄 <b data-n="100">০</b> গরু</span><span>🐐 <b data-n="200">০</b> ছাগল</span><span>🐔 <b data-n="10000">০</b> মুরগি</span><span>🐟 <b data-n="3.5">০</b> বিঘা পুকুর</span></div></div>
@@ -29,23 +127,1329 @@
 </div>
 <div id="recbar" class="glass" hidden><span id="recmsg"></span><button class="btn on" id="recgo" type="button" hidden></button><button class="btn" id="reccancel" type="button">বাতিল</button></div>
 <div id="load">খামার সাজানো হচ্ছে…</div>
-<script src="./js/boot.js?v=3"></script>
-<script src="./js/scene.js?v=4"></script>
+<script>
+/* ===== সাধারণ সহায়ক (থ্রিডি ছাড়াই চলে) ===== */
+window.bn=function(n){return String(n).replace(/\d/g,function(d){return '০১২৩৪৫৬৭৮৯'[d];});};
+window.fmtN=function(n){return window.bn(Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','));};
+window.el=function(tag,props,kids){var e=document.createElement(tag);if(props)for(var k in props){if(k==='text')e.textContent=props[k];else if(k==='cls')e.className=props[k];else e.setAttribute(k,props[k]);}(kids||[]).forEach(function(c){if(c)e.appendChild(typeof c==='string'?document.createTextNode(c):c);});return e;};
+window.store={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+
+/* ===== খামারের মাপ ও জমির হিসাব: ১ ইউনিট = ১ মিটার ===== */
+window.FARM=(function(){
+ var W={x0:-80,x1:80,z0:-48,z1:42},GX=46,BIGHA=1440;            // ১৬০ মি × ৯০ মি = ১৪,৪০০ বর্গমিটার = ১০ বিঘা
+ var P={cx:-42,cz:-13.2,a:37.3,b:34.5,n:8};                      // পুকুরের আকার: গোল-কোণা আয়তক্ষেত্র
+ function pt(t,sc){var c=Math.cos(t),s=Math.sin(t);return [P.cx+(c<0?-1:1)*Math.pow(Math.abs(c),2/P.n)*P.a*sc,P.cz+(s<0?-1:1)*Math.pow(Math.abs(s),2/P.n)*P.b*sc];}
+ function outline(N,sc){var o=[];for(var i=0;i<N;i++)o.push(pt(i/N*Math.PI*2,sc||1));return o;}
+ function area(p){var A=0;for(var i=0;i<p.length;i++){var q=p[(i+1)%p.length];A+=p[i][0]*q[1]-q[0]*p[i][1];}return Math.abs(A)/2;}
+ P.b=P.b*(3.5*BIGHA)/area(outline(1440,1));                       // পুকুর ঠিক ৩.৫ বিঘা হওয়ার মতো করে মেলানো
+ var MANGO={x0:-3.65,x1:14.81,z0:-48,z1:30},NAPIER={x0:14.81,x1:42.5,z0:-48,z1:30};
+ var ra=function(r){return (r.x1-r.x0)*(r.z1-r.z0);};
+ var rows=[
+  {k:'pond',n:'পুকুর (জলাশয়)',bigha:3.5,c:'#3aa0b8',drawn:area(outline(1440,1))},
+  {k:'grass',n:'ঘাস চাষের জমি (নেপিয়ার)',bigha:1.5,c:'#8aa84a',drawn:ra(NAPIER)},
+  {k:'mango',n:'হিমসাগর আম বাগান',bigha:1.0,c:'#5a9a45',drawn:ra(MANGO)},
+  {k:'live',n:'গরু, ছাগল ও মুরগির খামার',bigha:1.3,c:'#c9955a'},
+  {k:'mill',n:'তেল ও ঘিয়ের মিল ও উঠান',bigha:0.6,c:'#d9a23a'},
+  {k:'house',n:'ডুপ্লেক্স, অফিস ও গোডাউন',bigha:1.2,c:'#e0b84a'},
+  {k:'gate',n:'প্রবেশপথ, সড়ক ও সবুজায়ন',bigha:0.9,c:'#9a9a94'}];
+ rows.forEach(function(r){r.m2=r.bigha*BIGHA;});
+ return {W:W,GX:GX,BIGHA:BIGHA,POND:P,pondPt:pt,pondOutline:outline,MANGO:MANGO,NAPIER:NAPIER,rows:rows,
+  totalBigha:rows.reduce(function(s,r){return s+r.bigha;},0),totalM2:(W.x1-W.x0)*(W.z1-W.z0),
+  COW:100,GOAT:200,HEN:10000};
+})();
+
+/* ===== ২ডি ম্যাপ ও হিসাব: থ্রিডি না চললে বা নেট না থাকলে এটাই দেখায় ===== */
+window.showPlan2D=function(note){
+ var F=window.FARM,W=F.W,old=document.getElementById('plan2d');if(old)old.remove();
+ var root=el('div',{id:'plan2d',cls:'plan'});
+ var ok=!!window.__3dOk;
+ var btn=el('button',{type:'button',cls:'btn on',text:ok?'← ৩ডি দৃশ্যে ফিরুন':'↻ আবার চেষ্টা করুন'});
+ btn.addEventListener('click',function(){if(ok)root.remove();else location.reload();});
+ root.appendChild(el('div',{cls:'planhead'},[el('h1',{text:'১০ বিঘা সমন্বিত খামার: ২ডি ম্যাপ ও হিসাব'}),btn]));
+ if(note)root.appendChild(el('p',{cls:'plannote',text:note}));
+ var NS='http://www.w3.org/2000/svg',pad=5;
+ var svg=document.createElementNS(NS,'svg');
+ svg.setAttribute('viewBox',(W.x0-pad)+' '+(W.z0-pad)+' '+(W.x1-W.x0+2*pad)+' '+(W.z1-W.z0+2*pad+9));
+ svg.setAttribute('role','img');svg.setAttribute('aria-label','খামারের ২ডি ম্যাপ। ১ ইউনিট = ১ মিটার');
+ function S(tag,a){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+ function R(x0,x1,z0,z1,fill,op,stroke){return S('rect',{x:x0,y:z0,width:x1-x0,height:z1-z0,fill:fill,opacity:op||1,stroke:stroke||'none','stroke-width':0.35,rx:0.6});}
+ function T(x,z,s,size,fill){var t=S('text',{x:x,y:z,'font-size':size||3,fill:fill||'#fff','text-anchor':'middle','font-family':'Hind Siliguri,Noto Sans Bengali,sans-serif','font-weight':600});t.textContent=s;return t;}
+ R(W.x0,W.x1,W.z0,W.z1,'#86b35a');
+ var po=F.pondOutline(240,1).map(function(p){return p[0].toFixed(2)+','+p[1].toFixed(2);}).join(' ');
+ S('polygon',{points:po,fill:'#2a86c9',stroke:'#9cc468','stroke-width':0.7});
+ R(F.MANGO.x0,F.MANGO.x1,F.MANGO.z0,F.MANGO.z1,'#5a9a45',0.95,'#2d6a2b');
+ R(F.NAPIER.x0,F.NAPIER.x1,F.NAPIER.z0,F.NAPIER.z1,'#8aa84a',0.95,'#5d7a2a');
+ R(F.GX-3.5,F.GX+3.5,W.z0,W.z1+14,'#8e8b84');R(F.GX+3.5,W.x1,9,12,'#8e8b84');
+ R(54,78,18,36,'#d9a23a',1,'#7a4b12');R(54,78,-15,8,'#c9955a',1,'#7a4b12');R(53,79,-30,-18,'#a4b88a',1,'#4a5d3a');R(54,76,-46,-33,'#b89a7a',1,'#5a4630');
+ R(-76,-40,23,39,'#e0b84a',1,'#7a5a1a');R(-34,-6,22.5,30.5,'#bdb7a8',1,'#6b6a64');
+ S('circle',{cx:-30,cy:5,r:3.6,fill:'#c9a35a',stroke:'#7a5a3a','stroke-width':0.4});
+ S('rect',{x:W.x0,y:W.z0,width:W.x1-W.x0,height:W.z1-W.z0,fill:'none',stroke:'#8a3a28','stroke-width':1.1});
+ S('line',{x1:W.x0,y1:W.z1,x2:W.x1,y2:W.z1,stroke:'#f0b84a','stroke-width':0.4,'stroke-dasharray':'2 2'});
+ R(F.GX-5,F.GX+5,W.z1-0.7,W.z1+0.7,'#86b35a');
+ T(-42,-14,'পুকুর ৩.৫ বিঘা',4.2);T(-42,-9,'১ ইউনিট = ১ মিটার',2.8,'#d8ecf7');
+ T((F.MANGO.x0+F.MANGO.x1)/2,-8,'আম',3.6);T((F.MANGO.x0+F.MANGO.x1)/2,-4,'১ বিঘা',2.8);
+ T((F.NAPIER.x0+F.NAPIER.x1)/2,-8,'নেপিয়ার ঘাস',3.4);T((F.NAPIER.x0+F.NAPIER.x1)/2,-4,'১.৫ বিঘা',2.8);
+ T(66,-3,'গরু ১০০',3.4);T(66,1,'৫ লাইন × ২০',2.5);
+ T(66,-23,'ছাগল ২০০',3.4);T(66,-19.6,'৪ লাইন × ৫০',2.4);
+ T(65,-40.5,'মুরগি ১০,০০০',3.2);T(65,-37,'৪ তলা',2.6);
+ T(66,27,'সরিষা, নারিকেল তেল ও ঘি',2.9,'#3a2208');
+ T(-58,31,'ডুপ্লেক্স, অফিস, গোডাউন',2.9,'#3a2a08');T(-20,27,'পার্কিং',2.7,'#33322e');
+ T(-30,6,'গোল ঘর',2.2,'#3a2a08');T(F.GX,W.z1+5.5,'প্রধান ফটক',3);
+ S('line',{x1:W.x0,y1:W.z1+9,x2:W.x0+10,y2:W.z1+9,stroke:'#fff','stroke-width':0.8});T(W.x0+5,W.z1+7.6,'১০ মি',2.6);
+ T(0,W.z1+7.6,'জমি ১৬০ মি × ৯০ মি = ১৪,৪০০ বর্গমিটার (১০ বিঘা)',3);
+ svg.style.width='100%';svg.style.height='auto';svg.style.background='#0d1a13';svg.style.borderRadius='12px';
+ root.appendChild(svg);
+ /* জমির হিসাব টেবিল */
+ var tb=el('table',{cls:'ptab'}),th=el('tr',null,['অংশ','বিঘা','বর্গমিটার','শতাংশ','মডেলে আঁকা (বর্গমিটার)'].map(function(h){return el('th',{text:h});}));
+ tb.appendChild(el('thead',null,[th]));var body=el('tbody');
+ F.rows.forEach(function(r){var sw=el('i');sw.style.background=r.c;
+  body.appendChild(el('tr',null,[el('td',null,[sw,' '+r.n]),el('td',{text:bn(r.bigha.toFixed(2))}),el('td',{text:fmtN(r.m2)}),el('td',{text:bn((r.m2/F.totalM2*100).toFixed(1))+'%'}),el('td',{text:r.drawn?'≈ '+fmtN(r.drawn):'—'})]));});
+ body.appendChild(el('tr',{cls:'tot'},[el('td',{text:'মোট'}),el('td',{text:bn(F.totalBigha.toFixed(2))}),el('td',{text:fmtN(F.totalM2)}),el('td',{text:'১০০.০%'}),el('td',{text:'—'})]));
+ tb.appendChild(body);root.appendChild(tb);
+ root.appendChild(el('p',{cls:'plannote',text:'হিসাব: ১ বিঘা = ১,৪৪০ বর্গমিটার ধরা হয়েছে, তাই ১০ বিঘা = ১৪,৪০০ বর্গমিটার। স্কেল: ১ ইউনিট = ১ মিটার। জমির মাপ ১৬০ মি × ৯০ মি = ১৪,৪০০ বর্গমিটার। শেষ কলামে ৩ডি মডেলে আসলে যতটুকু জায়গা আঁকা আছে তার হিসাব।'}));
+ var tb2=el('table',{cls:'ptab'});tb2.appendChild(el('thead',null,[el('tr',null,['প্রাণী ও পাখি','সংখ্যা','সাজানোর ধরন'].map(function(h){return el('th',{text:h});}))]));
+ var b2=el('tbody');[['গরু','১০০','৫টি লাইন, প্রতি লাইনে ২০টি'],['ছাগল','২০০','৪টি লাইন, প্রতি লাইনে ৫০টি'],['ডিম পাড়া লেয়ার মুরগি','১০,০০০','৪ তলা বিল্ডিং, প্রতি তলায় ২,৫০০টি, খাঁচার থাকে থাকে'],['তেলের মিল','৩ পণ্য','সরিষার তেল, নারিকেল তেল ও ঘি']].forEach(function(r){b2.appendChild(el('tr',null,r.map(function(c){return el('td',{text:c});})));});
+ tb2.appendChild(b2);root.appendChild(tb2);
+ document.body.appendChild(root);
+};
+
+/* ===== থ্রিডি লাইব্রেরি: একটা সার্ভার না চললে পরেরটা চেষ্টা করে। i = Integrity হ্যাশ (ফাইল বদলানো থাকলে ব্রাউজার চালাবেই না) ===== */
+window.THREE_SRC=[
+ {u:'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',i:'__SRI_CDNJS__'},
+ {u:'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'},
+ {u:'https://unpkg.com/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'}];
+window.loadThree=function(){return new Promise(function(res,rej){var i=0,round=0;
+ (function next(){if(window.THREE)return res();if(i>=window.THREE_SRC.length){if(round<1){round++;i=0;setTimeout(next,900);return;}return rej(new Error('three.js লোড হয়নি'));}
+  var src=window.THREE_SRC[i++],s=document.createElement('script'),done=false;
+  var tm=setTimeout(function(){if(done)return;done=true;s.remove();next();},10000);
+  s.src=src.u;if(src.i&&src.i.indexOf('__')!==0)s.integrity=src.i;s.crossOrigin='anonymous';
+  s.onload=function(){if(done)return;done=true;clearTimeout(tm);window.THREE?res():next();};
+  s.onerror=function(){if(done)return;done=true;clearTimeout(tm);next();};
+  document.head.appendChild(s);})();});};
+/* এরর দেখানো: শুধু textContent, innerHTML নয় */
+window.showLoadErr=function(msg){var l=document.getElementById('load');if(l)l.classList.add('off');window.showPlan2D(msg);};
+window.__retrying3D=false;
+window.clear3DRetryFlag=function(){try{var u=new URL(location.href);if(u.searchParams.has('kb3d_retry')){u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}}catch(e){}};
+window.retry3DStart=function(msg){if(window.__retrying3D)return;window.__retrying3D=true;try{var u=new URL(location.href);if(u.searchParams.get('kb3d_retry')!=='1'){u.searchParams.set('kb3d_retry','1');location.replace(u.href);return;}u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}catch(e){}window.showLoadErr(msg);};
+window.addEventListener('error',function(e){var l=document.getElementById('load');if(l&&!l.classList.contains('off')&&!window.__3dOk)window.retry3DStart('সমস্যা: '+(e.message||'অজানা ত্রুটি')+'। ৩ডি চালু করা যায়নি; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');});
+/* মোবাইল/কম ক্ষমতার ফোন চেনা: শুরুতেই লাইট মোড */
+window.LITE_WEAK=(function(){try{return (navigator.hardwareConcurrency||8)<=2||(navigator.deviceMemory||8)<=2;}catch(e){return false;}})();
+window.LITE0=(function(){var s=window.store.get('khamar.settings',{});if(typeof s.lite==='boolean')return s.lite;
+ try{var cores=navigator.hardwareConcurrency||8,mem=navigator.deviceMemory||8,coarse=window.matchMedia&&matchMedia('(pointer:coarse)').matches,small=Math.min(screen.width,screen.height)<700;
+  return (coarse&&small)||cores<=4||mem<=3;}catch(e){return false;}})();
+</script>
+<script>
+function boot(){
+'use strict';
+const T=THREE, PI=Math.PI;
+const canvas=document.getElementById('c');
+const renderer=new T.WebGLRenderer({canvas,antialias:!window.LITE_WEAK,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.LITE0?1.25:2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=window.LITE0?T.BasicShadowMap:T.PCFSoftShadowMap;
+const scene=new T.Scene();
+const camera=new T.PerspectiveCamera(50,1,0.5,1400);
+const timeU={value:0};const waterDay={value:1};
+const updaters=[];
+let seed=11; const rand=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
+const R=(a,b)=>a+rand()*(b-a);
+const pick=a=>a[Math.floor(rand()*a.length)];
+const FM=window.FARM,W=FM.W,POND=FM.POND,PN=POND.n,LITE=window.LITE0;
+const GX=FM.GX, MAIN_Z=70;
+const pondD=(x,z)=>Math.pow(Math.abs(x-POND.cx)/POND.a,PN)+Math.pow(Math.abs(z-POND.cz)/POND.b,PN);
+const sqP=(t,sc)=>{const c=Math.cos(t),s=Math.sin(t);return [(c<0?-1:1)*Math.pow(Math.abs(c),2/PN)*sc,(s<0?-1:1)*Math.pow(Math.abs(s),2/PN)*sc];};
+const mats={};
+const M=c=>mats[c]||(mats[c]=new T.MeshLambertMaterial({color:c}));
+const glow=[]; // night-emissive materials
+const nightOpa=[];
+function glowMat(c,e){const m=new T.MeshLambertMaterial({color:c,emissive:e,emissiveIntensity:0});glow.push(m);return m;}
+function bx(w,h,d,c,x,y0,z,p,sh){const m=new T.Mesh(new T.BoxGeometry(w,h,d),typeof c==='number'?M(c):c);m.position.set(x,y0+h/2,z);m.castShadow=sh!==false;m.receiveShadow=true;if(p)p.add(m);return m;}
+function cyl(r0,r1,h,c,x,y0,z,p,seg){const m=new T.Mesh(new T.CylinderGeometry(r1,r0,h,seg||12),typeof c==='number'?M(c):c);m.position.set(x,y0+h/2,z);m.castShadow=true;m.receiveShadow=true;if(p)p.add(m);return m;}
+function slab(x0,x1,z0,z1,y,h,c){const m=new T.Mesh(new T.BoxGeometry(x1-x0,h,z1-z0),M(c));m.position.set((x0+x1)/2,y+h/2,(z0+z1)/2);m.receiveShadow=true;scene.add(m);return m;}
+const mx=(x,y,z,rx,ry,rz,sx,sy,sz)=>{const m=new T.Matrix4();m.compose(new T.Vector3(x,y,z),new T.Quaternion().setFromEuler(new T.Euler(rx||0,ry||0,rz||0)),new T.Vector3(sx===undefined?1:sx,sy===undefined?(sx===undefined?1:sx):sy,sz===undefined?(sx===undefined?1:sx):sz));return m;};
+function Merger(){this.p=[];this.n=[];this.c=[];}
+Merger.prototype.add=function(geo,color,m4){
+  const g=geo.index?geo.toNonIndexed():geo.clone(); if(m4)g.applyMatrix4(m4); g.computeVertexNormals();
+  const a=g.attributes.position.array,b=g.attributes.normal.array,col=new T.Color(color),n=a.length/3;
+  for(let i=0;i<a.length;i++){this.p.push(a[i]);this.n.push(b[i]);}
+  for(let i=0;i<n;i++)this.c.push(col.r,col.g,col.b);
+  g.dispose();return this;};
+Merger.prototype.build=function(){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(this.p,3));g.setAttribute('normal',new T.Float32BufferAttribute(this.n,3));g.setAttribute('color',new T.Float32BufferAttribute(this.c,3));return g;};
+const VC=new T.MeshLambertMaterial({vertexColors:true});
+const VC2=new T.MeshLambertMaterial({vertexColors:true,side:T.DoubleSide});
+function vmesh(mg,mat,shadow){const m=new T.Mesh(mg.build?mg.build():mg,mat||VC);m.castShadow=shadow!==false;m.receiveShadow=true;return m;}
+// ---- রিয়েলিস্টিক আকৃতি বানানোর সহায়ক: মসৃণ নরমাল, ডিম্বাকার, সরু হওয়া ডাল/পা ----
+Merger.prototype.addS=function(geo,color,m4){
+  const g=geo.index?geo.toNonIndexed():geo.clone(); if(m4)g.applyMatrix4(m4);
+  const a=g.attributes.position.array,b=g.attributes.normal.array,col=new T.Color(color),n=a.length/3;
+  for(let i=0;i<a.length;i++){this.p.push(a[i]);this.n.push(b[i]);}
+  for(let i=0;i<n;i++)this.c.push(col.r,col.g,col.b);
+  g.dispose();return this;};
+Merger.prototype.tri=function(color,a,b,c){
+  const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
+  let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;const l=Math.hypot(nx,ny,nz)||1;nx/=l;ny/=l;nz/=l;
+  const col=new T.Color(color);[a,b,c].forEach(p=>{this.p.push(p[0],p[1],p[2]);this.n.push(nx,ny,nz);this.c.push(col.r,col.g,col.b);});return this;};
+const SPH_C={};
+const SPH=()=>{const k=LITE?'l':'h';return SPH_C[k]||(SPH_C[k]=LITE?new T.SphereGeometry(1,6,4):new T.SphereGeometry(1,10,7));};
+const CYL_C={};
+const CYLG=(seg)=>CYL_C[seg]||(CYL_C[seg]=new T.CylinderGeometry(1,1,1,seg,1,false));
+const UPV=new T.Vector3(0,1,0);
+// ডিম্বাকার অংশ: কেন্দ্র (x,y,z), ব্যাসার্ধ (rx,ry,rz), ঘূর্ণন (ex,ey,ez)
+function ell(m,color,x,y,z,rx,ry,rz,ex,ey,ez){m.addS(SPH(),color,mx(x,y,z,ex||0,ey||0,ez||0,rx,ry,rz));return m;}
+// দুই বিন্দুর মাঝে সরু হয়ে যাওয়া নল (গাছের গুঁড়ি, পা, হাত)
+function limb(m,color,x0,y0,z0,x1,y1,z1,r0,r1,seg){
+  const d=new T.Vector3(x1-x0,y1-y0,z1-z0),L=d.length()||0.001;d.normalize();
+  const q=new T.Quaternion().setFromUnitVectors(UPV,d);
+  const g=CylinderGeo(r1,r0,seg||6);
+  const M4=new T.Matrix4().compose(new T.Vector3((x0+x1)/2,(y0+y1)/2,(z0+z1)/2),q,new T.Vector3(1,L,1));
+  m.addS(g,color,M4);return m;}
+const CG_C={};
+function CylinderGeo(rt,rb,seg){const k=rt.toFixed(3)+'_'+rb.toFixed(3)+'_'+seg;return CG_C[k]||(CG_C[k]=new T.CylinderGeometry(rt,rb,1,seg,1,false));}
+
+// wind material
+function swayMat(kind,p){
+  const m=new T.MeshLambertMaterial({vertexColors:true,side:T.DoubleSide});m.userData.sway=true;
+  const body={
+    crown:'float w=clamp((position.y-uY)/3.0,0.0,1.0);float r=length(position.xz-uC);transformed.y+=sin(uTime*1.7+ph+r*0.8)*uA*(0.3+r*0.25)*w;transformed.x+=sin(uTime*1.1+ph)*uA*0.45*w;',
+    h:'float w=max(position.y-uY,0.0);transformed.x+=sin(uTime*1.5+ph+position.y*0.6)*uA*w;transformed.z+=cos(uTime*1.2+ph)*uA*0.5*w;',
+    flat:'float w=clamp((position.y-uY)/2.0,0.0,1.0);transformed.x+=sin(uTime*1.3+ph)*uA*w;transformed.z+=cos(uTime*1.0+ph*1.3)*uA*0.7*w;transformed.y+=sin(uTime*1.9+ph)*uA*0.25*w;'
+  }[kind];
+  m.onBeforeCompile=s=>{
+    s.uniforms.uTime=timeU;s.uniforms.uA={value:p.amp};s.uniforms.uY={value:p.y0||0};s.uniforms.uC={value:new T.Vector2(p.cx||0,p.cz||0)};
+    s.vertexShader='uniform float uTime;uniform float uA;uniform float uY;uniform vec2 uC;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nfloat ph=instanceMatrix[3].x*0.37+instanceMatrix[3].z*0.23;\n#else\nfloat ph=modelMatrix[3].x*0.37+modelMatrix[3].z*0.23;\n#endif\n'+body);
+  };
+  m.customProgramCacheKey=()=>'sw'+kind;
+  return m;
+}
+function inst(geo,mat,list){
+  const im=new T.InstancedMesh(geo,mat,list.length);
+  list.forEach((o,i)=>im.setMatrixAt(i,mx(o.x,o.y||0,o.z,0,o.ry||0,0,o.s||1,o.sy||o.s||1,o.s||1)));
+  im.instanceMatrix.needsUpdate=true;im.castShadow=true;im.receiveShadow=!(mat&&mat.userData&&mat.userData.sway);im.frustumCulled=false;scene.add(im);return im;}
+
+// ---------- lights & sky ----------
+const hemi=new T.HemisphereLight(0xcfe6ff,0x6d8a4c,0.95);scene.add(hemi);
+const sun=new T.DirectionalLight(0xfff0d4,1.0);sun.castShadow=true;sun.shadow.mapSize.set(window.LITE0?1024:2048,window.LITE0?1024:2048);
+{const s=sun.shadow.camera;s.left=-135;s.right=135;s.top=115;s.bottom=-115;s.near=10;s.far=600;sun.shadow.bias=-0.0008;sun.shadow.normalBias=0.6;}
+scene.add(sun,sun.target);sun.target.position.set(0,0,0);
+const moon=new T.DirectionalLight(0x8fa8ff,0);scene.add(moon);
+const skyU={top:{value:new T.Color(0x4a90d9)},bot:{value:new T.Color(0xcfe6f5)}};
+const sky=new T.Mesh(new T.SphereGeometry(1000,24,16),new T.ShaderMaterial({uniforms:skyU,side:T.BackSide,depthWrite:false,fog:false,
+  vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform vec3 top;uniform vec3 bot;varying vec3 vP;void main(){float h=clamp(normalize(vP).y,0.0,1.0);gl_FragColor=vec4(mix(bot,top,pow(h,0.55)),1.0);}'}));
+sky.renderOrder=-1;scene.add(sky);
+scene.fog=new T.Fog(0xcfe6f5,260,900);
+// stars
+const stars=(()=>{const a=[];for(let i=0;i<500;i++){const u=rand()*PI*2,v=rand()*0.95+0.05;const r=900;a.push(Math.cos(u)*Math.sqrt(1-v*v)*r,v*r,Math.sin(u)*Math.sqrt(1-v*v)*r);}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(a,3));const p=new T.Points(g,new T.PointsMaterial({color:0xffffff,size:2.2,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false}));scene.add(p);return p;})();
+const lampLights=[];
+let nightF=0, dayF=1;
+const cDay=new T.Color(0x4a90d9),cNight=new T.Color(0x040916),bDay=new T.Color(0xcfe6f5),bNight=new T.Color(0x0c1530),cDusk=new T.Color(0xff9a58),tmp=new T.Color();
+function setTime(h){
+  const s=(h-6)/12*PI, e=Math.sin(s);
+  sun.position.set(Math.round(Math.cos(s)*170/2)*2,Math.round((Math.max(e,0.02)*190+6)/2)*2,70);
+  dayF=Math.min(1,Math.max(0,(e+0.05)/0.3)); nightF=1-dayF; waterDay.value=dayF;
+  skyU.top.value.copy(cNight).lerp(cDay,dayF);
+  const g=Math.max(0,1-Math.abs(e)/0.32)*(e>-0.25?1:0);
+  skyU.bot.value.copy(bNight).lerp(bDay,dayF).lerp(cDusk,g*0.65);
+  scene.fog.color.copy(skyU.bot.value);
+  sun.intensity=1.1*dayF*(0.55+0.45*Math.min(1,e*2));
+  sun.color.setHex(0xffffff).lerp(new T.Color(0xffb870),Math.max(0,1-e*3)*0.8);
+  hemi.intensity=0.22+0.78*dayF; hemi.color.copy(skyU.top.value).lerp(new T.Color(0xffffff),0.5);
+  moon.intensity=0.45*nightF; moon.position.set(-80,160,-60);
+  stars.material.opacity=nightF;
+  glow.forEach(m=>m.emissiveIntensity=nightF*1.15);
+  nightOpa.forEach(o=>{o.m.opacity=o.k*nightF;o.m.visible=nightF>0.02;});
+  lampLights.forEach(l=>l.intensity=nightF*1.4);
+}
+// ---------- ground ----------
+function sqDisc(s0,s1,rad,ang,y){const pos=[],idx=[];
+ for(let i=0;i<=rad;i++){const s=s0+(s1-s0)*i/rad;for(let j=0;j<=ang;j++){const q=sqP(j/ang*PI*2,s);pos.push(q[0],y,q[1]);}}
+ for(let i=0;i<rad;i++)for(let j=0;j<ang;j++){const a=i*(ang+1)+j,b=a+ang+1;idx.push(a,a+1,b,a+1,b+1,b);}
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g;}
+function sqBowl(){const prof=[[1,0],[0.95,-0.6],[0.72,-1.4],[0.3,-1.9],[0.001,-2.0]],ang=96,pos=[],idx=[];
+ prof.forEach(p=>{for(let j=0;j<=ang;j++){const q=sqP(j/ang*PI*2,p[0]);pos.push(q[0],p[1],q[1]);}});
+ for(let k=0;k<prof.length-1;k++)for(let j=0;j<ang;j++){const a=k*(ang+1)+j,b=a+ang+1;idx.push(a,b,a+1,a+1,b,b+1);}
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g;}
+const outer=new T.Mesh(new T.PlaneGeometry(3000,3000).rotateX(-PI/2),M(0xa3bd6b));outer.position.y=-0.1;outer.receiveShadow=true;scene.add(outer);
+{const sh=new T.Shape();sh.moveTo(W.x0,-W.z1);sh.lineTo(W.x1,-W.z1);sh.lineTo(W.x1,-W.z0);sh.lineTo(W.x0,-W.z0);sh.closePath();
+ const hole=new T.Path();for(let i=0;i<=128;i++){const q=sqP(i/128*PI*2,1),x=POND.cx+q[0]*POND.a,y=-(POND.cz+q[1]*POND.b);i?hole.lineTo(x,y):hole.moveTo(x,y);}sh.holes.push(hole);
+ const land=new T.Mesh(new T.ShapeGeometry(sh).rotateX(-PI/2),M(0x86b35a));land.receiveShadow=true;scene.add(land);
+ const bowl=new T.Mesh(sqBowl(),new T.MeshLambertMaterial({color:0x5b4a34,side:T.DoubleSide}));bowl.scale.set(POND.a,1,POND.b);bowl.position.set(POND.cx,0,POND.cz);bowl.receiveShadow=true;scene.add(bowl);
+ const wg=sqDisc(0.02,1,48,96,0);
+ const wm=new T.MeshLambertMaterial({color:0x1f78c8,transparent:true,opacity:0.93});
+ wm.onBeforeCompile=s=>{s.uniforms.uTime=timeU;s.uniforms.uDay=waterDay;
+  s.vertexShader='uniform float uTime;varying float vUr;varying float vH;varying vec2 vUp;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvUp=position.xz;vUr=length(position.xz);\nfloat wv=sin(dot(position.xz,vec2(1.0,0.45))*34.0-uTime*1.9)*0.55+sin(dot(position.xz,vec2(-0.35,1.0))*47.0-uTime*2.4)*0.3+sin(dot(position.xz,vec2(0.8,-0.6))*21.0+uTime*1.3)*0.45;\nfloat edgeK=1.0-smoothstep(0.82,1.0,vUr)*0.7;\ntransformed.y+=wv*0.1*edgeK;vH=wv;');
+  s.fragmentShader='uniform float uTime;uniform float uDay;varying float vUr;varying float vH;varying vec2 vUp;\n'+s.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\nvec3 deepC=vec3(0.03,0.22,0.55);vec3 shalC=vec3(0.18,0.62,0.88);\nvec3 wc=mix(deepC,shalC,smoothstep(0.15,1.0,vUr));\nwc+=vH*0.045;\nfloat spk=pow(max(0.0,sin(vUp.x*170.0+uTime*2.1)*sin(vUp.y*150.0-uTime*1.7)),16.0);\nwc+=vec3(spk)*(0.25+0.9*uDay);\nfloat ang=atan(vUp.y,vUp.x);\nfloat fm=smoothstep(0.94,0.995,vUr+0.012*sin(ang*70.0+uTime*2.2)+0.01*vH);\nwc=mix(wc,vec3(0.95,0.98,1.0),fm*0.75);\ndiffuseColor.rgb=wc;');};
+ wm.customProgramCacheKey=()=>'water2';
+ const water=new T.Mesh(wg,wm);water.scale.set(POND.a*0.995,1,POND.b*0.995);water.position.set(POND.cx,-0.14,POND.cz);water.receiveShadow=true;scene.add(water);
+ const bank=new T.Mesh(sqDisc(0.995,1.03,2,96,0),M(0x9cc468));bank.scale.set(POND.a,1,POND.b);bank.position.set(POND.cx,0.03,POND.cz);bank.receiveShadow=true;scene.add(bank);
+ scene.userData.water=water;}
+// zones: orchard, napier field, lawns, yards
+slab(FM.MANGO.x0,FM.MANGO.x1,FM.MANGO.z0,FM.MANGO.z1,0,0.03,0x78a84e);          // আম বাগান ১ বিঘা
+slab(FM.NAPIER.x0,FM.NAPIER.x1,FM.NAPIER.z0,FM.NAPIER.z1,0.01,0.03,0x8a6f43);       // ঘাস চাষের জমি ১.৫ বিঘা (মাটি)
+slab(-80,44,30,42,0,0.03,0x7fb957);           // বাড়ির লন
+slab(-80,-4,21,30,0,0.03,0x7fb957);
+slab(50,80,10,42,0,0.04,0xc9c0ab);           // মাড়াই ঘরের উঠান
+slab(50,80,-48,10,0,0.04,0xa89a7c);          // খামারের উঠান
+// roads
+slab(-600,600,MAIN_Z-7,MAIN_Z+7,0,0.05,0xc9b88e);
+slab(-600,600,MAIN_Z-5,MAIN_Z+5,0.05,0.04,0x3a3e44);
+{const d=[];for(let x=-590;x<590;x+=9)d.push({x,y:0.095,z:MAIN_Z});inst(new T.BoxGeometry(4,0.02,0.35),M(0xeadf9a),d).castShadow=false;}
+slab(GX-3.5,GX+3.5,-47.5,MAIN_Z-5,0,0.06,0x8e8b84);
+slab(GX+3.5,80,9,12,0,0.06,0x8e8b84);
+slab(-34,-6,22.5,30.5,0,0.05,0xbdb7a8);slab(-42,GX+3.5,31,37,0,0.06,0x8e8b84);        // পার্কিং
+        // বাড়ির পথ
+
+// footpath markers along internal roads
+{const d=[];for(let z=-38;z<64;z+=6)d.push({x:GX,y:0.07,z});inst(new T.BoxGeometry(0.25,0.02,2.2),M(0xf1efe6),d).castShadow=false;}
+// ---- বাউন্ডারি: চারপাশে ইটের পাঁচিল, ওপরে কনসার্টিনা কাঁটাতার, তার ওপরে সিকিউরিটি লাইট ----
+const wallG=new T.Group();scene.add(wallG);
+function buildWalls(){
+  const H=2.4,TH=0.5;
+  const cv=document.createElement('canvas');cv.width=128;cv.height=128;const q=cv.getContext('2d');
+  q.fillStyle='#d9cdb8';q.fillRect(0,0,128,128);
+  for(let r=0;r<8;r++){const y=r*16,off=(r%2)*16;for(let c=-1;c<4;c++){q.fillStyle=['#b4563a','#a84d33','#bf6140','#a14a30'][(r*3+c+8)%4];q.fillRect(c*32+off+1.5,y+1.5,29,13);}}
+  const baseTex=new T.CanvasTexture(cv);baseTex.wrapS=baseTex.wrapT=T.RepeatWrapping;baseTex.anisotropy=4;
+  const matFor=len=>{const t=baseTex.clone();t.needsUpdate=true;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(len/1.0,H/0.6);return new T.MeshLambertMaterial({map:t});};
+  const runs=[[W.x0,GX-5,W.z1,W.z1],[GX+5,W.x1,W.z1,W.z1],[W.x0,W.x1,W.z0,W.z0],[W.x0,W.x0,W.z0,W.z1],[W.x1,W.x1,W.z0,W.z1]];
+  runs.forEach(r=>{const L=Math.max(r[1]-r[0],r[3]-r[2]),m=new T.Mesh(new T.BoxGeometry(r[1]-r[0]||TH,H,r[3]-r[2]||TH),matFor(L));
+    m.position.set((r[0]+r[1])/2,H/2,(r[2]+r[3])/2);m.castShadow=!LITE;m.receiveShadow=true;wallG.add(m);});
+  const instG=(geo,mat,list)=>{const im=new T.InstancedMesh(geo,mat,list.length);list.forEach((o,i)=>im.setMatrixAt(i,mx(o.x,o.y||0,o.z,0,o.ry||0,0,o.s||1,o.s||1,o.s||1)));
+    im.instanceMatrix.needsUpdate=true;im.castShadow=false;im.receiveShadow=true;im.frustumCulled=false;wallG.add(im);return im;};
+  // থাম প্রতি ৬ মিটারে, রিং (কয়েল) প্রতি ~০.৫৫ মিটারে
+  const pil=[],rings=[],lights=[];let pi=0;
+  runs.forEach(r=>{const alongX=(r[3]-r[2])===0,L=alongX?r[1]-r[0]:r[3]-r[2],n=Math.max(1,Math.round(L/6));
+    for(let i=0;i<=n;i++){const t=i/n,x=r[0]+(r[1]-r[0])*t,z=r[2]+(r[3]-r[2])*t;pil.push({x,z});if(pi++%3===0)lights.push({x,z});}
+    const step=LITE?1.2:0.9,rn=Math.floor(L/step);
+    for(let i=0;i<rn;i++){const t=(i+0.5)/rn,x=r[0]+(r[1]-r[0])*t,z=r[2]+(r[3]-r[2])*t;rings.push({x:x+(alongX?0:(i%2?0.1:-0.1)),y:H+0.45,z:z+(alongX?(i%2?0.1:-0.1):0),ry:alongX?PI/2:0});}
+  });
+  instG(new T.BoxGeometry(0.8,H+0.5,0.8).translate(0,(H+0.5)/2,0),M(0xa8452c),pil);
+  instG(new T.BoxGeometry(1.0,0.14,1.0).translate(0,H+0.55,0),M(0xcfc7b4),pil);
+  instG(new T.TorusGeometry(0.42,0.016,3,10),new T.MeshLambertMaterial({color:0xb8bfc6}),rings);   // কনসার্টিনা তার
+  const wl=[];runs.forEach(r=>{[H+0.1,H+0.85].forEach(y=>wl.push(r[0],y,r[2],r[1],y,r[3]));});
+  const lg=new T.BufferGeometry();lg.setAttribute('position',new T.Float32BufferAttribute(wl,3));wallG.add(new T.LineSegments(lg,new T.LineBasicMaterial({color:0x9aa2aa})));
+  // সিকিউরিটি লাইট: তারের ওপরে খুঁটি + আলো (রাতে জ্বলে)
+  instG(new T.CylinderGeometry(0.05,0.07,1.7,6).translate(0,H+0.55+0.85,0),M(0x2f3236),lights);
+  instG(new T.BoxGeometry(0.75,0.14,0.38).translate(0,H+0.55+1.75,0),glowMat(0xfff2c0,0xffd877),lights);
+  const cm=new T.MeshBasicMaterial({color:0xfff0b0,transparent:true,opacity:0,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide});
+  nightOpa.push({m:cm,k:0.14});
+  instG(new T.ConeGeometry(2.4,4.0,10,1,true).translate(0,H+0.55+1.7-2.0,0),cm,lights);
+}
+buildWalls();
+
+{const wallL=[],post=[];
+bx(1.4,3.6,1.4,0xcdb98f,GX-4.7,0,W.z1);bx(1.4,3.6,1.4,0xcdb98f,GX+4.7,0,W.z1);
+ bx(10.8,0.5,1.0,0xcdb98f,GX,3.4,W.z1);
+ // sign
+ const cv=document.createElement('canvas');cv.width=512;cv.height=112;const cx=cv.getContext('2d');cx.fillStyle='#14301f';cx.fillRect(0,0,512,112);cx.strokeStyle='#f0b84a';cx.lineWidth=5;cx.strokeRect(6,6,500,100);cx.fillStyle='#f6e7b4';cx.font='700 46px "Hind Siliguri","Noto Sans Bengali",sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('সমন্বিত কৃষি খামার',256,58);
+ const tex=new T.CanvasTexture(cv);tex.anisotropy=4;
+ const sg=new T.Mesh(new T.PlaneGeometry(8.6,1.88),new T.MeshBasicMaterial({map:tex}));sg.position.set(GX,4.75,W.z1+0.6);scene.add(sg);
+ bx(8.8,2.1,0.3,0x2b2b2b,GX,3.75,W.z1+0.35);
+
+}
+// ---------- trees ----------
+function leafGeo(len,w,droop,seg){
+  const pos=[],idx=[];seg=seg||8;
+  for(let i=0;i<=seg;i++){const t=i/seg,x=t*len,y=-droop*t*t*len*0.5,ww=w*Math.sin(Math.min(1,0.25+t*0.9)*PI*0.9)*(1-0.55*t)+0.02;
+    pos.push(x,y+0.05*ww,-ww, x,y+0.09,0, x,y+0.05*ww,ww);}
+  for(let i=0;i<seg;i++){const a=i*3;idx.push(a,a+3,a+1,a+1,a+3,a+4,a+1,a+4,a+2,a+2,a+4,a+5);}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(idx);return g;}
+function palmGeo(o){
+  const m=new Merger(),N=7;const P=t=>[o.bend*t*t,o.H*t];
+  for(let i=0;i<N;i++){const a=P(i/N),b=P((i+1)/N),dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);
+    const r0=o.tr0+(o.tr1-o.tr0)*i/N,r1=o.tr0+(o.tr1-o.tr0)*(i+1)/N;
+    m.add(new T.CylinderGeometry(r1,r0,L*1.02,7),i%2?o.tc1:o.tc0,mx((a[0]+b[0])/2,(a[1]+b[1])/2,0,0,0,-Math.atan2(dx,dy)));}
+  const top=P(1);
+  if(o.shaft)m.add(new T.CylinderGeometry(o.tr1*1.1,o.tr1*0.9,1.1,7),o.shaft,mx(top[0],top[1]+0.45,0));
+  const lg=leafGeo(o.flen,o.fw,o.droop,8);
+  for(let i=0;i<o.fronds;i++){const ry=i/o.fronds*PI*2+R(-0.2,0.2),lift=R(0.1,0.7)-(i%2?0.25:0);
+    m.add(lg,i%2?o.fc0:o.fc1,mx(top[0],top[1]+0.6,0,0,ry,lift,R(0.88,1.1),1,1));}
+  for(let i=0;i<o.nuts;i++){const a=i/o.nuts*PI*2;
+    m.add(new T.IcosahedronGeometry(o.nr,0),i%3===2?o.nc1:o.nc0,mx(top[0]+Math.cos(a)*o.nr*1.5,top[1]-0.15-R(0,0.4),Math.sin(a)*o.nr*1.5));}
+  return {geo:m.build(),top};}
+const palmDefs={
+  coco:{H:11,bend:1.8,tr0:0.42,tr1:0.26,tc0:0x8d7d69,tc1:0x7b6c59,fronds:12,flen:4.8,fw:0.62,droop:0.55,fc0:0x3f8a3a,fc1:0x52a043,nuts:7,nr:0.34,nc0:0x9fb34c,nc1:0xc9a54a},
+  supari:{H:12.5,bend:0.5,tr0:0.17,tr1:0.11,tc0:0xb9b293,tc1:0xa59e80,shaft:0x8cbf59,fronds:7,flen:2.6,fw:0.34,droop:0.6,fc0:0x4f9a45,fc1:0x5fae4d,nuts:14,nr:0.13,nc0:0xe58a2c,nc1:0xd96f25}};
+const palms={};
+for(const k in palmDefs){if(k==='coco')continue;const d=palmDefs[k],r=palmGeo(d);palms[k]=r;r.mat=swayMat('crown',{amp:k==='coco'?0.2:0.16,y0:d.H-1.4,cx:r.top[0],cz:0});}
+// ---- আসল নারিকেল গাছ: লম্বা বাঁকা কাণ্ড, ঝুলে পড়া পাতা, ডাবের কাঁদি ----
+function coconutGeo(){
+  const m=new Merger(),H=12.6,bend=2.8,N=14;const P=t=>[bend*t*t,H*t];
+  for(let i=0;i<N;i++){const a=P(i/N),b=P((i+1)/N),t0=i/N,t1=(i+1)/N;
+    limb(m,i%2?0x8a7a66:0x766754,a[0],a[1],0,b[0],b[1],0,0.19+0.24*Math.pow(1-t0,3),0.19+0.24*Math.pow(1-t1,3),7);}
+  const top=P(1);
+  ell(m,0x7f9a47,top[0],top[1]+0.15,0,0.3,0.55,0.3);
+  const frond=(ry,elev,len,droop,k)=>{
+    const cs=Math.cos(ry),sn=Math.sin(ry);
+    const xf=p=>[top[0]+p[0]*cs+p[2]*sn,top[1]+0.45+p[1],p[2]*cs-p[0]*sn];
+    const Q=t=>[len*t,len*(elev*t-droop*t*t),0];
+    const greens=[0x3f8a3a,0x4b9b42,0x56a84a,0x3a7d35];
+    let prev=Q(0);
+    for(let s=1;s<=8;s++){const c=Q(s/8),a=xf(prev),b=xf(c);limb(m,0x7d8d3e,a[0],a[1],a[2],b[0],b[1],b[2],0.05*(1-(s-1)/9),0.05*(1-s/9),4);prev=c;}
+    const step=LITE?0.1:0.065;
+    for(let t=0.14;t<1;t+=step){
+      const b0=Q(t),b1=Q(t+0.03),tx=b1[0]-b0[0],ty=b1[1]-b0[1],tl=Math.hypot(tx,ty)||1,ux=tx/tl,uy=ty/tl;
+      const L=(1.5*Math.sin(Math.PI*(0.12+0.85*t))+0.25)*(0.85+0.3*rand());
+      for(const sd of [-1,1]){
+        const dx=ux*0.45+0*1,dy=uy*0.45-0.75,dz=sd*0.85,dl=Math.hypot(dx,dy,dz);
+        const tip=[b0[0]+dx/dl*L,b0[1]+dy/dl*L,b0[2]+dz/dl*L],w=0.13;
+        m.tri(greens[(k+Math.round(t*20))%4],xf([b0[0]-ux*w,b0[1]-uy*w,b0[2]]),xf([b0[0]+ux*w,b0[1]+uy*w,b0[2]]),xf(tip));}}
+  };
+  const NF=LITE?11:16;
+  for(let i=0;i<NF;i++){const lvl=i%4;frond(i/NF*PI*2+R(-0.2,0.2),[1.1,0.75,0.45,0.2][lvl],[4.6,5.4,5.8,5.2][lvl],[1.0,1.15,1.3,1.5][lvl],i);}
+  // ডাবের কাঁদি: সবুজ ও কয়েকটা পাকা নারিকেল
+  for(let i=0;i<10;i++){const a=i/10*PI*2,r=0.34+R(0,0.12);
+    ell(m,i%4===3?0x8b5a2b:(i%2?0x9fb34c:0xb8c45e),top[0]+Math.cos(a)*r,top[1]-0.25-R(0,0.45),Math.sin(a)*r,0.17,0.2,0.17,R(-0.3,0.3),0,R(-0.3,0.3));}
+  return {geo:m.build(),top,H};}
+// ---- আসল আম গাছ: গোল ঘন ক্যানোপি, ঝুলন্ত আম ----
+function mangoGeo(){
+  const m=new Merger();
+  limb(m,0x6e5236,0,0,0,0.05,2.5,0,0.5,0.32,8);
+  [[1.1,0.4],[-1.0,0.6],[0.2,-1.2],[-0.4,1.1]].forEach(b=>limb(m,0x6a4f35,0,2.1,0,b[0]*1.5,3.7,b[1]*1.5,0.2,0.11,6));
+  const cols=[0x2d6a2b,0x38792f,0x275d27,0x3f8434,0x2f6e2e,0x4a8f3a];
+  const B=[[0,5.5,0,2.9]];
+  for(let i=0;i<9;i++){const a=i/9*PI*2;B.push([Math.cos(a)*2.6,4.9+(i%3)*0.3,Math.sin(a)*2.6,2.1]);}
+  for(let i=0;i<6;i++){const a=i/6*PI*2+0.4;B.push([Math.cos(a)*1.4,6.6+(i%2)*0.3,Math.sin(a)*1.4,1.9]);}
+  for(let i=0;i<8;i++){const a=i/8*PI*2+0.2;B.push([Math.cos(a)*3.2,4.1,Math.sin(a)*3.2,1.5]);}
+  B.forEach((b,i)=>ell(m,cols[i%6],b[0],b[1],b[2],b[3],b[3]*0.82,b[3],0,i,0));
+  const fc=[0xc3d15a,0xb3c94d,0xd8cf5c,0xa9c446,0xe0b84a];
+  const lower=B.slice(16);
+  for(let i=0;i<(LITE?18:34);i++){const b=lower[i%lower.length],th=R(0,6.28),ph=R(0.9,1.45);
+    const px=b[0]+Math.cos(th)*Math.sin(ph)*b[3]*0.9,py=b[1]-Math.cos(ph)*b[3]*0.75-0.1,pz=b[2]+Math.sin(th)*Math.sin(ph)*b[3]*0.9;
+    limb(m,0x4a6a2a,px,py,pz,px,py-0.25,pz,0.02,0.02,3);
+    ell(m,pick(fc),px,py-0.5,pz,0.12,0.22,0.1,R(-0.2,0.2),0,R(-0.2,0.2));}
+  return m.build();}
+
+{const r=coconutGeo();palms.coco=r;r.mat=swayMat('crown',{amp:0.2,y0:r.H-1.8,cx:r.top[0],cz:0});}
+function palmList(k,list){const im=inst(palms[k].geo,palms[k].mat,list);return im;}
+// নারিকেল ও সুপারি গাছ
+{const L=[];const add=(x,z)=>L.push({x,z,ry:R(0,6.28),s:R(0.88,1.12)});
+ for(let x=-33;x<=-8;x+=5)add(x+R(-0.4,0.4),21.4);
+ for(let x=-25;x<=35;x+=10)add(x+R(-0.5,0.5),39.8);
+ for(let z=25;z<=39;z+=6)add(-78.2,z);
+ for(let x=58;x<=76;x+=9)add(x,39.5);
+ for(let z=48;z<=64;z+=8){add(GX-7.5,z);add(GX+7.5,z+4);}
+ palmList('coco',L);
+ const S=[];for(let z=-44;z<=2;z+=7){S.push({x:GX-3.9,z:z+R(-1,1),ry:R(0,6),s:R(0.9,1.1)});S.push({x:GX+4.2,z:z+3.5+R(-1,1),ry:R(0,6),s:R(0.9,1.1)});}
+ for(let z=46;z<=66;z+=7)S.push({x:GX+5.2,z,ry:R(0,6),s:1});
+ palmList('supari',S);}
+// হিমসাগর আম বাগান: ঠিক ১ বিঘা (১,৪৪০ বর্গমিটার), ৩ কলাম × ১৩ সারি
+{const mm=mangoGeo(),MG=FM.MANGO,L=[],cw=(MG.x1-MG.x0)/3,rows=13,rh=(MG.z1-MG.z0)/rows;
+ for(let c=0;c<3;c++)for(let r=0;r<rows;r++)L.push({x:MG.x0+cw*(c+0.5)+R(-0.4,0.4),z:MG.z0+rh*(r+0.5)+R(-0.4,0.4),ry:R(0,6.28),s:R(0.88,1.05)});
+ scene.userData.mangoIM=inst(mm,swayMat('flat',{amp:0.1,y0:3.2}),L);scene.userData.mango=L.length;}
+// napier grass clumps: ঠিক ১.৫ বিঘা (২,১৬০ বর্গমিটার)
+{const m=new Merger(),lg=leafGeo(3.8,0.17,0.35,6),cs=[0x6aab3d,0x7bba45,0x5f9e38];
+ for(let i=0;i<7;i++){m.add(lg,cs[i%3],mx(0,0,0,0,i/7*PI*2+R(0,0.5),1.25+R(-0.2,0.2),R(0.8,1.2),1,1));}
+ const NP=FM.NAPIER,L=[],sx=LITE?3.0:2.4,sz=LITE?2.3:1.7;
+ for(let x=NP.x0+1.3;x<=NP.x1-1.3;x+=sx)for(let z=NP.z0+1;z<=NP.z1-1;z+=sz)L.push({x:x+R(-0.3,0.3),z:z+R(-0.3,0.3),ry:R(0,6.28),s:R(0.8,1.2),sy:R(0.85,1.25)});
+ {const im=inst(m.build(),swayMat('h',{amp:0.07,y0:0}),L);im.castShadow=false;}}
+// banana
+{const m=new Merger(),lg=leafGeo(3.4,0.55,0.9,8);
+ m.add(new T.CylinderGeometry(0.2,0.3,3.3,7),0x8fc15d,mx(0,1.65,0));
+ for(let i=0;i<8;i++)m.add(lg,i%2?0x4ea43f:0x5fb24a,mx(0,3.2,0,0,i/8*PI*2+R(0,0.4),R(0.15,0.75),1,1,1));
+ m.add(new T.CylinderGeometry(0.03,0.03,1.0,4),0x6a8a3a,mx(0.45,2.9,0,0,0,-0.5));
+ for(let r=0;r<4;r++)for(let k=0;k<5;k++){const a=k/5*PI*2;m.add(new T.CylinderGeometry(0.07,0.06,0.5,5),0xc4d34c,mx(0.7+Math.cos(a)*0.14,2.55-r*0.2,Math.sin(a)*0.14,0,0,0.25));}
+ m.add(new T.ConeGeometry(0.17,0.6,6),0x7b2a5c,mx(0.72,1.95,0,0,0,PI));
+ const L=[];[[-6,40],[-8,41],[-4,40.5],[75,12.5],[77,14],[75.5,15.5],[52,14],[53.5,15.5]].forEach(p=>L.push({x:p[0],z:p[1],ry:R(0,6.28),s:R(0.9,1.15)}));
+ inst(m.build(),swayMat('flat',{amp:0.1,y0:2.4}),L);}
+// mahogany & krishnachura
+{const m=new Merger();m.add(new T.CylinderGeometry(0.4,0.7,7,7),0x5b4632,mx(0,3.5,0));
+ [[0,9,0,3.4],[2.2,8,0.8,2.6],[-2.2,8.2,-0.6,2.6],[0.6,7.6,2.3,2.5],[-0.6,7.8,-2.3,2.5],[0.3,11,0,2.3]].forEach((b,i)=>m.add(new T.IcosahedronGeometry(b[3],1),[0x24521f,0x2b5e27,0x1f4a1d][i%3],mx(b[0],b[1],b[2],0,i,0,1,0.9,1)));
+ const L=[];for(let x=-30;x<=36;x+=11)L.push({x,z:39.2,ry:R(0,6),s:R(0.9,1.2)});
+ [-1,1].forEach(s=>{for(let z=52;z<=66;z+=14)L.push({x:GX+s*13,z,ry:1,s:1.1});});
+ inst(m.build(),swayMat('flat',{amp:0.07,y0:5}),L);
+ const k=new Merger();k.add(new T.CylinderGeometry(0.35,0.6,4.4,7),0x6a4d36,mx(0,2.2,0));
+ [[0,5.6,0,3.6],[3,5.2,1,3],[-3,5.3,-1,3],[1,5.4,-3,2.8],[-1,5.4,3,2.8]].forEach((b,i)=>k.add(new T.IcosahedronGeometry(b[3],1),i%2?0x5a9a45:0x6aab4d,mx(b[0],b[1],b[2],0,i,0,1,0.55,1)));
+ for(let i=0;i<70;i++){const th=R(0,6.28),r=R(0.5,5.2),px=Math.cos(th)*r,pz=Math.sin(th)*r;k.add(new T.IcosahedronGeometry(0.34,0),i%3?0xe0442a:0xf06a2c,mx(px,6.6-r*0.12+R(0,0.5),pz));}
+ const K=[];[[GX-12,50],[GX+12,57],[GX-12,64],[GX+12,44.5],[-20,48],[100,52],[-70,60]].forEach(p=>K.push({x:p[0],z:p[1],ry:R(0,6),s:R(1,1.15)}));
+ inst(k.build(),swayMat('flat',{amp:0.07,y0:5}),K);}
+// outer world: scattered village trees, paddy, huts
+{const m=new Merger();m.add(new T.CylinderGeometry(0.3,0.5,4,6),0x5b4632,mx(0,2,0));[[0,5.5,0,3],[2,4.8,0.5,2.2],[-2,5,-0.5,2.2]].forEach((b,i)=>m.add(new T.IcosahedronGeometry(b[3],0),[0x3a7a33,0x2f6a2c,0x468a3a][i],mx(b[0],b[1],b[2])));
+ const L=[];for(let i=0;i<70;i++){const x=R(-380,380),z=R(88,330);L.push({x,z,ry:R(0,6),s:R(0.8,1.5)});}
+ for(let i=0;i<46;i++){const x=R(-380,380),z=R(-330,-60);if(Math.abs(x)<100&&z>-60)continue;L.push({x,z,ry:R(0,6),s:R(0.8,1.5)});}
+ for(let i=0;i<24;i++){const side=rand()<0.5?-1:1;L.push({x:side*R(95,380),z:R(-50,60),ry:R(0,6),s:R(0.8,1.4)});}
+ inst(m.build(),swayMat('flat',{amp:0.05,y0:4}),L);
+ for(let i=0;i<7;i++){const x=-300+i*95+R(-20,20),z=R(96,130);const h=new T.Group();bx(7,3,5,0xcbb28a,0,0,0,h);const rf=new T.Mesh(new T.ConeGeometry(5.6,2.4,4),M(0x8a8f95));rf.rotation.y=PI/4;rf.scale.set(1,1,0.8);rf.position.y=4.2;rf.castShadow=true;h.add(rf);h.position.set(x,0,z);scene.add(h);}
+ for(let i=0;i<8;i++){const x=-340+i*90,z=R(120,160);slab(x,x+70,z,z+40,0,0.02,i%2?0xb9cf6e:0x96b85a);}
+}
+// lamp posts (instanced) + a few real lights
+{const poles=[],heads=[];const add=(x,z)=>{poles.push({x,z});heads.push({x,y:5.1,z});};
+ for(let z=44;z<=64;z+=10){add(GX-4.4,z);add(GX+4.4,z+5);}
+ for(let z=-30;z<=4;z+=12){add(GX-4.4,z);add(GX+4.4,z+6);}
+ [[-32,38.6],[-8,38.6],[16,38.6],[60,40],[76,40],[56,11],[78,11],[-76,41],[50.6,-40],[50.6,-30],[50.6,-20],[50.6,-10],[50.6,0],[50.6,10]].forEach(p=>add(p[0],p[1]));
+ inst(new T.CylinderGeometry(0.1,0.14,5.1,6).translate(0,2.55,0),M(0x2f3236),poles);
+ const hm=glowMat(0xfff2c0,0xffd877);inst(new T.SphereGeometry(0.34,8,6),hm,heads).castShadow=false;
+ [[GX,40],[-20,36],[66,28],[51,-12],[51,-36],[-58,41]].forEach(p=>{const l=new T.PointLight(0xffd68a,0,42,1.6);l.position.set(p[0],6,p[1]);scene.add(l);lampLights.push(l);});}
+// ---------- buildings ----------
+const FH=3.7; // floor height
+const B={x0:2,x1:38,z0:13,z1:29};     // duplex + office + godown (3 levels)
+const floors=[];                       // floor groups
+const topCeil=[];                      // ceiling slabs per floor
+const frontWalls=[];                   // front walls (made see-through when cut away)
+const wallMat=new T.MeshLambertMaterial({color:0xefe6d2});
+const glassMat=new T.MeshLambertMaterial({color:0x9fd0e6,transparent:true,opacity:0.55});
+const winGlow=glowMat(0xf7e9b8,0xffcf6a);
+const mkFront=()=>new T.MeshLambertMaterial({color:0xefe6d2,transparent:true,opacity:1});
+const bw=B.x1-B.x0,bd=B.z1-B.z0,bcx=(B.x0+B.x1)/2,bcz=(B.z0+B.z1)/2;
+const bldg=new T.Group();bldg.position.set(-78,0,10);scene.add(bldg);
+function floorGroup(i){const g=new T.Group();g.position.y=i*FH;bldg.add(g);floors[i]=g;return g;}
+function shell(g,i){
+  bx(bw,0.35,bd,0xd8d0be,bcx,0,bcz,g);                                   // floor slab
+  const ceil=bx(bw,0.35,bd,0xd8d0be,bcx,FH-0.35,bcz,g);ceil.userData.ceil=true;topCeil[i]=ceil;
+  bx(bw,FH-0.7,0.3,wallMat,bcx,0.35,B.z0,g);                              // back wall
+  bx(0.3,FH-0.7,bd,wallMat,B.x0,0.35,bcz,g);bx(0.3,FH-0.7,bd,wallMat,B.x1,0.35,bcz,g);
+}
+// --- নিচতলা: অফিস + গোডাউন ---
+{const g=floorGroup(0);shell(g,0);const frontMat=mkFront();
+ bx(bw,0.3,0.3,0xcdb98f,bcx,0,B.z1+0.3,g);
+ // front wall with openings: office glass (x 2..14) , godown shutter (x 16..30)
+ const fw=new T.Group();g.add(fw);frontWalls[0]=fw;
+ bx(12,FH-0.7,0.3,frontMat,8,0.35,B.z1,fw);                              // office wall
+ bx(10,1.1,0.3,frontMat,21,0.35,B.z1,fw);bx(10,0.6,0.3,frontMat,21,FH-0.95,B.z1,fw);bx(6,FH-0.7,0.3,frontMat,33,0.35,B.z1,fw);
+ const ow=new T.Mesh(new T.BoxGeometry(8,1.8,0.1),glassMat);ow.position.set(8,1.9,B.z1+0.2);g.add(ow);
+ bx(0.3,FH-0.7,bd,0xefe6d2,14,0.35,bcz,g);                              // office/godown partition
+ // godown shutter (open) + side door to east
+ bx(9.6,0.5,0.4,0x6b7580,21,FH-1.0,B.z1+0.2,g);
+ // office interior
+ [[5,19],[10.5,19]].forEach(p=>{bx(2.4,0.08,1.1,0x8b6a47,p[0],0.9,p[1],g);bx(0.12,0.8,1.0,0x6b5236,p[0]-1.1,0.1,p[1],g);bx(0.12,0.8,1.0,0x6b5236,p[0]+1.1,0.1,p[1],g);bx(0.9,0.55,0.08,0x23262b,p[0],1.0,p[1]-0.2,g);bx(0.5,0.45,0.5,0x2d4a73,p[0],0.0,p[1]+1.0,g);});
+ bx(1.2,2.2,0.7,0x7e8a94,3,0.35,14.2,g);bx(1.2,2.2,0.7,0x7e8a94,5,0.35,14.2,g);bx(1.2,2.2,0.7,0x7e8a94,7,0.35,14.2,g);
+ bx(3,0.6,1,0x4b5a6a,12.4,0.35,26.5,g);
+ // godown: sacks (rice = cream, mustard = yellowish) in stacks
+ const sk=new Merger();const sg=new T.BoxGeometry(0.95,0.34,0.55);
+ for(let sx=0;sx<4;sx++)for(let sz=0;sz<8;sz++)for(let l=0;l<5;l++){const rice=sx<2;sk.add(sg,l%2?(rice?0xefe6c8:0xd8b34a):(rice?0xe6dcc0:0xc9a23a),mx(16.5+sx*1.1+(l%2)*0.08,0.5+l*0.34,14.5+sz*0.62+R(-0.02,0.02),0,R(-0.04,0.04),0));}
+ for(let sx=0;sx<5;sx++)for(let sz=0;sz<9;sz++)for(let l=0;l<4;l++){const mus=sx>2;sk.add(sg,l%2?(mus?0xd8b34a:0xefe6c8):(mus?0xc9a23a:0xe6dcc0),mx(30.5+sx*1.1,0.5+l*0.34,14.5+sz*0.62,0,R(-0.04,0.04),0));}
+ const sm=vmesh(sk);g.add(sm);
+ bx(2.2,0.15,1.6,0x8b6a47,25,0.35,20.5,g);for(let l=0;l<3;l++)bx(0.95,0.34,0.55,l%2?0xefe6c8:0xe6dcc0,25,0.5+l*0.34,20.5,g);
+ // godown east door opening mark
+ bx(0.4,3,3.2,0x58626c,B.x1+0.1,0.3,22,g);
+ // forklift hand trolley
+ bx(0.9,0.12,1.4,0x3d6fb0,22,0.38,24.5,g);bx(0.1,1.2,0.1,0x3d6fb0,22,0.4,24,g);
+}
+// --- ১ম ও ২য় তল: ডুপ্লেক্স ---
+function residence(i,bed){
+  const g=floorGroup(i);shell(g,i);const frontMat=mkFront();
+  const fw=new T.Group();g.add(fw);frontWalls[i]=fw;
+  const wl=(x0,x1)=>bx(x1-x0,FH-0.7,0.3,frontMat,(x0+x1)/2,0.35,B.z1,fw);
+  wl(2,6);wl(11,16);wl(21,26);wl(31,38);
+  [[8.5],[18.5],[28.5]].forEach(p=>{const w=new T.Mesh(new T.BoxGeometry(5,1.6,0.1),winGlow);w.position.set(p[0],1.9,B.z1+0.05);g.add(w);bx(5,0.5,0.3,frontMat,p[0],0.35,B.z1,fw);bx(5,0.4,0.3,frontMat,p[0],FH-1.05,B.z1,fw);});
+  // balcony slab + rail
+  bx(bw-2,0.25,2.2,0xd8d0be,bcx,0,B.z1+1.2,g);bx(bw-2,0.9,0.1,0xb5a98f,bcx,0.25,B.z1+2.25,g);
+  // inner partitions
+  bx(0.25,FH-0.7,bd*0.55,wallMat,14,0.35,B.z0+bd*0.275,g);bx(0.25,FH-0.7,bd*0.55,wallMat,26,0.35,B.z0+bd*0.275,g);
+  if(!bed){ // ১ম তল: বসার ঘর, রান্নাঘর, খাবার ঘর
+   bx(3.2,0.5,1.1,0x4c6b8a,8,0.35,24,g);bx(3.2,0.5,0.3,0x3e5874,8,0.8,24.5,g);bx(1.5,0.4,0.9,0x8b6a47,8,0.35,21.5,g);bx(2,1.1,0.12,0x15171a,8,1.3,14.4,g);
+   bx(3.4,0.9,1.3,0x8b6a47,20,0.35,21,g);[17.8,22.2].forEach(x=>bx(0.6,0.5,0.6,0xb08a5c,x,0.35,21,g));[20.0].forEach(x=>{bx(0.6,0.5,0.6,0xb08a5c,x,0.35,19.3,g);bx(0.6,0.5,0.6,0xb08a5c,x,0.35,22.7,g);});
+   bx(5,0.9,0.8,0xd9d3c6,32,0.35,14.6,g);bx(5,0.7,0.3,0xa9a190,32,2.1,14.4,g);bx(1,1.8,0.8,0xbfc6cc,35.5,0.35,15,g);
+  } else {  // ২য় তল: শোবার ঘর
+   [[8,19],[20,19],[32,19]].forEach(p=>{bx(2.2,0.45,3,0x7a5a3d,p[0],0.35,p[1],g);bx(2.0,0.25,2.6,p[0]>25?0xc8d6e5:0xe9d9c4,p[0],0.8,p[1]+0.1,g);bx(1.8,2.2,0.6,0x6f5236,p[0]+3.2,0.35,14.5,g);});
+  }
+}
+residence(1,false);residence(2,true);
+// roof / terrace
+const roof=new T.Group();roof.position.y=3*FH;bldg.add(roof);floors[3]=roof;
+bx(bw+1,0.4,bd+1,0xcfc7b4,bcx,0,bcz,roof);
+bx(bw+1,0.9,0.25,0xb8ae98,bcx,0.4,B.z0-0.4,roof);bx(bw+1,0.9,0.25,0xb8ae98,bcx,0.4,B.z1+0.4,roof);bx(0.25,0.9,bd+1,0xb8ae98,B.x0-0.4,0.4,bcz,roof);bx(0.25,0.9,bd+1,0xb8ae98,B.x1+0.4,0.4,bcz,roof);
+// solar on terrace
+{const sp=new T.Group();for(let r=0;r<2;r++)for(let c=0;c<7;c++){const p=bx(2.4,0.08,1.5,0x1f3b73,0,0,0,sp);p.position.set(5+c*2.8,0.95+0.35,17+r*3.2);p.rotation.x=-0.45;p.material=new T.MeshLambertMaterial({color:0x1f3b73,emissive:0x0a1a40});bx(0.1,0.9,0.1,0x888888,5+c*2.8,0.4,17+r*3.2,sp);}
+  roof.add(sp);
+  bx(2.2,2.1,2.2,0x2a6fb5,32.5,0.4,18,roof);cyl(0.9,0.9,1.8,0x2a6fb5,32.5,0.4,22,roof,14);
+  bx(3,2.2,2.6,0xe6dccb,3.8,0.4,26,roof);bx(3.3,0.25,2.9,0xb85c3a,3.8,2.6,26,roof);}
+// building lanterns
+// ----- floor cutaway control -----
+let floorMode='all';
+function setFloor(f){floorMode=f;const lvl=f==='all'?3:+f;
+ for(let i=0;i<4;i++)floors[i].visible=(f==='all')||i<=lvl;
+ for(let i=0;i<3;i++){topCeil[i].visible=(f==='all')||i<lvl;if(frontWalls[i])frontWalls[i].children.forEach(w=>{w.material.opacity=(f!=='all'&&i===lvl)?0.12:1;});}
+ floors[3].visible=(f==='all')||f==='3';
+ floors.forEach((g,i)=>{if(i<3&&g.visible)g.children.forEach(ch=>{if(ch.userData.ceil)ch.visible=topCeil[i].visible;});});}
+// ---- মাড়াই ঘর ----
+const roofs=[];
+const millG=new T.Group();scene.add(millG);
+{const x0=54,x1=78,z0=18,z1=36,w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
+ bx(w,0.3,d,0xcfc8b6,cx,0,cz,millG);
+ bx(w,5,0.3,0xe8dfc9,cx,0.3,z0,millG);bx(0.3,5,d,0xe8dfc9,x1,0.3,cz,millG);bx(0.3,5,d*0.4,0xe8dfc9,x0,0.3,z0+d*0.2,millG);bx(0.3,5,d*0.25,0xe8dfc9,x0,0.3,z1-d*0.125,millG);
+ [[x0,z1],[cx-6,z1],[cx+6,z1],[x1,z1]].forEach(p=>cyl(0.3,0.3,5.3,0xb7ac93,p[0],0,p[1],millG,8));
+ bx(w,0.6,0.3,0xb7ac93,cx,4.8,z1,millG);
+ const sgn=new T.Mesh(new T.PlaneGeometry(10,1.5),new T.MeshBasicMaterial({map:(()=>{const c=document.createElement('canvas');c.width=512;c.height=80;const q=c.getContext('2d');q.fillStyle='#7a4b12';q.fillRect(0,0,512,80);q.fillStyle='#ffe7a8';q.font='700 29px "Hind Siliguri","Noto Sans Bengali",sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText('সরিষার তেল, নারিকেল তেল ও ঘি',256,42);return new T.CanvasTexture(c);})()}));sgn.position.set(cx,4.1,z1+0.25);millG.add(sgn);
+ // pitched roof (removable)
+ const rg=new T.Group();rg.position.set(cx,5.3,cz);
+ const r1=new T.Mesh(new T.BoxGeometry(w+1.4,0.2,d/2+1),M(0x9aa3ab));r1.position.set(0,1.4,-d/4);r1.rotation.x=0.28;r1.castShadow=true;const r2=r1.clone();r2.position.z=d/4;r2.rotation.x=-0.28;rg.add(r1,r2);millG.add(rg);roofs.push(rg);
+ // machines: expeller press
+ const pm=new T.MeshLambertMaterial({color:0x4d7c55});
+ const press=new T.Group();press.position.set(60,1.2,25);millG.add(press);
+ const bodyP=new T.Mesh(new T.CylinderGeometry(0.9,0.9,3.2,16),pm);bodyP.rotation.z=PI/2;bodyP.castShadow=true;press.add(bodyP);
+ const hop=new T.Mesh(new T.ConeGeometry(1,1.4,4,1,true),M(0xb8bec4));hop.rotation.x=PI;hop.position.set(-0.6,1.7,0);hop.rotation.y=PI/4;press.add(hop);
+ const fly=new T.Mesh(new T.CylinderGeometry(1.3,1.3,0.3,18),M(0x2f3236));fly.rotation.z=PI/2;fly.position.set(2.2,0.2,0);press.add(fly);
+ const spoke=new T.Mesh(new T.BoxGeometry(0.2,2.4,0.2),M(0xd0d4d8));spoke.position.set(2.45,0.2,0);fly.add(spoke);
+ bx(1.4,1.2,1.6,0x3b4a66,63.5,0.3,25,millG); // motor
+ updaters.push(t=>{fly.rotation.x=t*5;hop.position.y=1.7+Math.sin(t*30)*0.01;});
+ // seed bin + oil tank + jars + ghee kettles + packing table
+ bx(2.5,1.8,2.5,0xd4b34c,57,0.3,31,millG);for(let i=0;i<9;i++)bx(0.9,0.34,0.55,i%2?0xd8b34a:0xc9a23a,56+(i%3)*0.9,0.3+Math.floor(i/3)*0.34+1.8,31+(i%2)*0.3,millG);
+ cyl(1.1,1.1,2.4,0x9aa5ae,72,0.3,24,millG,14);cyl(1.1,1.1,2.4,0x9aa5ae,75,0.3,24,millG,14);
+ [[71,30],[73.5,30],[76,30]].forEach(p=>{cyl(1.0,1.2,0.9,0xb8bfc6,p[0],0.3,p[1],millG,14);cyl(0.9,0.9,0.25,0xf3e7b0,p[0],1.2,p[1],millG,14);});
+ bx(6,0.9,1.6,0xa57a4a,68,0.3,34,millG);
+ const bm=new Merger(),bg=new T.CylinderGeometry(0.17,0.2,0.6,8);for(let r=0;r<3;r++)for(let c=0;c<14;c++)bm.add(bg,c%5===4?0xe8c14a:0xc8861c,mx(65.3+c*0.4,1.5+0.3,33.6+r*0.4));
+ const bt=vmesh(bm);millG.add(bt);
+ for(let i=0;i<5;i++)bx(0.4,0.5,0.4,0xc8861c,61+i*0.5,0.3,33,millG);
+ bx(1,1.3,0.9,0xf1f1ee,55.5,0.3,21,millG);
+ // নারিকেল তেলের ঘানি: কোপরা শুকিয়ে ভাঙানো
+ {const cp=new T.MeshLambertMaterial({color:0x2e6b4f}),press2=new T.Group();press2.position.set(68.5,1.2,21.8);millG.add(press2);
+  const bd=new T.Mesh(new T.CylinderGeometry(0.85,0.85,3.0,16),cp);bd.rotation.z=PI/2;bd.castShadow=true;press2.add(bd);
+  const hop2=new T.Mesh(new T.ConeGeometry(0.95,1.3,4,1,true),M(0xb8bec4));hop2.rotation.x=PI;hop2.position.set(-0.5,1.6,0);hop2.rotation.y=PI/4;press2.add(hop2);
+  const fly2=new T.Mesh(new T.CylinderGeometry(1.2,1.2,0.28,18),M(0x2f3236));fly2.rotation.z=PI/2;fly2.position.set(2.1,0.2,0);press2.add(fly2);
+  const sp2=new T.Mesh(new T.BoxGeometry(0.2,2.2,0.2),M(0xd0d4d8));sp2.position.set(2.35,0.2,0);fly2.add(sp2);
+  bx(1.3,1.1,1.5,0x3b4a66,71.6,0.3,21.8,millG);
+  updaters.push(t=>{fly2.rotation.x=-t*4.5;});
+  cyl(1.0,1.0,2.4,0x6fae5a,66.5,0.3,24.8,millG,14);                         // নারিকেল তেলের ট্যাংক
+  for(let i=0;i<4;i++)cyl(0.34,0.34,0.9,0xe6efe0,66+i*0.9,0.3,28.6,millG,10); // নারিকেল তেলের জার
+  const cr=new Merger();for(let r=0;r<3;r++){cr.add(new T.BoxGeometry(6,0.06,1.0),0x8b6a47,mx(73.5,0.7+r*0.5,19.2));for(let c=0;c<14;c++)cr.addS(SPH(),0xf3ecd2,mx(70.9+c*0.42,0.82+r*0.5,19.2,0,0,0,0.2,0.08,0.2));}
+  for(let i=0;i<20;i++)cr.addS(SPH(),i%3?0x7a5230:0x9a7240,mx(61+(i%5)*0.45,0.55+Math.floor(i/5)*0.3,19.6+(i%2)*0.4,0,0,0,0.22,0.22,0.22));
+  millG.add(vmesh(cr));}
+ // oil jars outside + trolley
+ for(let i=0;i<6;i++)cyl(0.45,0.45,1.1,0xc8861c,79.2,0.3,20+i*1.1,millG,10);
+}
+// ---- গোল ঘর ----
+const golG=new T.Group();golG.position.set(-30,0,5);scene.add(golG);
+{cyl(3.8,3.8,0.5,0xc9b48a,0,0,0,golG,18);
+ for(let i=0;i<8;i++){const a=i/8*PI*2;cyl(0.14,0.14,3.2,0x7a5a3a,Math.cos(a)*3.3,0.5,Math.sin(a)*3.3,golG,6);}
+ const cone=new T.Mesh(new T.ConeGeometry(4.6,2.4,16),M(0xc9a35a));cone.position.y=4.9;cone.castShadow=true;golG.add(cone);
+ cyl(0.1,0.1,0.8,0x7a5a3a,0,6,0,golG,6);
+ for(let i=0;i<8;i++){const a=i/8*PI*2+0.4;if(i%2===0)bx(1.8,0.12,0.5,0x8b6a47,Math.cos(a)*2.4,0.5+0.45,Math.sin(a)*2.4,golG).rotation.y=-a+PI/2;}
+ bx(1.4,0.1,1.4,0x8b6a47,0,0.5+0.7,0,golG);cyl(0.1,0.1,0.7,0x6b5236,0,0.5,0,golG,6);
+ // ছোট পাটাতন (jetty)
+ bx(1.6,0.14,13,0x8b6a47,0,0.15,10.5,golG);
+ for(let i=0;i<4;i++){const a=i*PI/2+PI/4;cyl(0.16,0.16,2.8,0x6b5236,Math.cos(a)*3.3,-2.3,Math.sin(a)*3.3,golG,6);}
+ for(const z of [6,10,14,17])[-0.7,0.7].forEach(x=>cyl(0.1,0.1,2.6,0x6b5236,x,-2.2,z,golG,6));}
+// ---- বায়োগ্যাস, খড়ের গাদা, সোলার ----
+const dome=new T.Mesh(new T.SphereGeometry(3,18,10,0,PI*2,0,PI/2),M(0x6d8f5c));dome.position.set(58,0.3,14.6);dome.castShadow=true;scene.add(dome);cyl(3.2,3.2,0.6,0xbfb7a2,58,0,14.6,scene,18);cyl(0.2,0.2,1.1,0x555,58,3.2,14.6,scene,6);
+// hay store
+{const hs=new T.Group();hs.position.set(66,0,12.6);scene.add(hs);[[0,0,0],[2.6,0,0.3],[1.3,1.5,0.1],[0,0,2.2],[2.6,0,2.4]].forEach(p=>{const b=new T.Mesh(new T.CylinderGeometry(0.95,0.95,1.5,12),M(0xd9bd6a));b.rotation.z=PI/2;b.position.set(p[0],0.95+p[1],p[2]);b.castShadow=true;hs.add(b);});
+ const hr=bx(7,0.18,5.5,0x9aa3ab,1.3,3.3,1.2,hs);cyl(0.1,0.1,3.3,0x6b5236,-1.8,0,-1.2,hs,6);cyl(0.1,0.1,3.3,0x6b5236,4.4,0,-1.2,hs,6);cyl(0.1,0.1,3.3,0x6b5236,-1.8,0,3.6,hs,6);cyl(0.1,0.1,3.3,0x6b5236,4.4,0,3.6,hs,6);roofs.push(hr);}
+// ---------- আসল প্রাণীর আকৃতি (বাক্স/সিলিন্ডার নয়, গোলাকার অঙ্গপ্রত্যঙ্গ) ----------
+function cowGeo2(v){
+  const base={bw:0xf2f0ea,br:0x8a4b2a,rd:0xb4532a,bk:0x2d2a28,gr:0xd2cbbd}[v],dark=0x25231f,pink=0xe5b4a6,m=new Merger();
+  ell(m,base,0,1.12,0,0.98,0.5,0.4);ell(m,base,0.58,1.14,0,0.55,0.52,0.38);ell(m,base,-0.6,1.18,0,0.5,0.5,0.38);
+  ell(m,base,0.5,1.6,0,0.3,0.22,0.22);                       // কুঁজ
+  ell(m,base,0.95,1.3,0,0.42,0.24,0.24,0,0,-0.35);           // ঘাড়
+  ell(m,base,1.28,1.2,0,0.3,0.19,0.17,0,0,-0.55);            // মাথা
+  ell(m,v==='bk'?0x3a3633:pink,1.5,1.05,0,0.14,0.12,0.14);   // মুখ
+  [-1,1].forEach(s=>{ell(m,base,1.2,1.4,s*0.22,0.12,0.05,0.1,0,s*0.4,s*0.3);
+    limb(m,0xeee6cc,1.22,1.4,s*0.12,1.2,1.62,s*0.24,0.03,0.012,4);ell(m,0x1a1a1a,1.36,1.27,s*0.13,0.025,0.025,0.02);});
+  ell(m,base,0.85,0.85,0,0.3,0.15,0.1);                      // গলকম্বল
+  [[0.62,0.24],[0.62,-0.24],[-0.68,0.24],[-0.68,-0.24]].forEach(p=>{limb(m,base,p[0],0.9,p[1],p[0],0.1,p[1],0.1,0.06,6);ell(m,dark,p[0],0.05,p[1],0.075,0.06,0.075);});
+  limb(m,base,-1.0,1.3,0,-1.08,0.45,0,0.035,0.02,4);ell(m,dark,-1.09,0.35,0,0.05,0.13,0.05);   // লেজ
+  ell(m,pink,-0.4,0.78,0,0.2,0.15,0.17);                      // ওলান
+  if(v==='bw'){ell(m,dark,0.15,1.3,0.12,0.4,0.3,0.32);ell(m,dark,-0.1,1.3,-0.14,0.35,0.28,0.3);ell(m,dark,-0.7,1.25,-0.1,0.3,0.3,0.32);ell(m,dark,1.28,1.24,0,0.2,0.15,0.12);}
+  return m.build();}
+function goatGeo2(v){
+  const base={w:0xeeeae0,b:0x8d5a34,k:0x2d2a28,g:0xb9b2a2}[v],dark=0x2a2522,m=new Merger();
+  ell(m,base,0,0.64,0,0.5,0.24,0.2);ell(m,base,0.3,0.66,0,0.24,0.24,0.19);ell(m,base,-0.3,0.65,0,0.24,0.23,0.19);
+  limb(m,base,0.4,0.72,0,0.58,0.98,0,0.11,0.08,6);
+  ell(m,base,0.68,1.0,0,0.15,0.1,0.09,0,0,-0.4);ell(m,v==='k'?0x45403b:0xd9cfc0,0.8,0.94,0,0.07,0.06,0.06);
+  [-1,1].forEach(s=>{ell(m,base,0.62,1.0,s*0.12,0.09,0.03,0.05,0,0,s*0.5);limb(m,0xcfc7b0,0.64,1.07,s*0.04,0.5,1.28,s*0.08,0.028,0.012,4);});
+  ell(m,0xd7cdb8,0.77,0.84,0,0.028,0.07,0.028);               // দাড়ি
+  [[0.32,0.12],[0.32,-0.12],[-0.32,0.12],[-0.32,-0.12]].forEach(p=>{limb(m,base,p[0],0.5,p[1],p[0],0.05,p[1],0.04,0.025,5);ell(m,dark,p[0],0.03,p[1],0.035,0.03,0.035);});
+  limb(m,base,-0.5,0.78,0,-0.56,0.95,0,0.035,0.02,4);
+  if(v==='g'||v==='w'){ell(m,v==='g'?0x6a645a:0xa57a4a,0.05,0.7,0.12,0.2,0.14,0.12);}
+  return m.build();}
+function henGeoReal(v){
+  const base={w:0xf1ede2,b:0xa0522d,k:0x2d2a28}[v],m=new Merger();
+  ell(m,base,0,0.38,0,0.22,0.17,0.15);ell(m,base,0.12,0.4,0,0.12,0.15,0.13);
+  ell(m,base,-0.22,0.5,0,0.14,0.14,0.04,0,0,0.8);ell(m,v==='k'?0x1a1a1a:base,-0.2,0.48,0,0.12,0.12,0.035,0,0.3,0.6);
+  ell(m,base,0.2,0.55,0,0.07,0.12,0.07);ell(m,base,0.25,0.68,0,0.07,0.07,0.06);
+  ell(m,0xd22b2b,0.25,0.77,0,0.05,0.05,0.015);ell(m,0xd22b2b,0.3,0.62,0,0.02,0.04,0.02);
+  limb(m,0xe0a020,0.33,0.67,0,0.37,0.65,0,0.025,0.01,4);
+  [-1,1].forEach(s=>{ell(m,base,0,0.4,s*0.14,0.14,0.1,0.03);limb(m,0xe0a020,0.02,0.25,s*0.07,0.02,0.02,s*0.07,0.02,0.015,4);});
+  return m.build();}
+function henGeoCage(){ // ১০,০০০টির জন্য হালকা আকৃতি
+  const m=new Merger();
+  m.add(new T.OctahedronGeometry(1,0),0xffffff,mx(0,0.17,0,0,0,0,0.2,0.15,0.13));
+  m.add(new T.TetrahedronGeometry(1,0),0xffffff,mx(0.2,0.3,0,0,0,0,0.07,0.09,0.07));
+  m.add(new T.TetrahedronGeometry(1,0),0xd22b2b,mx(0.2,0.4,0,0,0,0,0.035,0.05,0.03));
+  m.add(new T.TetrahedronGeometry(1,0),0xffffff,mx(-0.22,0.24,0,0,0,0.6,0.08,0.1,0.06));
+  return m.build();}
+function duckGeo2(v){
+  const base=v==='w'?0xf4f1e8:0x8a6a45,m=new Merger();
+  ell(m,base,0,0.28,0,0.35,0.22,0.2);ell(m,base,0.18,0.34,0,0.18,0.18,0.17);ell(m,base,-0.34,0.38,0,0.12,0.07,0.06,0,0,0.6);
+  limb(m,base,0.28,0.4,0,0.4,0.62,0,0.08,0.06,6);ell(m,v==='w'?0xf4f1e8:0x2f7d4f,0.42,0.66,0,0.1,0.09,0.085);
+  ell(m,0xf0a020,0.55,0.62,0,0.08,0.025,0.05);
+  [-1,1].forEach(s=>ell(m,v==='w'?0xe8e4d6:0x6e5236,0,0.3,s*0.17,0.22,0.1,0.03));
+  return m.build();}
+const gCache={};
+const geoOf=(k,f)=>gCache[k]||(gCache[k]=f());
+function angLerp(a,b,k){let d=b-a;while(d>PI)d-=PI*2;while(d<-PI)d+=PI*2;return a+d*k;}
+
+// ---------- খামার: গরু, ছাগল, মুরগি: সব লাইন করে সাজানো ----------
+const sheds={};
+const CATTLE={x0:54,x1:78,z0:-15,z1:8},GOATS={x0:53,x1:79,z0:-29,z1:-17},POUL={x0:54,x1:76,z0:-46,z1:-33};
+const COW_ROWS=5,COW_PER=20,GOAT_ROWS=4,GOAT_PER=50,HEN_N=FM.HEN,HEN_FLOORS=4,HEN_FH=3.4;
+const cowRowZ=k=>CATTLE.z0+2.0+k*4.5, goatRowZ=k=>GOATS.z0+0.8+k*2.8;
+function shed(name,x0,x1,z0,z1,h,col){
+  const g=new T.Group();scene.add(g);const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
+  bx(w,0.25,d,0xcfc7b4,cx,0,cz,g);
+  for(let x=x0;x<=x1+0.1;x+=w/4){cyl(0.16,0.16,h,0x6b5236,x,0.25,z0+0.3,g,6);cyl(0.16,0.16,h,0x6b5236,x,0.25,z1-0.3,g,6);}
+  bx(w,0.9,0.15,0xb7ac93,cx,0.25,z0+0.1,g);bx(w,0.9,0.15,0xb7ac93,cx,0.25,z1-0.1,g);
+  const rf=new T.Group();rf.position.set(cx,h+0.25,cz);
+  const a=new T.Mesh(new T.BoxGeometry(w+1,0.15,d/2+0.9),M(col));a.position.z=-d/4;a.rotation.x=0.2;a.castShadow=true;
+  const b2=a.clone();b2.position.z=d/4;b2.rotation.x=-0.2;rf.add(a,b2);g.add(rf);roofs.push(rf);
+  sheds[name]={g,x0,x1,z0,z1,cx,cz,rf,b2,d};return sheds[name];}
+shed('cattle',CATTLE.x0,CATTLE.x1,CATTLE.z0,CATTLE.z1,4.4,0x8ea6b5);
+shed('goat',GOATS.x0,GOATS.x1,GOATS.z0,GOATS.z1,3.4,0x9fb08e);
+// খাবারের পাত্র লাইন ধরে + কর্মীর হাঁটার পথ
+for(let k=0;k<COW_ROWS;k++){const rz=cowRowZ(k);
+  bx(22.8,0.5,0.6,0x9a9488,66,0.25,rz+1.6,scene);bx(22.6,0.12,0.42,0x7a9a4a,66,0.75,rz+1.6,scene);
+  bx(24,0.04,1.4,0xd8d2c2,66,0.25,rz+2.75,scene);}
+for(let k=0;k<GOAT_ROWS;k++){const rz=goatRowZ(k);
+  bx(25,0.35,0.4,0x9a9488,66,0.25,rz+0.9,scene);bx(24.8,0.1,0.28,0x8aa84a,66,0.6,rz+0.9,scene);
+  bx(25,0.04,1.0,0xd8d2c2,66,0.25,rz+1.7,scene);}
+// গরুর শেডের ছাদে সোলার প্যানেল (ছাদ সরালে প্যানেলও সরে যায়)
+{const sp=new Merger();for(let r=0;r<2;r++)for(let c=0;c<8;c++)sp.add(new T.BoxGeometry(2.6,0.07,1.8),0x1f3b73,mx(-10.5+c*3,0.14,sheds.cattle.d/4-2.6+r*2.1));
+ const spm=vmesh(sp,new T.MeshLambertMaterial({vertexColors:true,emissive:0x0a1a40}));sheds.cattle.b2.add(spm);}
+// ---- ৪ তলা মুরগির বিল্ডিং: ১০,০০০ ডিম পাড়া লেয়ার, থাকে থাকে খাঁচার লাইন ----
+const polG=new T.Group();scene.add(polG);
+let henIM=null;
+{const x0=POUL.x0,x1=POUL.x1,z0=POUL.z0,z1=POUL.z1,w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2,FHP=HEN_FH,NF=HEN_FLOORS;
+ const roofP=new T.Group();polG.add(roofP);roofs.push(roofP);
+ bx(w+1,0.3,d+1,0xcfc7b4,cx,0,cz,polG);
+ const cages=new Merger(),lamp=glowMat(0xf6f2d6,0xfff0a0),hensList=[];
+ for(let f=0;f<NF;f++){const y0=0.3+f*FHP;
+   const slab=bx(w,0.3,d,0xd8d0be,cx,y0+FHP-0.3,cz,f===NF-1?roofP:polG);
+   bx(w,FHP-0.3,0.25,0xe8dfc9,cx,y0,z0,polG);bx(0.25,FHP-0.3,d,0xe8dfc9,x0,y0,cz,polG);bx(0.25,FHP-0.3,d,0xe8dfc9,x1,y0,cz,polG);
+   bx(w,0.9,0.15,0xb7ac93,cx,y0,z1,polG);
+   for(let x=x0;x<=x1+0.1;x+=w/4)cyl(0.18,0.18,FHP-0.3,0xb7ac93,x,y0,z1,polG,8);
+   for(let k=0;k<4;k++)bx(19,0.08,0.2,lamp,cx,y0+FHP-0.45,z0+1.2+k*2.25+1.1+0.575,polG,false);
+   for(let k=0;k<5;k++){const bz=z0+1.2+k*2.25+0.55;
+     for(let t=0;t<5;t++){const ty=y0+0.4+t*0.4;
+       cages.add(new T.BoxGeometry(19.8,0.03,1.1),0x9aa3ab,mx(cx,ty,bz));
+       cages.add(new T.BoxGeometry(19.8,0.03,0.06),0xe0d6b0,mx(cx,ty+0.07,bz+0.56));
+       for(let i=0;i<50;i++)for(let s=-1;s<=1;s+=2)hensList.push({x:cx-9.9+(i+0.5)*(19.8/50),y:ty+0.02,z:bz+s*0.26,ry:(s>0?-PI/2:PI/2)+R(-0.25,0.25),c:rand()});}
+     for(let i=0;i<=10;i++){const px=cx-9.9+i*1.98;[-1,1].forEach(s=>cages.add(new T.BoxGeometry(0.04,2.1,0.04),0x8d969e,mx(px,y0+1.4,bz+s*0.55)));}
+     cages.add(new T.BoxGeometry(19.8,0.04,1.1),0x8d969e,mx(cx,y0+2.45,bz));}}
+ bx(w+0.8,0.4,0.25,0xb8ae98,cx,0.3+NF*FHP,z1,roofP);bx(w+0.8,0.4,0.25,0xb8ae98,cx,0.3+NF*FHP,z0,roofP);
+ bx(0.25,0.4,d,0xb8ae98,x0,0.3+NF*FHP,cz,roofP);bx(0.25,0.4,d,0xb8ae98,x1,0.3+NF*FHP,cz,roofP);
+ bx(2.6,NF*FHP+0.3,6,0xe8dfc9,77.8,0,-43,polG);                           // সিঁড়ি ও ডিম লিফটের ঘর
+ const cm=vmesh(cages,new T.MeshLambertMaterial({vertexColors:true}),false);polG.add(cm);
+ // ১০,০০০ মুরগি (ইনস্ট্যান্স), এলোমেলো সাজিয়ে রাখা যাতে লাইট মোডে সমানভাবে কমে
+ for(let i=hensList.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));const t=hensList[i];hensList[i]=hensList[j];hensList[j]=t;}
+ henIM=new T.InstancedMesh(henGeoCage(),new T.MeshLambertMaterial({vertexColors:true}),hensList.length);
+ const o=new T.Object3D(),cc=new T.Color();
+ hensList.forEach((h,i)=>{o.position.set(h.x,h.y,h.z);o.rotation.set(0,h.ry,0);o.scale.setScalar(0.95+h.c*0.1);o.updateMatrix();henIM.setMatrixAt(i,o.matrix);
+   if(h.c<0.55)cc.setRGB(1,0.98,0.93);else cc.setRGB(0.8,0.52,0.32);henIM.setColorAt(i,cc);});
+ henIM.instanceMatrix.needsUpdate=true;henIM.frustumCulled=false;henIM.castShadow=false;polG.add(henIM);
+ scene.userData.henCount=hensList.length;}
+// irrigation line: pond → orchard & napier (pipe + valves)
+{const pm=new T.MeshLambertMaterial({color:0x2b6cb0});const pts=[[-4,-16],[41,-16]];
+ for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);const m=new T.Mesh(new T.CylinderGeometry(0.14,0.14,L,6),pm);m.position.set((a[0]+b[0])/2,0.2,(a[1]+b[1])/2);m.rotation.z=PI/2;m.rotation.y=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.rotation.order='YZX';m.castShadow=false;scene.add(m);}
+ cyl(0.7,0.7,1.2,0x3d6fb0,-4.2,0,-16,scene,10);}
+scene.userData.roofs=roofs;
+// ---------- প্রাণী: লাইন ধরে দাঁড়ানো গরু (৫×২০) ও ছাগল (৪×৫০) ----------
+const lineAnimals=[];  // {im,list}
+const _o=new T.Object3D(),_c=new T.Color();
+function placeLine(list,geoFn,varsKey){
+  const byV={};list.forEach(d=>{(byV[d.v]=byV[d.v]||[]).push(d);});
+  for(const v in byV){const arr=byV[v],im=new T.InstancedMesh(geoOf(varsKey+v,()=>geoFn(v)),VC,arr.length);
+    arr.forEach((d,i)=>{d.i=i;_c.setScalar(d.tint);im.setColorAt(i,_c);
+      // লাইট মোডেও প্রথম ফ্রেম থেকেই প্রাণীর সঠিক অবস্থান বসাতে হবে
+      _o.position.set(d.x,d.y||0,d.z);_o.rotation.set(0,d.ry,0);_o.scale.set(d.s,d.s,d.s);_o.updateMatrix();im.setMatrixAt(i,_o.matrix);
+    });
+    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;im.castShadow=!LITE;im.receiveShadow=true;scene.add(im);lineAnimals.push({im,arr});}}
+const COWS=[],GOATL=[];
+{const cv=['bw','br','rd','bk','gr'],gv=['w','b','k','g','w','b'];
+ for(let k=0;k<COW_ROWS;k++)for(let i=0;i<COW_PER;i++)COWS.push({x:CATTLE.x0+0.85+i*1.12,z:cowRowZ(k),y:0,ry:-PI/2+R(-0.06,0.06),s:R(0.93,1.05),v:cv[(i+k*2)%5],ph:R(0,6.28),tint:R(0.9,1.06)});
+ for(let k=0;k<GOAT_ROWS;k++)for(let i=0;i<GOAT_PER;i++)GOATL.push({x:GOATS.x0+0.55+i*0.5,z:goatRowZ(k),y:0,ry:-PI/2+R(-0.08,0.08),s:R(0.9,1.1),v:gv[(i+k)%6],ph:R(0,6.28),tint:R(0.9,1.06)});
+ placeLine(COWS,cowGeo2,'cow');placeLine(GOATL,goatGeo2,'goat');}
+let _an=0;updaters.push((t,dt)=>{if(LITE||(++_an%3))return;lineAnimals.forEach(L=>{L.arr.forEach(d=>{const br=1+0.014*Math.sin(t*1.4+d.ph);_o.position.set(d.x,0,d.z);_o.rotation.set(0,d.ry,0);_o.scale.set(d.s,d.s*br,d.s);_o.updateMatrix();L.im.setMatrixAt(d.i,_o.matrix);});L.im.instanceMatrix.needsUpdate=true;});});
+// ---- উঠানে ঘোরাফেরা করা মুরগি ----
+const yardHens=[];
+for(let i=0;i<24;i++){const v=['w','b','k'][i%3],g=new T.Mesh(geoOf('hr'+v,()=>henGeoReal(v)),VC);g.castShadow=true;g.position.set(R(55,75),0,R(-32.6,-30.2));g.rotation.y=R(0,6.28);scene.add(g);yardHens.push({g,tx:g.position.x,tz:g.position.z,wait:R(0,4),ry:g.rotation.y,ph:R(0,6)});}
+updaters.push((t,dt)=>{yardHens.forEach(a=>{const g=a.g;
+  if(a.wait>0){a.wait-=dt;g.rotation.z=Math.sin(t*9+a.ph)>0.6?-0.35:0;if(a.wait<=0){a.tx=R(55,75);a.tz=R(-32.6,-30.2);}return;}
+  g.rotation.z=0;const dx=a.tx-g.position.x,dz=a.tz-g.position.z,d=Math.hypot(dx,dz);if(d<0.3){a.wait=R(1,6);return;}
+  g.position.x+=dx/d*dt;g.position.z+=dz/d*dt;a.ry=angLerp(a.ry,-Math.atan2(dz,dx),Math.min(1,dt*4));g.rotation.y=a.ry;g.position.y=Math.abs(Math.sin(t*10+a.ph))*0.04;});});
+// ---------- people ----------
+const PGEO={};
+function person(shirt,pants,sc,skin,o){
+  skin=skin||0xc99a73;o=o||{};
+  const key=[shirt,pants,skin,o.hair||0,o.cap||0].join('_');let G=PGEO[key];
+  if(!G){const leg=new Merger(),arm=new Merger(),tor=new Merger();
+    limb(leg,pants,0,0,0,0.01,-0.46,0,0.095,0.075,6);limb(leg,pants,0.01,-0.46,0,0,-0.86,0,0.07,0.05,6);ell(leg,0x2b2b2b,0.05,-0.9,0,0.12,0.05,0.07);
+    limb(arm,shirt,0,0,0,0,-0.28,0,0.05,0.043,6);limb(arm,skin,0,-0.28,0,0,-0.54,0,0.04,0.032,6);ell(arm,skin,0,-0.58,0,0.035,0.05,0.03);
+    ell(tor,pants,0,0.95,0,0.14,0.12,0.19);ell(tor,shirt,0,1.2,0,0.15,0.3,0.23);ell(tor,shirt,0,1.38,0,0.14,0.14,0.27);
+    limb(tor,skin,0,1.45,0,0.01,1.55,0,0.05,0.045,6);ell(tor,skin,0.01,1.64,0,0.1,0.12,0.09);
+    ell(tor,o.hair||0x1c1c1c,-0.012,1.69,0,0.105,0.085,0.098);ell(tor,skin,0.095,1.62,0,0.02,0.03,0.025);
+    ell(tor,skin,0,1.64,0.092,0.025,0.04,0.015);ell(tor,skin,0,1.64,-0.092,0.025,0.04,0.015);
+    if(o.cap)ell(tor,o.cap,0,1.72,0,0.1,0.045,0.095);
+    G=PGEO[key]={leg:leg.build(),arm:arm.build(),tor:tor.build()};}
+  const g=new T.Group(),legs=[],arms=[];
+  [-1,1].forEach(s=>{const p=new T.Group();p.position.set(0,0.92,s*0.1);const mm=new T.Mesh(G.leg,VC);mm.castShadow=true;p.add(mm);g.add(p);legs.push(p);});
+  const tm=new T.Mesh(G.tor,VC);tm.castShadow=true;g.add(tm);
+  [-1,1].forEach(s=>{const p=new T.Group();p.position.set(0,1.46,s*0.25);const mm=new T.Mesh(G.arm,VC);mm.castShadow=true;p.add(mm);g.add(p);arms.push(p);});
+  const carry=new T.Group();carry.position.set(0,1.85,0);carry.visible=false;g.add(carry);
+  g.scale.setScalar(sc||1);scene.add(g);return {g,legs,arms,carry};}
+const sackGeo=new T.BoxGeometry(0.55,0.34,0.95);
+function carryItem(p,kind){while(p.carry.children.length)p.carry.remove(p.carry.children[0]);
+  if(kind==='sack'){const s=new T.Mesh(sackGeo,M(0xe6dcc0));p.carry.add(s);}
+  else if(kind==='hay'){const s=new T.Mesh(new T.BoxGeometry(0.9,0.5,0.6),M(0xd9bd6a));p.carry.add(s);}
+  else if(kind==='grass'){const s=new T.Mesh(new T.BoxGeometry(1.2,0.4,0.5),M(0x6fae3f));p.carry.add(s);}
+  else if(kind==='basket'){const s=new T.Mesh(new T.CylinderGeometry(0.3,0.24,0.28,8),M(0x9b7a4f));p.carry.add(s);for(let i=0;i<4;i++){const f=new T.Mesh(new T.SphereGeometry(0.1,6,5),M(0xd2d05c));f.position.set(Math.cos(i*1.6)*0.14,0.18,Math.sin(i*1.6)*0.14);p.carry.add(f);}}
+  else if(kind==='bucket'){const s=new T.Mesh(new T.CylinderGeometry(0.2,0.16,0.3,8),M(0x2b6cb0));p.carry.add(s);} }
+const walkers=[];
+function walker(p,pts,sp,y,item){const w={p,pts,i:0,sp,wait:0,y:y||0,item,carrying:false,ph:R(0,6)};p.g.position.set(pts[0][0],w.y,pts[0][1]);carryItem(p,item);walkers.push(w);return w;}
+function statue(p,x,y,z,face,mode){p.g.position.set(x,y,z);p.g.rotation.y=-face;p.mode=mode||'idle';p.ph=R(0,6);walkers.push({p,stat:true,ph:p.ph});}
+updaters.push((t,dt)=>{walkers.forEach(w=>{const p=w.p;
+  if(w.stat){const m=p.mode;p.arms.forEach((a,i)=>a.rotation.z=m==='work'?-0.9+Math.sin(t*5+i*PI+w.ph)*0.25:m==='throw'?((i===1)?-1.2+Math.sin(t*1.6)*1.1:0.1):Math.sin(t*1.2+w.ph+i)*0.06);p.legs.forEach(l=>l.rotation.z=0);return;}
+  if(w.wait>0){w.wait-=dt;p.legs.forEach(l=>l.rotation.z*=0.8);p.arms.forEach(a=>a.rotation.z*=0.9);return;}
+  const q=w.pts[w.i],g=p.g,dx=q[0]-g.position.x,dz=q[1]-g.position.z,d=Math.hypot(dx,dz);
+  if(d<0.15){if(q[2]!==undefined&&q[2]>=0)w.wait=q[2];if(q[3]==='on'){p.carry.visible=true;}if(q[3]==='off'){p.carry.visible=false;}w.i=(w.i+1)%w.pts.length;return;}
+  g.position.x+=dx/d*w.sp*dt;g.position.z+=dz/d*w.sp*dt;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*6));
+  const s=Math.sin(t*w.sp*4.5+w.ph);p.legs[0].rotation.z=s*0.6;p.legs[1].rotation.z=-s*0.6;
+  if(p.carry.visible){p.arms.forEach(a=>a.rotation.z=-2.6);}else{p.arms[0].rotation.z=-s*0.5;p.arms[1].rotation.z=s*0.5;}
+});});
+(function(){
+  const CAP=0xf1efe6;
+  // খড় বহনকারী: খড়ের স্টোর থেকে গরুর লাইনের মাঝের পথে
+  let p=person(0x3d7a9c,0x4a3b2e,1,0xc99a73,{cap:CAP});walker(p,[[68,10.6,0.6,'on'],[79.4,10.6,0],[79.4,7.5,0],[56,7.5,0.8,'off'],[79.4,7.5,0],[79.4,10.6,0],[68,10.6]],1.3,0,'hay');
+  p=person(0xa83d3d,0x4a3b2e);walker(p,[[72,10.6,0.5,'on'],[79.4,10.6,0],[79.4,3.2,0],[58,3.2,0.8,'off'],[79.4,3.2,0],[79.4,10.6,0],[72,10.6]],1.2,0,'hay');
+  // গরুকে খাওয়ানো: বালতি হাতে লাইনের মাঝের পথ ধরে
+  p=person(0x2f8a7a,0x3b3b3b);walker(p,[[55,-5.8,0.3,'on'],[77,-5.8,1.0,'off'],[55,-5.8,0.5]],0.9,0,'bucket');
+  p=person(0xc9a23a,0x3b3b3b,1,0xb98a63,{cap:CAP});walker(p,[[55,-10.3,0.3,'on'],[77,-10.3,1.0,'off'],[55,-10.3,0.5]],0.9,0,'bucket');
+  // ছাগলকে খাওয়ানো
+  p=person(0x8a6fb0,0x3b3b3b);walker(p,[[55,-23.7,0.3,'on'],[77,-23.7,1.0],[55,-23.7,0.5]],0.8,0,'bucket');
+  // মুরগির উঠানে ডিমের ঝুড়ি
+  p=person(0xe07a4a,0x3b3b3b);walker(p,[[56,-31.4,0.4,'on'],[74,-31.4,0.8,'off'],[56,-31.4,0.4]],0.9,0,'basket');
+  // গোডাউনে বস্তা বহন
+  [[32.3,0],[33.1,1.5]].forEach(a=>{const q=person(0xd9893a,0x3f4a5a);walker(q,[[-41.4,a[0],0.4],[-34.5,a[0]+0.2,0.6,'on'],[-41.4,a[0],0.3,'off'],[-34.5,a[0]+0.2,0.4]],1.2+a[1]*0.1,0,'sack');});
+  // মাড়াই ঘর
+  p=person(0x2f8a7a,0x3f4a5a);walker(p,[[57.4,32.6,0.4],[59.2,27.4,0.9,'off'],[57.4,32.6,0.4,'on']],1.0,0.3,'sack');
+  p=person(0xe8e8e0,0x3f4a5a);statue(p,68,0.3,35.7,-PI/2,'work');
+  p=person(0x3f6fa3,0x3f4a5a);statue(p,62.6,0.3,27.6,-PI/2,'idle');
+  // আম বাগানের মালি
+  p=person(0x6aa84f,0x5a4630);walker(p,[[2.4,-44],[2.4,26,0.8],[8.6,26],[8.6,-44,0.8],[2.4,-44]],1.0,0,'basket');
+  // ঘাস কাটা
+  p=person(0xc9a23a,0x44402f);walker(p,[[17,-3,0.3,'on'],[41,-3,1.0,'off'],[41,-3,0.1],[17,-3,0.4]],1.0,0,'grass');
+  // গেটের প্রহরী
+  p=person(0x3b4a66,0x2c3140);walker(p,[[43.6,39.2,1.5],[49.0,39.2,1.5]],0.6,0);
+  // পুকুরে মাছের খাবার
+  p=person(0xc86f2f,0x3b3b3b);statue(p,-27.2,0.5,2.6,-2.3,'throw');
+  p=person(0x7a5aa8,0x3f4a5a,0.95);statue(p,-31.6,0.5,3.4,-1.2,'idle');
+  // ভবনের ভেতরে
+  p=person(0x3a7ca5,0x2c3140);statue(p,5,0.35,20.7,-PI/2,'work');floors[0].add(p.g);p.g.position.set(5,0.35,20.7);
+  p=person(0x9b5d9b,0x2c3140);floors[1].add(p.g);p.g.position.set(30,0.35,31.3);p.g.rotation.y=-PI/2;
+  p=person(0xd9d0b0,0x3b3b3b);floors[1].add(p.g);p.g.position.set(20,0.35,24.4);p.g.rotation.y=PI;
+})();
+// ---------- pond: ducks, fish, feed, ripples ----------
+const duckHouse=new T.Group();duckHouse.position.set(-40,-0.1,-8);scene.add(duckHouse);
+{bx(5.5,0.3,4,0x8b6a47,0,0,0,duckHouse);[[-2.4,-1.7],[2.4,-1.7],[-2.4,1.7],[2.4,1.7]].forEach(p=>cyl(0.12,0.12,2.2,0x6b5236,p[0],0.3,p[1],duckHouse,6));
+ const r=new T.Mesh(new T.BoxGeometry(6.4,0.15,2.5),M(0xb4492f));r.position.set(0,2.6,-0.95);r.rotation.x=0.3;const r2=r.clone();r2.position.z=0.95;r2.rotation.x=-0.3;duckHouse.add(r,r2);bx(3,0.6,2.4,0xe6dccb,0,0.3,0,duckHouse);
+ updaters.push(t=>{duckHouse.position.y=-0.1+Math.sin(t*0.9)*0.05;duckHouse.rotation.z=Math.sin(t*0.7)*0.015;});}
+const duckGeo=duckGeo2('w'),duckGeoM=duckGeo2('m');
+const ducks=[];for(let i=0;i<24;i++){const g=new T.Mesh(i%3===0?duckGeoM:duckGeo,VC);g.castShadow=true;const a=R(0,6.28),r=R(4,24);g.position.set(-42+Math.cos(a)*r*1.3,-0.1,-13+Math.sin(a)*r*1.1);scene.add(g);ducks.push({g,tx:g.position.x,tz:g.position.z,w:R(0,3),ry:R(0,6.28)});}
+updaters.push((t,dt)=>{ducks.forEach(d=>{const p=d.g.position;
+  if(d.w>0)d.w-=dt;if(Math.hypot(d.tx-p.x,d.tz-p.z)<0.6||d.w<-12){d.tx=POND.cx+R(-POND.a*0.8,POND.a*0.8);d.tz=POND.cz+R(-POND.b*0.8,POND.b*0.8);if(pondD(d.tx,d.tz)>0.7){d.tx=-42;d.tz=-13;}d.w=R(0,4);}
+  if(d.w<=0){const dx=d.tx-p.x,dz=d.tz-p.z,L=Math.hypot(dx,dz)||1;p.x+=dx/L*0.9*dt;p.z+=dz/L*0.9*dt;d.ry=angLerp(d.ry,-Math.atan2(dz,dx),dt*2);}
+  d.g.rotation.y=d.ry;p.y=-0.1+Math.sin(t*1.6+d.w*3)*0.03;});});
+const FISHN=60,fishGeo=(()=>{const m=new Merger();m.add(new T.IcosahedronGeometry(0.3,0),0xffffff,mx(0,0,0,0,0,0,1.6,0.6,0.5));m.add(new T.ConeGeometry(0.2,0.4,3),0xffffff,mx(-0.55,0,0,0,0,PI/2));return m.build();})();
+const fishM=new T.InstancedMesh(fishGeo,new T.MeshLambertMaterial({vertexColors:true}),FISHN);fishM.frustumCulled=false;scene.add(fishM);
+function fpt(){for(let k=0;k<60;k++){const x=POND.cx+R(-POND.a*0.9,POND.a*0.9),z=POND.cz+R(-POND.b*0.9,POND.b*0.9);if(pondD(x,z)<0.45)return {cx:x,cz:z};}return {cx:POND.cx,cz:POND.cz};}
+const fish=[];for(let i=0;i<FISHN;i++){fishM.setColorAt(i,new T.Color(i%3===0?0xcfd8dc:i%3===1?0xff8a3a:0xe8c14a));fish.push({...fpt(),r:R(1.5,4),sp:R(0.3,0.8)*(rand()<0.5?-1:1),a:R(0,6.28),y:R(-0.55,-0.3)});}
+if(fishM.instanceColor)fishM.instanceColor.needsUpdate=true;
+const feedPt=new T.Vector3(-34.5,0,3.5);let feedT=-1;
+const pellets=[];for(let i=0;i<8;i++){const m=new T.Mesh(new T.SphereGeometry(0.1,5,4),M(0xcaa45a));m.visible=false;scene.add(m);pellets.push({m,vx:0,vy:0,vz:0});}
+const ripples=[];for(let i=0;i<8;i++){const m=new T.Mesh(new T.RingGeometry(0.85,1,28).rotateX(-PI/2),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));m.position.y=-0.08;scene.add(m);ripples.push({m,t:9});}
+let ripI=0;function ripple(x,z){const r=ripples[ripI++%ripples.length];r.t=0;r.m.position.set(x,-0.08,z);}
+let lastThrow=0;
+updaters.push((t,dt)=>{
+  if(t-lastThrow>5){lastThrow=t;feedT=t;pellets.forEach((p,i)=>{p.m.visible=true;p.m.position.set(-27.4,1.6,2.4);p.vx=-1.6-R(0,1.4);p.vy=5+R(0,1.5);p.vz=-1.1-R(0,1.2);p.land=false;});}
+  pellets.forEach(p=>{if(!p.m.visible)return;p.vy-=9.8*dt;p.m.position.x+=p.vx*dt;p.m.position.y+=p.vy*dt;p.m.position.z+=p.vz*dt;if(p.m.position.y<-0.1){p.m.visible=false;ripple(p.m.position.x,p.m.position.z);feedPt.set(p.m.position.x,0,p.m.position.z);}});
+  const feeding=t-feedT<4.5&&t-feedT>0.7;const o=new T.Object3D();
+  fish.forEach((f,i)=>{f.a+=f.sp*dt;let x=f.cx+Math.cos(f.a)*f.r,z=f.cz+Math.sin(f.a)*f.r;
+    if(feeding){const k=Math.min(1,(t-feedT-0.7)*0.5);x+= (feedPt.x+Math.cos(f.a*3)*1.3-x)*k;z+=(feedPt.z+Math.sin(f.a*3)*1.3-z)*k;if(rand()<0.004)ripple(x,z);}
+    if(pondD(x,z)>0.8){x=f.cx;z=f.cz;}
+    o.position.set(x,f.y+(feeding?0.15:0),z);o.rotation.set(0,-(f.a+(f.sp>0?PI/2:-PI/2)),0);o.scale.setScalar(1);o.updateMatrix();fishM.setMatrixAt(i,o.matrix);});
+  fishM.instanceMatrix.needsUpdate=true;
+  ripples.forEach(r=>{r.t+=dt;const k=r.t/1.6;r.m.visible=k<1;if(k<1){r.m.scale.setScalar(0.3+k*2.4);r.m.material.opacity=0.55*(1-k);}});
+});
+// ---------- vehicles ----------
+const vehicles=[];
+function carGeo(c,kind){const m=new Merger();
+  if(kind==='car'){m.add(new T.BoxGeometry(4.2,0.95,1.8),c,mx(0,0.85,0));m.add(new T.BoxGeometry(2.2,0.8,1.6),c,mx(-0.2,1.6,0));m.add(new T.BoxGeometry(2.0,0.6,1.62),0x9ec9de,mx(-0.2,1.62,0));}
+  else if(kind==='bus'){m.add(new T.BoxGeometry(10,2.7,2.5),c,mx(0,1.9,0));m.add(new T.BoxGeometry(9.4,0.9,2.52),0x9ec9de,mx(0,2.5,0));m.add(new T.BoxGeometry(10.02,0.4,2.52),0xf2f2f2,mx(0,1.2,0));}
+  else if(kind==='truck'){m.add(new T.BoxGeometry(2.2,2.2,2.4),c,mx(3.0,1.8,0));m.add(new T.BoxGeometry(0.1,0.9,2.0),0x9ec9de,mx(4.12,2.2,0));m.add(new T.BoxGeometry(5.6,0.3,2.5),0x3a3a3a,mx(-0.6,1.0,0));m.add(new T.BoxGeometry(5.6,0.15,2.5),0x8b6a47,mx(-0.6,1.2,0));
+    for(let i=0;i<10;i++)m.add(new T.BoxGeometry(0.95,0.34,0.55),i%2?0xe6dcc0:0xd8b34a,mx(-2.8+(i%5)*1.05,1.5+Math.floor(i/5)*0.34,i%2?0.5:-0.5));
+    for(let i=0;i<6;i++)m.add(new T.BoxGeometry(0.95,0.34,0.55),i%2?0xe6dcc0:0xd8b34a,mx(-2.4+(i%3)*1.05,2.2,i%2?0.5:-0.5));}
+  else if(kind==='cng'){m.add(new T.BoxGeometry(2.6,1.2,1.4),c,mx(0,1.0,0));m.add(new T.BoxGeometry(1.5,0.9,1.4),0x2d6a3a,mx(-0.3,1.9,0));}
+  else if(kind==='bike'){m.add(new T.BoxGeometry(1.7,0.4,0.3),c,mx(0,0.7,0));m.add(new T.BoxGeometry(0.7,0.9,0.3),0x222,mx(-0.1,1.25,0));}
+  else if(kind==='van'){m.add(new T.BoxGeometry(2.3,0.12,1.2),0x8b6a47,mx(-0.4,0.6,0));m.add(new T.BoxGeometry(1.2,0.5,1.0),c,mx(-0.7,0.95,0));m.add(new T.BoxGeometry(0.3,0.9,0.3),0x444,mx(0.9,0.9,0));}
+  return m.build();}
+function wheels(g,kind,L,wd,r){const pos=kind==='bus'?[[-3.2,1.1],[3.2,1.1]]:kind==='truck'?[[-2.4,1.1],[1.0,1.1],[3.2,1.1]]:kind==='bike'?[[-0.7,0],[0.7,0]]:kind==='van'?[[-1.2,0],[0.9,0]]:[[-1.2,wd],[1.2,wd]];
+  pos.forEach(p=>{const ws=kind==='bike'||kind==='van'?[0]:[-1,1];ws.forEach(s=>{const w=new T.Mesh(new T.CylinderGeometry(r,r,0.3,10),M(0x1d1d1d));w.rotation.x=PI/2;w.position.set(p[0],r,kind==='bike'||kind==='van'?0:s*(p[1]>0&&kind!=='car'&&kind!=='cng'?1.1:0.8));w.castShadow=true;g.add(w);});});}
+function vehicle(kind,col,path,speed,o){o=o||{};const g=new T.Group();const m=new T.Mesh(carGeo(col,kind),VC);m.castShadow=true;m.receiveShadow=true;g.add(m);wheels(g,kind,0,0.8,kind==='bus'||kind==='truck'?0.55:0.38);
+  if(kind==='van'){const r=person(0x3a7ca5,0x3b3b3b,0.8);scene.remove(r.g);r.g.position.set(0.9,0.45,0);g.add(r.g);}
+  g.visible=false;scene.add(g);const v={g,path,sp:speed,i:1,x:path[0].x,z:path[0].z,h:o.h||0,wait:0,start:o.start||0,rest:o.rest||0,loop:o.loop!==false,state:o.start>0?'idle':'run',v0:speed};vehicles.push(v);return v;}
+function arcPts(cx,cz,r,a0,a1,n){const a=[];for(let i=0;i<=n;i++){const t=a0+(a1-a0)*i/n;a.push({x:cx+Math.cos(t)*r,z:cz+Math.sin(t)*r});}return a;}
+const ML=MAIN_Z-2.4,ML2=MAIN_Z+2.4;
+// মূল সড়কের গাড়ি
+[['car',0xc44a3a,1,13],['bus',0xe0a23a,-1,9],['truck',0x3a6ea5,1,11],['cng',0x3f8a4a,-1,8],['car',0x2d4a73,-1,15],['van',0xb4492f,1,3.2],['bike',0x9a1f1f,1,14],['car',0xdedede,1,12],['truck',0xb4492f,-1,10],['cng',0x3f8a4a,1,8.5],['bus',0x3a8ab4,1,9.5],['van',0x5a7aa8,-1,3.4]].forEach((c,i)=>{
+  const dir=c[2],z=dir>0?ML2:ML;const v=vehicle(c[0],c[1],[{x:-420,z},{x:420,z}],c[3],{h:dir>0?0:PI,start:0});if(dir<0)v.path=[{x:420,z},{x:-420,z}];v.x=-420+i*(840/12)+R(-20,20);if(dir<0)v.x=420-i*(840/12)+R(-20,20);v.wrap=true;v.g.visible=true;});
+// ডেলিভারি ট্রাক: গেট দিয়ে ঢুকে পশ্চিমের গোডাউনে বস্তা নামায়, ঘুরে বেরিয়ে যায়
+{const xi=GX+1.7,xo=GX-1.7,ZW=33.5,ZE=36.2;
+ const p=[{x:300,z:ML},{x:xi+9,z:ML},...arcPts(xi+9,ML-4,4,PI/2,PI,6),{x:xi,z:MAIN_Z-12},{x:xi,z:40},{x:xi-1.5,z:35},{x:xi-4,z:ZW},{x:20,z:ZW},{x:-20,z:ZW},{x:-33,z:ZW,stop:26},{x:-36.5,z:ZW},{x:-38.2,z:34.85},{x:-36.5,z:ZE},{x:-28,z:ZE},{x:20,z:ZE},{x:xo-4,z:ZE},{x:xo,z:38},{x:xo,z:MAIN_Z-12},...arcPts(xo-9,ML2-4,4,0,PI/2,6),{x:xo-9,z:ML2},{x:-300,z:ML2}];
+ const v=vehicle('truck',0xd0a030,p,7,{start:6,rest:30});v.h=PI;}
+// অতিথির গাড়ি: ঢুকে পার্কিংয়ে দাঁড়ায়
+{const xi=GX+1.7,xo=GX-1.7,ZW=33.5,ZE=36.2;const p=[{x:-300,z:ML2},{x:xi-6,z:ML2},{x:xi,z:ML2-3},{x:xi,z:MAIN_Z-12},{x:xi,z:40},{x:xi-1.5,z:35},{x:xi-4,z:ZW},{x:-12,z:ZW},{x:-22,z:ZW-0.5},{x:-22,z:29.6,stop:30},{x:-22,z:32.5},{x:-19,z:ZE},{x:xo-4,z:ZE},{x:xo,z:38},{x:xo,z:MAIN_Z-3},{x:xo+5,z:ML2},{x:300,z:ML2}];
+ const v=vehicle('car',0x1f6b52,p,8,{start:14,rest:40});v.h=0;}
+// স্থির গাড়ি
+[[-31,27.4,0x2a2f36],[-26,27.4,0xd5d7da],[-12,27.4,0x7a2b2b],[-16.5,27.4,0x3a6ea5]].forEach(c=>{const g=new T.Mesh(carGeo(c[2],'car'),VC);g.position.set(c[0],0,c[1]);g.rotation.y=-PI/2;g.castShadow=true;scene.add(g);wheels(g,'car',0,0.8,0.38);});
+updaters.push((t,dt)=>{vehicles.forEach(v=>{
+  if(v.state==='idle'){if(t>=v.start){v.state='run';v.i=1;v.x=v.path[0].x;v.z=v.path[0].z;v.g.visible=true;}else return;}
+  if(v.state==='rest'){if(t>=v.restUntil){v.state='run';v.i=1;v.x=v.path[0].x;v.z=v.path[0].z;v.g.visible=true;}return;}
+  if(v.wait>0){v.wait-=dt;return;}
+  const q=v.path[v.i],dx=q.x-v.x,dz=q.z-v.z,d=Math.hypot(dx,dz);let sp=v.sp;  if(q.stop&&d<8)sp=Math.max(0.8,v.sp*(d/8));
+  if(d<0.4){if(q.stop)v.wait=q.stop;v.i++;if(v.i>=v.path.length){if(v.wrap){v.i=1;v.x=v.path[0].x;v.z=v.path[0].z;}else{v.g.visible=false;v.state='rest';v.restUntil=t+v.rest;}}return;}
+  v.x+=dx/d*sp*dt;v.z+=dz/d*sp*dt;v.h=angLerp(v.h,-Math.atan2(dz,dx),Math.min(1,dt*3));
+  v.g.position.set(v.x,0,v.z);v.g.rotation.y=v.h;});});
+// ---------- clouds ----------
+const cloudM=new T.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:0.92});const clouds=[];
+for(let i=0;i<14;i++){const g=new T.Group();const n=3+Math.floor(rand()*3);for(let k=0;k<n;k++){const s=new T.Mesh(new T.IcosahedronGeometry(R(9,16),0),cloudM);s.position.set(k*R(11,16),R(-2,3),R(-5,5));s.scale.y=0.55;g.add(s);}
+  g.position.set(R(-500,500),R(130,190),R(-450,300));scene.add(g);clouds.push(g);}
+updaters.push((t,dt)=>{clouds.forEach(c=>{c.position.x+=dt*2.2;if(c.position.x>560)c.position.x=-560;});cloudM.color.setScalar(0.22+0.78*dayF);});
+// ---------- labels & zones ----------
+const bn=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const ZONES=window.FARM.rows.map(r=>({n:r.n,a:r.bigha,c:r.c,m2:r.m2,drawn:r.drawn}));
+const LB=[
+ ['প্রধান সড়ক',[-60,4,MAIN_Z]],['শাখা রাস্তা',[GX,4,60]],['প্রধান ফটক',[GX,7,W.z1+1]],
+ ['পুকুর',[-42,3,-13],'৩.৫ বিঘা'],['ভাসমান হাঁসের ঘর',[-40,5,-8]],['গোল ঘর (পুকুরের ভেতরে)',[-30,8,5]],['নারিকেল গাছের সারি',[-12,12,21.4]],
+ ['হিমসাগর আম বাগান',[6,8,-20],'১ বিঘা'],['নেপিয়ার ঘাস',[29,5,-20],'১.৫ বিঘা'],['সেচ লাইন',[18,2,-16]],
+ ['ডুপ্লেক্স বাড়ি',[-58,14,32]],['অফিস কক্ষ',[-70,5,31]],['গোডাউন (ধান ও সরিষা)',[-54,5,31]],['ছাদে সোলার প্যানেল',[-60,14,29]],['পার্কিং',[-20,3,27]],
+ ['সরিষা, নারিকেল তেল ও ঘিয়ের মিল',[66,7,27]],['ট্রাক আনলোডিং পয়েন্ট',[-34,4,35]],
+ ['গরুর শেড (৫ লাইন)',[66,6,-4],'১০০টি'],['ছাগলের শেড (৪ লাইন)',[66,5,-23],'২০০টি'],['মুরগির ৪ তলা বিল্ডিং',[65,16,-40],'১০,০০০টি'],['মুরগির উঠান',[65,3,-31.4]],
+ ['খড়ের স্টোর',[67,5,13]],['বায়োগ্যাস প্ল্যান্ট',[58,5,14.6]],['গরুর শেডের ছাদে সোলার',[66,7,0]],['বাউন্ডারি দেয়াল ও কাঁটাতার',[0,4,W.z0]]];
+const labelsEl=document.getElementById('labels'),lbObjs=[];
+const ICONS=[['মিল','🏭'],['বাউন্ডারি','🧱'],['সড়ক','🛣️'],['রাস্তা','🛤️'],['ফটক','🚪'],['গোল ঘর','🛖'],['পুকুর','🐟'],['হাঁস','🦆'],['নারিকেল','🥥'],['আম','🥭'],['ঘাস','🌾'],['সেচ','💧'],['ডুপ্লেক্স','🏠'],['অফিস','💼'],['গোডাউন','📦'],['ছাদে সোলার','☀️'],['সোলার','⚡'],['পার্কিং','🅿️'],['মাড়াই','🏭'],['ট্রাক','🚚'],['গরু','🐄'],['ছাগল','🐐'],['মুরগি','🐔'],['খড়','🌿'],['বায়োগ্যাস','🔥']];
+const iconOf=n=>{for(const k of ICONS)if(n.indexOf(k[0])>=0)return k[1];return '📍';};
+LB.forEach(l=>{const d=document.createElement('div');d.className='lb';
+ const ic=document.createElement('span');ic.className='ic';ic.textContent=iconOf(l[0]);
+ const tx=document.createElement('span');tx.className='tx';tx.textContent=l[0];
+ if(l[2]){const b=document.createElement('b');b.textContent=l[2];tx.appendChild(b);}
+ d.appendChild(ic);d.appendChild(tx);labelsEl.appendChild(d);lbObjs.push({d,name:l[0],extra:l[2]||'',v:new T.Vector3(l[1][0],l[1][1],l[1][2])});});
+
+let labelsOn=true;
+const legend=document.getElementById('legend');
+{legend.textContent='';
+ legend.appendChild(el('h2',{text:'জমির হিসাব (১ ইউনিট = ১ মিটার)'}));
+ let acc=0;const stops=ZONES.map(z=>{const a=acc/10*360;acc+=z.a;return z.c+' '+a.toFixed(1)+'deg '+(acc/10*360).toFixed(1)+'deg';}).join(',');
+ const donut=el('div'),hole=el('div'),hb=el('b',{text:'১০'}),hs=el('small',{text:'বিঘা'});
+ donut.style.cssText='width:76px;height:76px;border-radius:50%;flex:0 0 auto;position:relative;background:conic-gradient('+stops+')';
+ hole.style.cssText='position:absolute;inset:18px;border-radius:50%;background:#0f1d16;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1';
+ hb.style.cssText='font-size:16px;color:var(--accent)';hs.style.cssText='font-size:10.5px;color:var(--mute)';
+ hole.appendChild(hb);hole.appendChild(hs);donut.appendChild(hole);
+ const top=el('div'),note=el('div',{text:'১ বিঘা = ১,৪৪০ ব.মি. · জমি ১৬০ মি × ৯০ মি = ১৪,৪০০ ব.মি.'});
+ top.style.cssText='display:flex;align-items:center;gap:12px;margin:4px 0 8px';note.style.cssText='font-size:12px;color:var(--mute)';
+ top.appendChild(donut);top.appendChild(note);legend.appendChild(top);
+ const tb=el('table');tb.appendChild(el('thead',null,[el('tr',null,['অংশ','বিঘা','ব.মি.','%'].map(h=>el('th',{text:h})))]));
+ const tbd=el('tbody');
+ ZONES.forEach((z,i)=>{const sq=el('span',{cls:'sq'});sq.style.background=z.c;
+  tbd.appendChild(el('tr',{cls:'zr','data-z':String(i)},[el('td',null,[sq,z.n]),el('td',{text:bn(z.a.toFixed(1))}),el('td',{text:fmtN(z.m2)}),el('td',{text:bn((z.m2/window.FARM.totalM2*100).toFixed(1))})]));});
+ tbd.appendChild(el('tr',{cls:'tot'},[el('td',{text:'মোট'}),el('td',{text:bn(window.FARM.totalBigha.toFixed(1))}),el('td',{text:fmtN(window.FARM.totalM2)}),el('td',{text:'১০০'})]));
+ tb.appendChild(tbd);legend.appendChild(tb);
+ legend.appendChild(el('div',{id:'zname',text:'কোনো সারিতে ট্যাপ করলে জমিতে সেই অংশ জ্বলে উঠবে'}));
+ legend.appendChild(el('p',{text:'মডেলে আঁকা আনুমানিক মাপ: পুকুর ≈ '+fmtN(ZONES[0].drawn)+', ঘাস ≈ '+fmtN(ZONES[1].drawn)+', আম ≈ '+fmtN(ZONES[2].drawn)+' ব.মি.'}));}
+const zoneOv=new T.Group();zoneOv.visible=false;scene.add(zoneOv);
+{const mk=(geo,col,x,z)=>{const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:col,transparent:true,opacity:0.3,depthWrite:false}));m.position.set(x,0.5,z);zoneOv.add(m);return m;};
+ const FMz=window.FARM,pm=mk(sqDisc(0.02,1,2,96,0),0x3aa0b8,POND.cx,POND.cz);pm.scale.set(POND.a,1,POND.b);
+ const rect=(r,col)=>mk(new T.PlaneGeometry(r.x1-r.x0,r.z1-r.z0).rotateX(-PI/2),col,(r.x0+r.x1)/2,(r.z0+r.z1)/2);
+ rect(FMz.NAPIER,0x8aa84a);rect(FMz.MANGO,0x5a9a45);
+ rect({x0:50,x1:80,z0:-48,z1:9},0xc9955a);rect({x0:50,x1:80,z0:12,z1:42},0xd9a23a);rect({x0:-80,x1:-4,z0:21.5,z1:42},0xe0b84a);rect({x0:42.5,x1:50,z0:-48,z1:42},0x9a9a94);}
+// সমন্বিত প্রবাহ-রেখা: পানি, ঘাস, গোবর, গ্যাস/বিদ্যুৎ
+const flowG=new T.Group();flowG.visible=false;scene.add(flowG);
+const FLOWS=[
+ {c:0x5ab6ff,p:[[-8,-16],[-1,-16],[12,-16],[28,-16]],n:10},
+ {c:0x8fd460,p:[[30,-12],[44,-8],[50,-4],[58,-3],[66,-2]],n:6},
+ {c:0xc98a52,p:[[66,6],[62,11],[58,14]],n:4},
+ {c:0xffd24a,p:[[58,14],[58,20],[60,25]],n:4},
+ {c:0xffd24a,p:[[58,14],[46,15],[10,18],[-30,25],[-50,30]],n:10}];
+const flowDots=[];
+FLOWS.forEach(f=>{const cv=new T.CatmullRomCurve3(f.p.map(a=>new T.Vector3(a[0],1.4,a[1])),false,'catmullrom',0.1);
+ const tube=new T.Mesh(new T.TubeGeometry(cv,60,0.16,5,false),new T.MeshBasicMaterial({color:f.c,transparent:true,opacity:0.55,depthWrite:false}));flowG.add(tube);
+ const dg=new T.SphereGeometry(0.5,8,6),dm=new T.MeshBasicMaterial({color:f.c});
+ for(let i=0;i<f.n;i++){const m=new T.Mesh(dg,dm);flowG.add(m);flowDots.push({m,cv,o:i/f.n});}});
+updaters.push(t=>{if(!flowG.visible)return;flowDots.forEach(d=>{d.cv.getPoint((t*0.07+d.o)%1,d.m.position);d.m.position.y=1.6+Math.sin(t*4+d.o*20)*0.15;});});
+function flowsOn(v){setToggle('flow',v);}
+document.getElementById('flClose').addEventListener('click',()=>floorSel('all'));
+{let selZ=-1;const znEl=()=>document.getElementById('zname');
+ legend.addEventListener('click',e=>{const r=e.target.closest('.zr');if(!r)return;const i=+r.dataset.z;selZ=selZ===i?-1:i;
+  zoneOv.children.forEach((m,k)=>{const hit=selZ>=0&&k===selZ;m.material.opacity=selZ<0?0.3:hit?0.7:0.08;});
+  legend.querySelectorAll('.zr').forEach((x,k)=>x.style.opacity=selZ<0||k===selZ?1:0.45);
+  znEl().textContent=selZ<0?'কোনো সারিতে ট্যাপ করলে জমিতে সেই অংশ জ্বলে উঠবে':ZONES[selZ].n+': '+bn(ZONES[selZ].a.toFixed(1))+' বিঘা = '+fmtN(ZONES[selZ].m2)+' বর্গমিটার';});}
+// ---------- camera tour ----------
+const SHOTS=[
+ {k:'দৃশ্য ১',t:'আকাশ থেকে পুরো ১০ বিঘা',p:'আনুমানিক জমি বণ্টন সহ পুরো জমির মাস্টার প্ল্যান।',pos:[10,178,128],tg:[0,0,-4],d:9,lg:true,f:'all'},
+ {k:'দৃশ্য ২',t:'প্রধান সড়ক থেকে শাখা রাস্তা ও ফটক',p:'প্রধান সড়ক ছেড়ে শাখা রাস্তা ধরে খামারের গেটে পৌঁছানো।',pos:[-8,28,118],tg:[GX,2,50],d:8,f:'all'},
+ {k:'দৃশ্য ৩',t:'ডুপ্লেক্স, অফিস ও নিচতলার গোডাউন',p:'পুকুরের সামনের কোণে ডুপ্লেক্স। নিচতলায় অফিস ও গোডাউন, উপরে দুই তলার আবাসন, সামনে পার্কিং।',pos:[-56,18,68],tg:[-58,5,30],d:8,f:'all'},
+ {k:'দৃশ্য ৪',t:'নিচতলা: অফিস ও গোডাউন',p:'বাম দিকে অফিস, ডান দিকে ধান ও সরিষার বস্তার গোডাউন।',pos:[-58,11,62],tg:[-58,2,31],d:7,f:'0'},
+ {k:'দৃশ্য ৫',t:'১ম তল: বসার ঘর, খাবার ঘর, রান্নাঘর',p:'নিচতলার ওপরের তলা, ছাদ সরিয়ে ভেতরটা দেখা যাচ্ছে।',pos:[-58,15,62],tg:[-58,5.5,31],d:7,f:'1'},
+ {k:'দৃশ্য ৬',t:'২য় তল: শোবার ঘর',p:'শোবার ঘর ও আলমারি। ওপরে ছাদে সোলার প্যানেল ও পানির ট্যাংক।',pos:[-58,19,62],tg:[-58,9,31],d:7,f:'2'},
+ {k:'দৃশ্য ৭',t:'সরিষার তেল, নারিকেল তেল ও ঘিয়ের মিল',p:'সরিষা ও নারিকেলের ঘানি, কোপরা শুকানোর তাক, তেলের ট্যাংক, জার ও ঘি তৈরির কেটলি।',pos:[66,19,54],tg:[66,2,27],d:8,f:'all',roof:true},
+{k:'দৃশ্য ৮',t:'গরু ও ছাগলের খামার: লাইন করে সাজানো',p:'১০০টি গরু ৫টি লাইনে (প্রতি লাইনে ২০টি) আর ২০০টি ছাগল ৪টি লাইনে (প্রতি লাইনে ৫০টি)। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।',pos:[66,34,20],tg:[66,0,-12],d:10,f:'all',roof:true},
+{k:'দৃশ্য ৯',t:'মুরগির ৪ তলা বিল্ডিং: ১০,০০০ লেয়ার',p:'প্রতি তলায় ২,৫০০টি ডিম পাড়া মুরগি, খাঁচার লাইন একটার ওপর আরেকটা। ৪ তলায় মোট ১০,০০০টি।',pos:[66,18,-16],tg:[66,7,-40],d:10,f:'all',roof:true},
+ {k:'দৃশ্য ১০',t:'৩.৫ বিঘার পুকুর, হাঁস ও গোল ঘর',p:'মাছের ঝাঁক, ভাসমান হাঁসের ঘর, নারিকেল গাছের সারি ও পাড়ের গোল ঘর।',pos:[8,46,44],tg:[-42,0,-12],d:9,f:'all'},
+ {k:'দৃশ্য ১১',t:'আম বাগান ও নেপিয়ার ঘাস',p:'ফলবতী হিমসাগর আমগাছ আর বাতাসে দোলা ঘাসের ক্ষেত। ১ বিঘা আম, ১.৫ বিঘা ঘাস, পুকুর থেকে সেচ লাইন।',pos:[30,42,54],tg:[14,2,-10],d:9,f:'all',fl:true},
+ {k:'দৃশ্য ১২',t:'ওয়াকথ্রু: গেট থেকে ভেতরে',p:'ফটক দিয়ে ঢুকে বাড়ি, পুকুর ও খামারের পাশ ঘেঁষে হাঁটা।',walk:true,d:34,f:'all',fl:false},
+];
+const WALK=[[GX,1.8,W.z1+14],[GX,1.8,38],[30,1.8,34],[0,1.8,34],[-26,1.8,33],[-36,1.8,28],[-34,1.8,18],[-26,1.8,13]];
+const wCurve=new T.CatmullRomCurve3(WALK.map(a=>new T.Vector3(a[0],a[1],a[2])));
+// manual orbit
+const cam={tg:new T.Vector3(0,0,12),th:0.3,ph:0.95,r:210};
+function fromPosTg(pos,tg){const p=new T.Vector3(...pos),t=new T.Vector3(...tg),d=p.clone().sub(t);return {tg:t,r:d.length(),th:Math.atan2(d.x,d.z),ph:Math.acos(Math.min(1,Math.max(-1,d.y/d.length())))};}
+const goal={tg:new T.Vector3(),th:0,ph:0,r:0};let cur=null;
+function applyCam(){const sp=Math.sin(cam.ph);camera.position.set(cam.tg.x+cam.r*sp*Math.sin(cam.th),cam.tg.y+cam.r*Math.cos(cam.ph),cam.tg.z+cam.r*sp*Math.cos(cam.th));camera.lookAt(cam.tg);}
+let tour=true,shotI=-1,shotT=0,manual=false,walking=false,walkT=0,tmAutoOn=false;
+function goShot(i){if(guideOn)guideStop();shotI=((i%SHOTS.length)+SHOTS.length)%SHOTS.length;shotT=0;const s=SHOTS[shotI];cur=s;manual=false;
+ document.getElementById('capk').textContent=s.k+' / '+bn(SHOTS.length);document.getElementById('capt').textContent=s.t;document.getElementById('capp').textContent=s.p;
+ document.querySelectorAll('#chips .btn').forEach((b,j)=>b.classList.toggle('cur',j===shotI));
+
+ if(s.f!==undefined)floorSel(s.f);roofsOff(!!s.roof);if(s.fl!==undefined)flowsOn(s.fl);
+ walking=!!s.walk;if(s.walk){walkT=0;}else{const g=fromPosTg(s.pos,s.tg);goal.tg.copy(g.tg);goal.r=g.r;goal.th=g.th;goal.ph=g.ph;}}
+function floorSel(f){setFloor(f);document.querySelectorAll('#floors .btn').forEach(b=>b.classList.toggle('on',b.dataset.f===String(f)));document.getElementById('floors').classList.toggle('show',f!=='all');}
+let roofHide=false;function roofsOff(v){setToggle('roof',!v);}
+// chips
+const chips=document.getElementById('chips');
+SHOTS.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='btn';
+ const ic=document.createElement('span');ic.style.fontSize='17px';ic.textContent=['🛰️','🚪','🏠','📦','🛋️','🛏️','🏭','🐄','🐔','🐟','🥭','🚶'][i];
+ const ct=document.createElement('span');ct.className='ct';ct.textContent=' '+bn(i+1);b.appendChild(ic);b.appendChild(ct);
+ b.title=s.t;b.setAttribute('aria-label',s.t);b.addEventListener('click',()=>{tour=false;setPlay();goShot(i);});chips.appendChild(b);});
+function setPlay(){const b=document.getElementById('play');b.classList.toggle('on',tour);b.textContent=tour?'⏸ ট্যুর থামান':'▶ ট্যুর চালান';}
+document.getElementById('menuBtn').addEventListener('click',e=>{const m=document.getElementById('more');m.classList.toggle('show');e.currentTarget.classList.toggle('on',m.classList.contains('show'));});
+document.getElementById('cap').addEventListener('click',e=>e.currentTarget.classList.toggle('more'));
+document.getElementById('play').addEventListener('click',()=>{if(guideOn){guideStop();goShot(shotI<0?0:shotI);}tour=!tour;if(tour){shotT=0;if(manual)goShot(shotI);}setPlay();});
+document.querySelectorAll('#floors .btn[data-f]').forEach(b=>b.addEventListener('click',()=>{if(guideOn)stopTour();tour=false;setPlay();manual=true;floorSel(b.dataset.f);const f=b.dataset.f;if(f!=='all'){goal.tg.set(-58,+f*FH+2.2,31);goal.r=42;goal.ph=0.95;goal.th=0.05;walking=false;}}));
+// time of day
+let clock=10.5;const tmR=document.getElementById('tmR'),tmO=document.getElementById('tmO'),tmI=document.getElementById('tmIcon');
+function fmt(h){const hh=Math.floor(h)%24,mm=Math.floor((h%1)*60);const ap=hh>=18||hh<4?'রাত':hh>=16?'সন্ধ্যা':hh>=12?'বিকাল':hh>=5?'সকাল':'ভোর';const h12=hh%12||12;return ap+' '+bn(h12)+':'+bn(String(mm).padStart(2,'0'));}
+function showTime(){tmR.value=clock;tmO.textContent=fmt(clock);tmI.textContent=(clock>5.5&&clock<18)?'☀':'☾';setTime(clock);}
+tmR.addEventListener('input',()=>{clock=parseFloat(tmR.value);tmAutoOn=false;document.getElementById('tmAuto').classList.remove('on');showTime();});
+document.getElementById('tmAuto').addEventListener('click',e=>{tmAutoOn=!tmAutoOn;e.currentTarget.classList.toggle('on',tmAutoOn);});
+// pointer control
+let ptr=new Map(),pd=0,pang=0,pmy=0;
+let guideOn=false;
+function setMangoFade(o){const im=scene.userData.mangoIM;if(!im)return;const m=im.material;m.transparent=o<0.99;m.opacity=o;m.depthWrite=o>=0.99;}
+function stopTour(){if(tour){tour=false;setPlay();}if(guideOn)guideStop();manual=true;walking=false;
+ // টানার আগে লক্ষ্য ঠিক করা: ক্যামেরা এখন যেখানে, সেখান থেকেই টানা শুরু
+ const g=fromPosTg([camera.position.x,camera.position.y,camera.position.z],[cam.tg.x,cam.tg.y,cam.tg.z]);
+ goal.tg.copy(g.tg);goal.r=g.r;goal.th=g.th;goal.ph=g.ph;cam.th=g.th;cam.ph=g.ph;cam.r=g.r;}
+const pinfo=()=>{const a=[...ptr.values()];return {d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),ang:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x),my:(a[0].y+a[1].y)/2};};
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY,b:e.button});if(ptr.size===2){const q=pinfo();pd=q.d;pang=q.ang;pmy=q.my;}});
+canvas.addEventListener('pointermove',e=>{const p=ptr.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+ if(guideOn){
+  if(ptr.size===2){const q=pinfo();gd.zoom=Math.min(1.8,Math.max(0.7,gd.zoom*pd/q.d));let da=q.ang-pang;while(da>PI)da-=PI*2;while(da<-PI)da+=PI*2;gd.uth-=da;pd=q.d;pang=q.ang;pmy=q.my;return;}
+  gd.uth-=dx*0.006;gd.uh=Math.min(1.4,Math.max(0.8,gd.uh-dy*0.004));return;}
+ if(ptr.size===2){const q=pinfo();if(manual===false||tour||guideOn)stopTourOnce();
+  goal.r=Math.min(320,Math.max(8,goal.r*pd/q.d));let da=q.ang-pang;while(da>PI)da-=PI*2;while(da<-PI)da+=PI*2;goal.th+=da;goal.ph=Math.min(1.5,Math.max(0.12,goal.ph-(q.my-pmy)*0.005));pd=q.d;pang=q.ang;pmy=q.my;return;}
+ if(Math.abs(dx)+Math.abs(dy)<0.5)return;
+ if(tour||guideOn||!manual)stopTourOnce();
+ if(p.b===2||e.shiftKey){goal.th-=dx*0.006;goal.ph=Math.min(1.5,Math.max(0.12,goal.ph-dy*0.005));}
+ else{ // এক আঙুলে টানলে মাটি আঙুলের সাথে সাথে সরে যায়
+  const s=goal.r*0.0013,rx=new T.Vector3(Math.cos(goal.th),0,-Math.sin(goal.th)),fz=new T.Vector3(Math.sin(goal.th),0,Math.cos(goal.th));
+  goal.tg.addScaledVector(rx,-dx*s).addScaledVector(fz,-dy*s);goal.tg.x=Math.max(-150,Math.min(150,goal.tg.x));goal.tg.z=Math.max(-110,Math.min(120,goal.tg.z));}});
+function stopTourOnce(){stopTour();}
+const up=e=>{ptr.delete(e.pointerId);};canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('wheel',e=>{e.preventDefault();if(guideOn){gd.zoom=Math.min(1.8,Math.max(0.7,gd.zoom*Math.exp(e.deltaY*0.0012)));return;}if(tour||!manual||walking)stopTour();goal.r=Math.min(320,Math.max(8,goal.r*Math.exp(e.deltaY*0.0012)));},{passive:false});
+function ensureGoal(){if(!manual)manual=true;}
+
+// ---------- সংখ্যার কার্ড ----------
+function countUp(){const els=document.querySelectorAll('#stats b');const t0=performance.now();
+ (function st(n){const k=Math.min(1,(n-t0)/1100),e=1-Math.pow(1-k,3);els.forEach(b=>{const v=+b.dataset.n*e;b.textContent=Number.isInteger(+b.dataset.n)?fmtN(v):bn(v.toFixed(1));});if(k<1)requestAnimationFrame(st);})(t0);}
+// ---------- ভিডিও রেকর্ডিং (২ মিনিট) ----------
+const DUR=[12,10,10,9,9,9,10,10,10,9,10,12],REC_LEN=120;
+const rec={on:false,t0:0,mr:null,chunks:[],blob:null,ext:'webm',prevRatio:1};
+let dl=null;try{if(window.claude&&window.claude.use)window.claude.use('downloads').then(x=>{dl=x;},()=>{});}catch(e){}
+const vc=document.createElement('canvas');vc.width=1280;vc.height=720;const vx=vc.getContext('2d');
+const recEl=document.getElementById('recbar'),recMsg=document.getElementById('recmsg'),recGo=document.getElementById('recgo'),recCancel=document.getElementById('reccancel');
+function rr(x,y,w,h,r){vx.beginPath();vx.moveTo(x+r,y);vx.arcTo(x+w,y,x+w,y+h,r);vx.arcTo(x+w,y+h,x,y+h,r);vx.arcTo(x,y+h,x,y,r);vx.arcTo(x,y,x+w,y,r);vx.closePath();}
+function wrap(text,maxW){const words=text.split(' '),lines=[];let ln='';words.forEach(w=>{const t=ln?ln+' '+w:w;if(vx.measureText(t).width>maxW&&ln){lines.push(ln);ln=w;}else ln=t;});if(ln)lines.push(ln);return lines;}
+const FF='"Hind Siliguri","Noto Sans Bengali","Segoe UI",sans-serif',lv=new T.Vector3();
+function drawVideoFrame(){const W=1280,H=720;vx.drawImage(canvas,0,0,W,H);
+ vx.textBaseline='middle';vx.font='600 18px '+FF;
+ if(SET.names)lbObjs.forEach(o=>{lv.copy(o.v).project(camera);const dist=camera.position.distanceTo(o.v);if(!(lv.z<1&&Math.abs(lv.x)<1&&Math.abs(lv.y)<1&&dist<(walking?90:260)))return;
+  const x=(lv.x*0.5+0.5)*W,y=(-lv.y*0.5+0.5)*H,w1=vx.measureText(o.name).width,w2=o.extra?vx.measureText(o.extra).width+8:0,bw=w1+w2+22;
+  rr(x-bw/2,y-30,bw,26,13);vx.fillStyle='rgba(10,20,15,0.8)';vx.fill();vx.strokeStyle='rgba(255,255,255,0.25)';vx.lineWidth=1;vx.stroke();
+  vx.fillStyle='#fff';vx.textAlign='left';vx.fillText(o.name,x-bw/2+11,y-17);if(o.extra){vx.fillStyle='#f0b84a';vx.fillText(o.extra,x-bw/2+11+w1+8,y-17);}});
+ if(cur&&SET.caption){
+  vx.textAlign='left';vx.font='500 22px '+FF;const ls=wrap(cur.p,860);const bh=34+44+ls.length*30+18,bx=36,by=H-36-bh;
+  rr(bx,by,920,bh,16);vx.fillStyle='rgba(12,24,18,0.8)';vx.fill();vx.strokeStyle='rgba(255,255,255,0.18)';vx.stroke();
+  vx.fillStyle='#f0b84a';vx.font='600 18px '+FF;vx.fillText(cur.k+' / '+bn(SHOTS.length),bx+24,by+26);
+  vx.fillStyle='#f4f7ef';vx.font='700 32px '+FF;vx.fillText(cur.t,bx+24,by+66);
+  vx.fillStyle='#b6c6b8';vx.font='500 22px '+FF;ls.forEach((l,i)=>vx.fillText(l,bx+24,by+106+i*30));
+  if(cur.lg&&SET.legend){const lx=W-640,ly=36,lh=70+ZONES.length*32+44;rr(lx,ly,604,lh,16);vx.fillStyle='rgba(12,24,18,0.82)';vx.fill();vx.strokeStyle='rgba(255,255,255,0.18)';vx.stroke();
+   vx.fillStyle='#f4f7ef';vx.font='700 22px '+FF;vx.fillText('জমির হিসাব (১ ইউনিট = ১ মিটার)',lx+22,ly+30);vx.font='500 18px '+FF;
+   ZONES.forEach((z,i)=>{const yy=ly+70+i*32;vx.fillStyle=z.c;rr(lx+22,yy-8,14,14,3);vx.fill();vx.fillStyle='#f4f7ef';vx.textAlign='left';vx.fillText(z.n,lx+46,yy);vx.fillStyle='#f0b84a';vx.textAlign='right';vx.fillText(bn(z.a.toFixed(1))+' বিঘা · '+fmtN(z.m2)+' ব.মি.',lx+582,yy);});
+   vx.textAlign='left';vx.fillStyle='#f4f7ef';vx.font='700 19px '+FF;vx.fillText('মোট',lx+22,ly+lh-24);vx.fillStyle='#f0b84a';vx.textAlign='right';vx.fillText('১০.০০ বিঘা',lx+582,ly+lh-24);vx.textAlign='left';}
+ }}
+function recBar(el){recMsg.textContent='রেকর্ড হচ্ছে '+bn(Math.floor(el/60))+':'+bn(String(Math.floor(el%60)).padStart(2,'0'))+' / ২:০০ — এই ট্যাব খোলা ও সামনে রাখুন';}
+function showRec(msg,go,cancelTxt){recEl.hidden=false;recMsg.textContent=msg;recGo.hidden=!go;if(go)recGo.textContent=go;recCancel.textContent=cancelTxt||'বাতিল';}
+let recStage='';
+function startRec(){
+ if(rec.on)return;
+ showRec('রেকর্ডের আগে জেনে নিন: ২ মিনিটের ভিডিও প্রায় ৭৫ MB হবে। ফোনের মেমরি ও নেট খরচ দেখে নিন। রেকর্ডের সময় এই ট্যাব খোলা ও সামনে রাখতে হবে।','রেকর্ড শুরু করুন','বাতিল');recStage='confirm';}
+function beginRec(){
+ if(rec.on)return;
+ if(!window.MediaRecorder||!vc.captureStream){showRec('এই ব্রাউজারে ভিডিও রেকর্ড চলে না। Chrome বা Edge ব্যবহার করুন।',null,'ঠিক আছে');return;}
+ const types=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];const mime=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+ try{rec.mr=new MediaRecorder(vc.captureStream(30),mime?{mimeType:mime,videoBitsPerSecond:5000000}:{videoBitsPerSecond:5000000});}catch(e){showRec('রেকর্ডার চালু করা গেল না।',null,'ঠিক আছে');return;}
+ rec.ext=/mp4/.test(mime)?'mp4':'webm';rec.chunks=[];rec.blob=null;
+ rec.mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data);};
+ rec.mr.onstop=()=>{if(rec.cancelled){rec.cancelled=false;return;}rec.blob=new Blob(rec.chunks,{type:rec.mr.mimeType||('video/'+rec.ext)});const mb=(rec.blob.size/1048576).toFixed(1);
+  showRec('ভিডিও তৈরি হয়েছে ('+bn(mb)+' MB, ২ মিনিট)।'+(dl?'':' এই ভিউতে সংরক্ষণ চালু নেই, নিচের বাটন কাজ করবে না।'),dl?'ভিডিও সংরক্ষণ করুন':null,'বন্ধ করুন');};
+ tour=false;setPlay();manual=false;setToggle('legend',false);
+ rec.prevRatio=renderer.getPixelRatio();renderer.setPixelRatio(1);renderer.setSize(1280,720,false);camera.aspect=16/9;camera.updateProjectionMatrix();canvas.style.objectFit='contain';
+ document.body.classList.add('rec');rec.on=true;rec.t0=performance.now();shotI=-1;clock=9;goShot(0);rec.mr.start(1000);showRec('রেকর্ড শুরু হচ্ছে…',null,'বাতিল');}
+function stopRec(done){if(!rec.on)return;rec.on=false;rec.cancelled=!done;try{rec.mr.stop();}catch(e){}
+ document.body.classList.remove('rec');canvas.style.objectFit='';renderer.setPixelRatio(rec.prevRatio);resize();tour=false;setPlay();if(!done)recEl.hidden=true;}
+recGo.addEventListener('click',async()=>{if(recStage==='confirm'){recStage='';beginRec();return;}if(!rec.blob||!dl)return;try{await dl.save({filename:'khamar-3d-tour.'+rec.ext,data:rec.blob});recMsg.textContent='ভিডিও সংরক্ষণ হয়েছে।';}catch(e){recMsg.textContent=(e&&e.code==='declined')?'সংরক্ষণ বাতিল করা হয়েছে। আবার চাপলে আবার চেষ্টা হবে।':'সংরক্ষণ করা গেল না। আবার চেষ্টা করুন।';}});
+recCancel.addEventListener('click',()=>{recStage='';if(rec.on)stopRec(false);else{recEl.hidden=true;}});
+// ---------- গাইড: একজন মানুষ হেঁটে পুরো খামার ঘুরিয়ে দেখায় ----------
+const GP=person(0xe0573a,0x2c3140,1.5,0xc99a73);GP.g.visible=false;
+{const gm=new T.MeshLambertMaterial({vertexColors:true,transparent:true,depthTest:false});
+ GP.g.traverse(o=>{if(o.isMesh){o.material=gm;o.renderOrder=999;}});}
+const GUIDE=[
+ [46,66,0],
+ [46,45,5.5,'প্রধান ফটক','প্রধান সড়ক ছেড়ে শাখা রাস্তা ধরে খামারে ঢুকছি। চারপাশে ইটের পাঁচিল, ওপরে কাঁটাতার ও সিকিউরিটি লাইট।'],
+ [46,38,0],[30,34.5,0],
+ [-20,34.5,6,'পার্কিং ও ট্রাক আনলোডিং','অতিথির গাড়ি এখানে দাঁড়ায়। ট্রাক এসে গোডাউনে ধান-সরিষার বস্তা নামায়।'],
+ [-30,40.6,0],
+ [-58,40.6,7,'ডুপ্লেক্স, অফিস ও গোডাউন','নিচতলায় অফিস আর গোডাউন, ওপরে দুই তলার আবাসন। ছাদে সোলার প্যানেল।'],
+ [-30,40.6,0],[-5,40.6,0],[-5,33,0],
+ [-12,22.4,7,'৩.৫ বিঘার পুকুর ও গোল ঘর','পুকুরে মাছ আর হাঁস। পুকুরের ভেতরে কাঠের সাঁকো দিয়ে যাওয়া গোল ঘর।'],
+ [-5,24,0],[2.4,24,0],[2.4,0,0],
+ [2.4,-30,7,'হিমসাগর আম বাগান','এক বিঘা জমিতে ফলবতী আমগাছ। পুকুর থেকে সেচ লাইনে পানি আসে।'],
+ [2.4,5,0],[8.6,5,0],[8.6,-3,0],[20,-3,0],
+ [30,-3,7,'নেপিয়ার ঘাসের জমি','দেড় বিঘার ঘাস কেটে সরাসরি গরুর খাবার হিসেবে নেওয়া হয়।'],
+ [44,-3,0],[50.8,0,0],[50.8,7.5,0],
+ [66,7.5,7,'গরুর শেড: ১০০টি গরু','৫টি লাইনে প্রতি লাইনে ২০টি। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।'],
+ [50.8,7.5,0],[50.8,-23.7,0],
+ [66,-23.7,7,'ছাগলের শেড: ২০০টি ছাগল','৪টি লাইনে প্রতি লাইনে ৫০টি। কর্মী নিয়মিত খাবার দেন।'],
+ [50.8,-31.4,0],
+ [66,-31.4,7,'মুরগির ৪ তলা বিল্ডিং','প্রতি তলায় ২,৫০০টি, ৪ তলায় মোট ১০,০০০ ডিম পাড়া মুরগি। খাঁচার থাকে থাকে লাইন।'],
+ [50.8,-31.4,0],[50.8,12,0],[50.8,34,0],
+ [62,40.6,7,'সরিষা, নারিকেল তেল ও ঘিয়ের মিল','সরিষা ও নারিকেলের ঘানি, তেলের ট্যাংক আর ঘি তৈরির কেটলি এখানে।'],
+ [46,44,0],[46,66,0]];
+const gd={i:1,wait:0,hx:0,hz:-1,off:0,t:0,uth:0,zoom:1,uh:1,mf:1};
+function guideStart(){if(rec.on)return;tour=false;setPlay();guideOn=true;walking=false;manual=false;
+ gd.roofWas=SET.roof;setToggle('legend',false);floorSel('all');flowsOn(false);setToggle('roof',false);
+ GP.g.visible=true;gd.i=1;gd.wait=0;gd.hx=0;gd.hz=-1;gd.off=0;gd.uth=0;gd.zoom=1;gd.uh=1;gd.mf=1;GP.g.position.set(GUIDE[0][0],0,GUIDE[0][1]);GP.carry.visible=false;
+ camera.position.set(GUIDE[0][0],2.6,GUIDE[0][1]+6.5);cam.tg.set(GUIDE[0][0],1.6,GUIDE[0][1]);
+ document.getElementById('capk').textContent='গাইড ট্যুর';document.getElementById('capt').textContent='চলুন, ঘুরে দেখি';document.getElementById('capp').textContent='গাইড আপনাকে ফটক থেকে শুরু করে পুরো খামার ঘুরিয়ে দেখাবেন।';
+ document.querySelectorAll('#chips .btn').forEach(b=>b.classList.remove('cur'));
+ const b=document.getElementById('guideBtn');b.classList.add('on');b.textContent='■ গাইড বন্ধ';}
+function guideStop(){setMangoFade(1);if(guideOn&&typeof gd.roofWas==='boolean'){setToggle('roof',gd.roofWas);gd.roofWas=undefined;}guideOn=false;GP.g.visible=false;const b=document.getElementById('guideBtn');b.classList.remove('on');b.textContent='🚶 গাইড';}
+document.getElementById('guideBtn').addEventListener('click',()=>{if(guideOn){stopTour();}else guideStart();});
+updaters.push((t,dt)=>{if(!guideOn)return;const p=GP,g=p.g;
+ if(gd.wait>0){gd.wait-=dt;p.legs.forEach(l=>l.rotation.z*=0.8);p.arms[0].rotation.z*=0.9;p.arms[1].rotation.z=-2.3+Math.sin(t*6)*0.45;gd.off+=(1.0-gd.off)*Math.min(1,dt*1.5);return;}
+ gd.off+=(0-gd.off)*Math.min(1,dt*1.2);
+ const q=GUIDE[gd.i],dx=q[0]-g.position.x,dz=q[1]-g.position.z,d=Math.hypot(dx,dz);
+ if(d<0.3){if(q[2]>0){gd.wait=q[2];document.getElementById('capk').textContent='গাইড ট্যুর · '+bn(GUIDE.filter((a,k)=>k<=gd.i&&a[3]).length)+' / '+bn(GUIDE.filter(a=>a[3]).length);document.getElementById('capt').textContent=q[3];document.getElementById('capp').textContent=q[4];}
+  gd.i++;if(gd.i>=GUIDE.length){guideStop();stopTour();goShot(0);tour=false;setPlay();}return;}
+ const sp=3.6;g.position.x+=dx/d*sp*dt;g.position.z+=dz/d*sp*dt;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*7));
+ gd.hx+=(dx/d-gd.hx)*Math.min(1,dt*2.5);gd.hz+=(dz/d-gd.hz)*Math.min(1,dt*2.5);
+ const s=Math.sin(t*sp*4.2);p.legs[0].rotation.z=s*0.65;p.legs[1].rotation.z=-s*0.65;p.arms[0].rotation.z=-s*0.5;p.arms[1].rotation.z=s*0.5;});
+function guideCam(dt){const g=GP.g.position,L=Math.hypot(gd.hx,gd.hz)||1,hx=gd.hx/L,hz=gd.hz/L;
+ const a=Math.atan2(-hz,-hx)+gd.off+gd.uth,R=6.5*gd.zoom,H=Math.max(1.4,2.6*gd.uh*gd.zoom),tx=g.x+Math.cos(a)*R,tz=g.z+Math.sin(a)*R;
+ const k=1-Math.exp(-dt*2.6);camera.position.x+=(tx-camera.position.x)*k;camera.position.y+=(H-camera.position.y)*k;camera.position.z+=(tz-camera.position.z)*k;
+ const lx=g.x+hx*3,lz=g.z+hz*3;cam.tg.x+=(lx-cam.tg.x)*k*1.5;cam.tg.y=1.7;cam.tg.z+=(lz-cam.tg.z)*k*1.5;camera.lookAt(cam.tg);
+ const inM=g.x>FM.MANGO.x0-6&&g.x<FM.MANGO.x1+6&&g.z>FM.MANGO.z0-6&&g.z<FM.MANGO.z1+6;
+ gd.mf+=((inM?0.45:1)-gd.mf)*Math.min(1,dt*3);setMangoFade(gd.mf);}
+// ---------- সেটিংস: স্ক্রিনের সব লেখা ও লেবেল এখান থেকে অন/অফ ----------
+const SAVED=window.store.get('khamar.settings',{});
+const SET={names:true,counts:true,caption:true,legend:false,flow:false,walls:true,roof:true,time:true,chips:true,scale:true,lite:window.LITE0};
+const PERSIST=['names','counts','caption','walls','time','chips','scale','lite'];
+PERSIST.forEach(k=>{if(typeof SAVED[k]==='boolean')SET[k]=SAVED[k];});
+const SW_DEFS=[['names','📍 জোন ও স্থানের নাম (লেবেল)'],['counts','🔢 সংখ্যা (গরু, ছাগল, মুরগি, পুকুর)'],['caption','💬 দৃশ্যের শিরোনাম ও বিবরণ'],['legend','📊 জমির হিসাব (লেজেন্ড ও টেবিল)'],['flow','🔄 সমন্বিত প্রবাহ ও তার চাবি'],['walls','🧱 বাউন্ডারি দেয়াল, কাঁটাতার ও লাইট'],['roof','🏠 শেডের ছাদ'],['time','🕐 দিন-রাতের স্লাইডার'],['chips','🎞 দৃশ্য বাটন'],['scale','📏 স্কেল নোট (১ ইউনিট = ১ মিটার)'],['lite','⚡ লাইট মোড (মোবাইলের জন্য)']];
+const swInputs={};
+let qual=-1;
+function applyQuality(level){
+  if(level===qual)return;qual=level;
+  const sh=level<2;renderer.shadowMap.enabled=sh;sun.castShadow=sh;
+  renderer.shadowMap.type=level===0?T.PCFSoftShadowMap:T.BasicShadowMap;
+  const sz=level===0?2048:1024;if(sun.shadow.mapSize.x!==sz){sun.shadow.mapSize.set(sz,sz);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,level===0?2:level===1?1.25:1));
+  if(henIM)henIM.count=level===0?scene.userData.henCount:Math.floor(scene.userData.henCount*(level===1?0.5:0.3));
+  clouds.forEach((c,i)=>{c.visible=level===0||i%2===0;});
+  scene.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{m.needsUpdate=true;});});
+  resize();
+  if(swInputs.lite)swInputs.lite.checked=level>=1;}
+function applyToggle(k,v){
+  if(k==='names'){labelsOn=v;labelsEl.style.display=v?'':'none';}
+  else if(k==='counts')document.getElementById('stats').style.display=v?'':'none';
+  else if(k==='caption')document.getElementById('cap').style.display=v?'':'none';
+  else if(k==='legend'){legend.classList.toggle('show',v);zoneOv.visible=v;}
+  else if(k==='flow'){flowG.visible=v;document.getElementById('flowKey').classList.toggle('show',v);}
+  else if(k==='walls')wallG.visible=v;
+  else if(k==='roof'){roofHide=!v;roofs.forEach(r=>{r.visible=v;});}
+  else if(k==='time')document.getElementById('tm').style.display=v?'':'none';
+  else if(k==='chips')document.getElementById('chips').style.display=v?'':'none';
+  else if(k==='scale')document.getElementById('scaleNote').style.display=v?'':'none';
+  else if(k==='lite')applyQuality(v?1:0);}
+function setToggle(k,v,persist){SET[k]=v;if(swInputs[k])swInputs[k].checked=v;applyToggle(k,v);
+  if(persist){const s={};PERSIST.forEach(x=>{s[x]=SET[x];});window.store.set('khamar.settings',s);}}
+function initToggles(){Object.keys(SET).forEach(k=>applyToggle(k,SET[k]));}
+{const more=document.getElementById('more');
+ more.appendChild(el('h3',{text:'⚙ সেটিংস: যেটা লাগবে অন, যেটা লাগবে না অফ'}));
+ SW_DEFS.forEach(d=>{const inp=el('input',{type:'checkbox'}),row=el('label',{cls:'row'},[el('span',{text:d[1]}),inp,el('span',{cls:'sw'})]);
+  inp.checked=SET[d[0]];inp.addEventListener('change',()=>setToggle(d[0],inp.checked,PERSIST.indexOf(d[0])>=0));swInputs[d[0]]=inp;more.appendChild(row);});
+ more.appendChild(el('hr'));
+ const mk=(id,t,fn)=>{const b=el('button',{type:'button',cls:'btn act',id:id,text:t});b.addEventListener('click',fn);more.appendChild(b);};
+ mk('bldBtn','🏢 ভবনের তলা দেখুন',()=>{const f=document.getElementById('floors');if(f.classList.contains('show'))floorSel('all');else{floorSel(floorMode);f.classList.add('show');}});
+ mk('recBtn','🎬 ২ মিনিটের ভিডিও (প্রায় ৭৫ MB)',startRec);
+ mk('planBtn','🗺 ২ডি ম্যাপ ও জমির হিসাব',()=>window.showPlan2D());
+ mk('bizVisitBtn','📅 খামার দেখতে আসতে চাই',()=>{});
+ more.appendChild(el('small',{text:'সব লেখা ও লেবেল এখান থেকে বন্ধ করা যায়। আপনার পছন্দ এই ডিভাইসে মনে থাকবে।'}));}
+// ফোন ধীর হলে নিজে থেকে হালকা মোডে যাওয়া
+let fpsT=0,fpsN=0,lowN=0,toastTm=0;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastTm);toastTm=setTimeout(()=>{t.hidden=true;},3800);}
+function watchFps(dt){if(rec.on||T0<6)return;fpsT+=dt;fpsN++;if(fpsT>=2){const fps=fpsN/fpsT;fpsT=0;fpsN=0;
+  if(fps<23&&qual<2){lowN++;if(lowN>=2){lowN=0;applyQuality(qual+1);toast(qual===1?'ফোন ধীর চলছে, তাই লাইট মোড চালু হলো':'আরও হালকা মোড চালু, ছায়া বন্ধ করা হলো');}}else lowN=0;}}
+
+// ---------- main loop ----------
+function resize(){if(rec.on)return;const w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+window.addEventListener('resize',resize);resize();
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+let last=performance.now(),T0=0;const v3=new T.Vector3(),lk=new T.Vector3();
+function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)/1000);last=now;T0+=reduce?dt*0.3:dt;
+ timeU.value=T0;updaters.forEach(u=>u(T0,dt));watchFps(dt);
+ if(tmAutoOn){clock=(clock+dt*0.45)%24;showTime();}
+ if(rec.on){const el=(now-rec.t0)/1000;let acc=0,idx=DUR.length-1;for(let i=0;i<DUR.length;i++){acc+=DUR[i];if(el<acc){idx=i;break;}}
+   if(idx!==shotI)goShot(idx);clock=9+el*0.085;showTime();recBar(el);if(el>=REC_LEN)stopRec(true);}
+ else if(tour){shotT+=dt;if(shotT>(cur?cur.d:9))goShot(shotI+1);}
+ if(guideOn){guideCam(dt);}
+ else if(walking&&cur&&cur.walk){walkT+=dt;const u=Math.min(0.999,walkT/(rec.on?DUR[DUR.length-1]:cur.d));wCurve.getPoint(u,v3);wCurve.getPoint(Math.min(1,u+0.03),lk);
+   camera.position.lerp(v3,0.15);const tg=lk.clone();tg.y=2.2;cam.tg.lerp(tg,0.15);camera.lookAt(cam.tg);if(!rec.on&&walkT>cur.d&&tour){goShot(0);}
+ } else {
+   const k=1-Math.exp(-dt*(manual?10:1.8));cam.tg.lerp(goal.tg,k);cam.r+=(goal.r-cam.r)*k;cam.th=angLerp(cam.th,goal.th,k);cam.ph+=(goal.ph-cam.ph)*k;
+   if((tour||rec.on)&&cur&&!cur.walk&&!manual)goal.th+=dt*0.025;
+   applyCam();}
+ // labels
+ if(labelsOn){const w=window.innerWidth,h=window.innerHeight;lbObjs.forEach(o=>{v3.copy(o.v).project(camera);const dist=camera.position.distanceTo(o.v);const vis=v3.z<1&&Math.abs(v3.x)<1.05&&Math.abs(v3.y)<1.05&&dist<(walking?90:230);
+   if(vis){o.d.style.display='';o.d.classList.toggle('open',dist<(walking?60:78));o.d.style.transform='translate('+((v3.x*0.5+0.5)*w).toFixed(1)+'px,'+((-v3.y*0.5+0.5)*h).toFixed(1)+'px) translate(-50%,-100%)';}else o.d.style.display='none';});}
+ renderer.render(scene,camera);if(rec.on)drawVideoFrame();}
+initToggles();showTime();setFloor('all');document.getElementById('floors').classList.remove('show');
+// start state: প্রথমেই গরু ও ছাগলের শেড দেখাও
+const START_SHOT=7;
+const g0=fromPosTg(SHOTS[START_SHOT].pos,SHOTS[START_SHOT].tg);cam.tg.copy(g0.tg);cam.r=g0.r;cam.th=g0.th;cam.ph=g0.ph;
+goShot(START_SHOT);document.getElementById('floors').classList.remove('show');
+last=performance.now();requestAnimationFrame(frame);
+setTimeout(()=>{document.getElementById('load').classList.add('off');countUp();},400);
+}
+let booted=false;const go=()=>{if(booted)return;booted=true;window.loadThree().then(()=>{try{boot();window.__3dOk=true;window.clear3DRetryFlag();}catch(err){window.retry3DStart('৩ডি দৃশ্য চালু করা যায়নি ('+(err&&err.message?err.message:'অজানা ত্রুটি')+')। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');}},()=>window.retry3DStart('৩ডি লাইব্রেরি (three.js) লোড করা যায়নি। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।'));};
+try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','সমন্বিত কৃষি'),document.fonts.load('600 12px "Hind Siliguri"','অ')]),new Promise(r=>setTimeout(r,2500))]).then(go,go);}catch(e){go();}
+</script>
 
 
-
+<style id="farmBizStyle">
+#bizDashBtn{display:none!important}
+#bizPanel{z-index:110!important}
+#bizDock{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;pointer-events:none}
+#bizDock button{pointer-events:auto;background:#173d2b;color:#fff;border:1px solid #c89b43;border-radius:14px;padding:12px 15px;font:700 14px "Hind Siliguri",sans-serif;box-shadow:0 4px 18px #0008}
+#bizDock .gold{background:#bd9139;color:#17130a}
+#bizPanel{position:fixed;z-index:60;inset:0;background:#07140eeF;color:#f4f3e8;overflow:auto;padding:16px 14px 100px;font:500 14px/1.55 "Hind Siliguri",sans-serif;display:none}
+#bizPanel.open{display:block}#bizPanel .bpHead{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:-16px;background:#0b1b12;padding:10px 0;z-index:2}
+#bizPanel h2{font-size:20px;margin:5px 0;color:#e4bd65}#bizPanel h3{font-size:16px;color:#e4bd65;margin:12px 0 6px}
+#bizPanel .bpCard{background:#14291d;border:1px solid #34513a;border-radius:15px;padding:13px;margin:10px 0}
+#bizPanel .bpGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#bizPanel .bpStat{background:#203b2a;border-radius:11px;padding:10px}
+#bizPanel .bpStat b{display:block;font-size:18px;color:#f0c96e}
+#bizPanel input,#bizPanel select,#bizPanel textarea{width:100%;box-sizing:border-box;background:#0b1b12;color:#fff;border:1px solid #54714e;border-radius:9px;padding:10px;font:inherit;margin:4px 0 9px}
+#bizPanel label{display:block;color:#cbd7c5;font-size:13px}
+#bizPanel button{background:#bd9139;color:#17130a;border:0;border-radius:10px;padding:10px 14px;font:700 14px "Hind Siliguri",sans-serif;margin:4px 4px 4px 0}
+#bizPanel .muted{color:#b9c8b8;font-size:12px}#bizPanel .bpRow{display:grid;grid-template-columns:1fr 105px;gap:10px;align-items:center}
+#bizPanel .bpBar{height:9px;background:#294331;border-radius:9px;overflow:hidden}.bpBar i{display:block;height:100%;background:#d8ad50}
+@media(max-width:560px){#bizPanel{padding:12px 10px 110px}#bizDock button{font-size:12px;padding:11px 12px}}
+</style>
 <div id="bizPanel" aria-live="polite">
  <div class="bpHead"><b id="bpTitle">খামারের ব্যবসায়িক তথ্য</b><button id="bpClose">✕ বন্ধ</button></div>
  <div id="bpContent"></div>
 </div>
-<script src="./js/farm-business.js?v=3"></script>
+<script id="farmBizScript">
+(function(){
+'use strict';
+const WA='8801909787087', KEY='khamarbari.biz.v1';
+const base=[
+ {id:'pond',name:'পুকুর ও মাছ',area:3.5,qty:'মাছের মজুত',stock:'মাছের সংখ্যা/ওজন পরে বসান',invest:0,cost:0,units:0,price:350,unit:'কেজি'},
+ {id:'grass',name:'নেপিয়ার ঘাস',area:1.5,qty:'ঘাস উৎপাদন',stock:'কাটার পরিমাণ পরে বসান',invest:0,cost:0,units:0,price:5,unit:'কেজি'},
+ {id:'mango',name:'হিমসাগর আম বাগান',area:1,qty:'আমের গাছ',stock:'গাছের সংখ্যা পরে বসান',invest:0,cost:0,units:0,price:100,unit:'কেজি'},
+ {id:'live',name:'গরু-ছাগল-মুরগি ফার্ম',area:1.3,qty:'১০০ গরু · ২০০ ছাগল · ১০,০০০ মুরগি',stock:'ডিমের উৎপাদন দৈনিক ইনপুটে হিসাব হবে',invest:0,cost:0,units:0,price:12,unit:'ডিম'},
+ {id:'mill',name:'তেল ও ঘিয়ের মিল',area:.6,qty:'সরিষার তেল · নারিকেল তেল · ঘি',stock:'উৎপাদন ও বিক্রি পরে বসান',invest:0,cost:0,units:0,price:250,unit:'লিটার'},
+ {id:'house',name:'ডুপ্লেক্স, অফিস ও গোডাউন',area:1.2,qty:'বসবাস · অফিস · সংরক্ষণ',stock:'প্রযোজ্য নয়',invest:0,cost:0,units:0,price:0,unit:'ইউনিট'},
+ {id:'gate',name:'প্রবেশপথ ও সবুজায়ন',area:.9,qty:'সড়ক · ফটক · বাগান',stock:'প্রযোজ্য নয়',invest:0,cost:0,units:0,price:0,unit:'ইউনিট'}
+];
+let data;try{data=JSON.parse(localStorage.getItem(KEY))||null}catch(e){}
+if(!data||!Array.isArray(data.zones))data={zones:base.map(x=>({...x})),eggsPerDay:0,milkPerDay:0,otherIncome:0,otherCost:0};
+const fmt=n=>'৳'+Math.round(Number(n)||0).toLocaleString('en-BD');
+const num=n=>Math.max(0,Number(n)||0);
+const panel=document.getElementById('bizPanel'),content=document.getElementById('bpContent');
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function open(title,html){document.getElementById('bpTitle').textContent=title;content.innerHTML=html;panel.classList.add('open');panel.scrollTop=0}
+function close(){panel.classList.remove('open')}
+document.getElementById('bpClose').onclick=close;
+window.addEventListener('khamarbari:open-finance',dashboard);
+document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#bizVisitBtn'))booking()});
+function totals(){let inv=0,cost=num(data.otherCost),income=num(data.otherIncome);data.zones.forEach(z=>{inv+=num(z.invest);cost+=num(z.cost);income+=num(z.units)*num(z.price)});income+=num(data.eggsPerDay)*30*12+num(data.milkPerDay)*30*80;return {inv,cost,income,profit:income-cost}}
+function dashboard(){
+const t=totals(),pay=t.profit>0?t.inv/t.profit:0;
+let html='<div class="bpGrid"><div class="bpStat">মোট বিনিয়োগ<b>'+fmt(t.inv)+'</b></div><div class="bpStat">মাসিক খরচ<b>'+fmt(t.cost)+'</b></div><div class="bpStat">মাসিক আয়<b>'+fmt(t.income)+'</b></div><div class="bpStat">মাসিক লাভ/ক্ষতি<b>'+fmt(t.profit)+'</b></div></div><div class="bpCard"><b>বিনিয়োগ উঠতে সময় (Break-even)</b><p>'+(pay?pay.toFixed(1)+' মাস':'লাভজনক আয় ও বিনিয়োগের তথ্য দিন')+'</p><p class="muted">এগুলো তোমার দেওয়া ইনপুটের ভিত্তিতে হিসাব; শূন্য মানে তথ্য এখনো দেওয়া হয়নি।</p></div>';
+html+='<div class="bpCard"><h3>দাম ও উৎপাদন সম্পাদনা</h3>';
+data.zones.forEach((z,i)=>{html+='<div class="bpRow"><label>'+z.name+' — প্রতি '+z.unit+' দাম (৳)<input data-i="'+i+'" data-k="price" type="number" min="0" value="'+z.price+'"></label><label>মাসিক বিক্রির পরিমাণ<input data-i="'+i+'" data-k="units" type="number" min="0" value="'+z.units+'"></label></div><label>মাসিক খরচ (৳)<input data-i="'+i+'" data-k="cost" type="number" min="0" value="'+z.cost+'"></label><label>বিনিয়োগ (৳)<input data-i="'+i+'" data-k="invest" type="number" min="0" value="'+z.invest+'"></label>';});
+html+='<label>ডিম উৎপাদন (টি/দিন)<input id="eggQty" type="number" min="0" value="'+data.eggsPerDay+'"></label><label>দুধ উৎপাদন (লিটার/দিন)<input id="milkQty" type="number" min="0" value="'+data.milkPerDay+'"></label><label>অন্যান্য মাসিক আয় (৳)<input id="otherIn" type="number" min="0" value="'+data.otherIncome+'"></label><label>অন্যান্য মাসিক খরচ (৳)<input id="otherOut" type="number" min="0" value="'+data.otherCost+'"></label><button id="bpSave">হিসাব সেভ করুন</button><button id="bpReset">ডিফল্টে ফিরুন</button></div>';
+html+='<div class="bpCard"><h3>জোন অনুযায়ী মাসিক আয়</h3>'+data.zones.map(z=>'<p>'+z.name+' <b style="float:right">'+fmt(z.units*z.price)+'</b><div class="bpBar"><i style="width:'+Math.min(100,t.income?z.units*z.price/t.income*100:0)+'%"></i></div></p>').join('')+'</div>';
+open('আয়-ব্যয়ের হিসাব',html);
+content.querySelector('#bpSave').onclick=()=>{content.querySelectorAll('[data-i]').forEach(e=>data.zones[+e.dataset.i][e.dataset.k]=num(e.value));data.eggsPerDay=num(content.querySelector('#eggQty').value);data.milkPerDay=num(content.querySelector('#milkQty').value);data.otherIncome=num(content.querySelector('#otherIn').value);data.otherCost=num(content.querySelector('#otherOut').value);save();dashboard()};
+content.querySelector('#bpReset').onclick=()=>{if(confirm('সব ব্যবসায়িক ইনপুট ডিফল্টে ফিরবে?')){data={zones:base.map(x=>({...x})),eggsPerDay:0,milkPerDay:0,otherIncome:0,otherCost:0};save();dashboard()}};
+}
+function zoneCard(z){let v=z.units*z.price;open(z.name,'<div class="bpCard"><div class="bpGrid"><div class="bpStat">জমির পরিমাণ<b>'+z.area+' বিঘা</b><span class="muted">'+(z.area*1440).toLocaleString('en-BD')+' বর্গমিটার</span></div><div class="bpStat">পরিমাণ / সক্ষমতা<b>'+z.qty+'</b></div><div class="bpStat">মাসিক খরচ<b>'+fmt(z.cost)+'</b></div><div class="bpStat">মাসিক আয়<b>'+fmt(v)+'</b></div></div><p>মাসিক লাভ/ক্ষতি: <b>'+fmt(v-z.cost)+'</b></p><p class="muted">'+z.stock+'</p><button id="zoneEdit">হিসাব সম্পাদনা</button></div>');content.querySelector('#zoneEdit').onclick=dashboard}
+function booking(){open('খামার ভিজিট বুকিং','<div class="bpCard"><label>তোমার নাম<input id="vName" placeholder="নাম লিখুন"></label><label>ফোন নম্বর<input id="vPhone" inputmode="tel" placeholder="01XXXXXXXXX"></label><label>ভিজিটের তারিখ<input id="vDate" type="date"></label><label>কতজন আসবেন<input id="vPeople" type="number" min="1" value="1"></label><label>মেসেজ<textarea id="vMsg" rows="3" placeholder="অতিরিক্ত কিছু জানাতে চাইলে লিখুন"></textarea></label><button id="vSend">WhatsApp-এ বুকিং পাঠান</button><a href="tel:+8801909787087"><button type="button">📞 ফোন করুন</button></a></div>');content.querySelector('#vSend').onclick=()=>{let n=document.querySelector('#vName').value.trim(),p=document.querySelector('#vPhone').value.trim(),d=document.querySelector('#vDate').value,people=document.querySelector('#vPeople').value,m=document.querySelector('#vMsg').value.trim();if(!n||!p||!d){alert('নাম, ফোন নম্বর ও তারিখ দিন।');return}let msg='খামার ভিজিট বুকিং%0Aনাম: '+encodeURIComponent(n)+'%0Aফোন: '+encodeURIComponent(p)+'%0Aতারিখ: '+encodeURIComponent(d)+'%0Aলোকসংখ্যা: '+encodeURIComponent(people)+'%0Aমেসেজ: '+encodeURIComponent(m);location.href='https://wa.me/'+WA+'?text='+msg}}
+const wa=document.createElement('a');wa.href='https://wa.me/'+WA;wa.target='_blank';wa.rel='noopener';wa.textContent='☏';wa.title='WhatsApp যোগাযোগ';wa.style.cssText='position:fixed;right:14px;bottom:82px;z-index:40;width:50px;height:50px;border-radius:50%;background:#20bd67;color:white;display:grid;place-items:center;font-size:27px;text-decoration:none;box-shadow:0 3px 14px #0008';document.body.appendChild(wa);
+const map=[['pond',/পুকুর|মাছ/],['grass',/নেপিয়ার|ঘাস/],['mango',/আম/],['live',/গরু|ছাগল|মুরগি|মুরগির/],['mill',/মিল|তেল|ঘি/],['house',/ডুপ্লেক্স|অফিস|গোডাউন/],['gate',/ফটক|সড়ক|রাস্তা|সবুজায়ন/]];
+function attach(){document.querySelectorAll('#labels .lb').forEach(el=>{if(el.dataset.bizBound)return;el.dataset.bizBound='1';el.style.cursor='pointer';el.addEventListener('click',()=>{let z=map.find(x=>x[1].test(el.textContent));if(z){let a=data.zones.find(q=>q.id===z[0]);if(a)zoneCard(a)}})});document.querySelectorAll('#legend .zr').forEach((el,i)=>{if(el.dataset.bizBound)return;el.dataset.bizBound='1';el.addEventListener('dblclick',()=>{let a=data.zones[i];if(a)zoneCard(a)})})}
+attach();new MutationObserver(attach).observe(document.getElementById('labels'),{childList:true});
+})();
+</script>
 
+<style>
+#animalQuickView{position:fixed;right:14px;bottom:142px;z-index:45;border:1px solid rgba(255,255,255,.35);border-radius:14px;padding:11px 15px;background:linear-gradient(135deg,#315f37,#173d28);color:#fff;font:700 14px var(--font);box-shadow:0 5px 18px #0008;cursor:pointer}
+#animalQuickView small{display:block;font-size:11px;font-weight:500;opacity:.9}
+@media(max-width:600px){#animalQuickView{bottom:145px;right:10px;padding:9px 12px}}
+</style>
 
+<script>
+(function(){
+ const b=document.getElementById('animalQuickView');
+ if(!b)return;
+ b.addEventListener('click',function(){
+   if(typeof stopTour==='function')stopTour();
+   if(typeof goShot==='function')goShot(7);
+   b.textContent='🐄 গরু ও ছাগলের শেড';
+   const sm=document.createElement('small');sm.textContent='ছাদ সরানো দৃশ্য · ১০০ গরু · ২০০ ছাগল';b.appendChild(sm);
+ });
+})();
+</script>
 
-<script src="./js/animal-ui.js?v=3"></script>
-
-
-
+<style id="farmManagementStyle">
+#farmMgmtBtn{background:#234d36!important;color:#fff!important;border:1px solid #d4ad55!important}
+#fmPanel{position:fixed;inset:0;z-index:100;background:#08150e;color:#f3f2e8;display:none;overflow:auto;padding:12px 12px 90px;font:14px/1.5 "Hind Siliguri",sans-serif}
+#fmPanel.open{display:block}#fmPanel .fmHead{position:sticky;top:-12px;z-index:3;background:#0b1b12;padding:10px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#fmPanel h2{color:#e4bd65;font-size:20px;margin:8px 0}#fmPanel h3{color:#e4bd65;font-size:16px;margin:8px 0}
+#fmPanel .fmTabs{display:flex;gap:6px;overflow:auto;padding:8px 0;position:sticky;top:44px;background:#08150e;z-index:2}
+#fmPanel button{border:0;border-radius:9px;padding:9px 12px;background:#bd9139;color:#17130a;font:700 13px "Hind Siliguri",sans-serif;white-space:nowrap}
+#fmPanel .fmTabs button{background:#203b2a;color:#fff}#fmPanel .fmTabs button.active{background:#bd9139;color:#17130a}
+#fmPanel input,#fmPanel select,#fmPanel textarea{box-sizing:border-box;width:100%;padding:9px;margin:4px 0 8px;border:1px solid #54714e;border-radius:8px;background:#102318;color:#fff;font:inherit}
+#fmPanel label{display:block;color:#d5dfd0;font-size:13px}#fmPanel .fmCard{background:#14291d;border:1px solid #34513a;border-radius:12px;padding:12px;margin:9px 0}
+#fmPanel .fmGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#fmPanel .fmStat{background:#203b2a;padding:10px;border-radius:10px}
+#fmPanel .fmStat b{display:block;font-size:18px;color:#f0c96e}#fmPanel .fmMuted{color:#b9c8b8;font-size:12px}
+#fmPanel .fmItem{border-top:1px solid #34513a;padding:9px 0}#fmPanel .fmItem:first-child{border:0}
+#fmPanel .fmDanger{background:#853d35;color:#fff}#fmPanel .fmActions{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:560px){#fmPanel{padding:10px 9px 90px}#fmPanel .fmGrid{grid-template-columns:1fr 1fr}}
+</style>
+<style id="farmMgmtButtonFix">
+#farmMgmtBtn{position:static!important;z-index:5!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;background:linear-gradient(135deg,#bd9139,#8d6826)!important;color:#17130a!important;border:1px solid #f0d18a!important;border-radius:50%!important;width:38px!important;height:38px!important;padding:0!important;font:700 18px "Hind Siliguri",sans-serif!important;box-shadow:0 3px 12px #0007!important;cursor:pointer!important;flex:0 0 38px!important}
+</style>
 <div id="fmPanel" aria-live="polite">
  <div class="fmHead"><b>খামার পরিচালনা কেন্দ্র</b><button id="fmClose">✕ বন্ধ</button></div>
  <div class="fmTabs" id="fmTabs">
@@ -53,6 +1457,55 @@
  </div>
  <div id="fmContent"></div>
 </div>
-<script src="./js/farm-management.js?v=3"></script>
+<script id="farmManagementV1">
+(function(){
+'use strict';
+const KEY='khamarbari.management.v1';
+const $=s=>document.querySelector(s), panel=$('#fmPanel'), content=$('#fmContent');
+const today=()=>new Date().toISOString().slice(0,10);
+const money=n=>'৳'+Math.round(Number(n)||0).toLocaleString('en-BD');
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let db;try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!db||!Array.isArray(db.logs))db={logs:[],stocks:[],care:[],checks:{}};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
+const open=()=>{panel.classList.add('open');render('home')};
+const close=()=>panel.classList.remove('open');
+$('#farmMgmtBtn').addEventListener('click',open);$('#fmClose').addEventListener('click',close);
+$('#fmTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;if(b.dataset.tab==='finance'){tabActive('finance');window.dispatchEvent(new Event('khamarbari:open-finance'));return;}render(b.dataset.tab)});
+function tabActive(t){$('#fmTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t))}
+function field(label,id,type='text',placeholder='',value=''){return '<label>'+label+'<input id="'+id+'" type="'+type+'" placeholder="'+placeholder+'" value="'+safe(value)+'"></label>'}
+function select(label,id,opts){return '<label>'+label+'<select id="'+id+'">'+opts.map(x=>'<option>'+safe(x)+'</option>').join('')+'</select></label>'}
+function listLogs(type){return db.logs.filter(x=>!type||x.type===type).slice().reverse().map(x=>'<div class="fmItem"><b>'+safe(x.date)+' · '+safe(x.title)+'</b><div>'+safe(x.qty||'')+' '+safe(x.unit||'')+' · '+money(x.amount)+'</div><div class="fmMuted">'+safe(x.note||'')+'</div></div>').join('')||'<p class="fmMuted">এখনো কোনো তথ্য যোগ করা হয়নি।</p>'}
+function render(t){
+ tabActive(t);let html='';
+ if(t==='home'){
+  const sales=db.logs.filter(x=>x.type==='sale').reduce((a,x)=>a+x.amount,0),cost=db.logs.filter(x=>x.type==='cost'||x.type==='purchase').reduce((a,x)=>a+x.amount,0),prod=db.logs.filter(x=>x.type==='production').length;
+  html='<h2>খামারের পরিচালনা সারসংক্ষেপ</h2><div class="fmGrid"><div class="fmStat">নথিভুক্ত বিক্রি<b>'+money(sales)+'</b></div><div class="fmStat">নথিভুক্ত খরচ<b>'+money(cost)+'</b></div><div class="fmStat">উৎপাদন এন্ট্রি<b>'+prod+'</b></div><div class="fmStat">স্টক আইটেম<b>'+db.stocks.length+'</b></div></div><div class="fmCard"><b>ব্যবহার শুরু</b><p class="fmMuted">প্রতিদিনের কাজ টিক দাও, খাদ্য/স্বাস্থ্য রেকর্ড রাখো, উৎপাদন ও বিক্রির তথ্য যোগ করো। এই তথ্য এই ডিভাইসের ব্রাউজারে সেভ থাকবে।</p><p class="fmMuted">গুরুত্বপূর্ণ: পশুর ওষুধ/টিকার নির্দিষ্ট ডোজ এখানে স্বয়ংক্রিয়ভাবে নির্ধারণ করা হয় না। প্রাণীর ধরন, বয়স ও ওজন অনুযায়ী ভেটেরিনারিয়ানের পরামর্শ নাও।</p></div><div class="fmCard"><h3>সাম্প্রতিক নথি</h3>'+listLogs()+'</div>';
+ }else if(t==='routine'){
+  const tasks=['সকালে সব প্রাণীর স্বাস্থ্য ও আচরণ পর্যবেক্ষণ','পরিষ্কার পানি ও খাবার সরবরাহ','গরু-ছাগলের শেড পরিষ্কার ও শুকনো রাখা','মুরগির ঘর, বাতাস চলাচল ও ডিম সংগ্রহ পরীক্ষা','পুকুরের পানি, মাছের আচরণ ও খাবার পর্যবেক্ষণ','ঘাস/ফসলের জমি ও সেচ পরীক্ষা','খাদ্য, ডিম, দুধ ও উৎপাদনের হিসাব লেখা','সন্ধ্যায় পুনরায় প্রাণী ও নিরাপত্তা পরীক্ষা'];
+  html='<h2>দৈনিক কাজের রুটিন</h2><div class="fmCard"><p>'+today()+' — প্রতিটি কাজ শেষ হলে টিক দাও।</p>'+tasks.map((x,i)=>'<label><input type="checkbox" data-check="'+i+'" style="width:auto;margin-right:8px" '+(db.checks[today()+'-'+i]?'checked':'')+'>'+x+'</label>').join('<hr style="border-color:#34513a">')+'<p class="fmMuted">টিকগুলো এই ডিভাইসে সংরক্ষিত হবে।</p></div>';
+ }else if(t==='care'){
+  html='<h2>খাদ্য ও স্বাস্থ্য রেকর্ড</h2><div class="fmCard">'+select('প্রাণী/বিভাগ','cAnimal',['গরু','ছাগল','মুরগি','মাছ','ঘাস/ফসল','অন্যান্য'])+select('রেকর্ডের ধরন','cType',['খাদ্য সরবরাহ','টিকা','কৃমিনাশক','চিকিৎসা','স্বাস্থ্য পর্যবেক্ষণ','পরিষ্কার-পরিচ্ছন্নতা'])+field('তারিখ','cDate','date','',today())+field('পরিমাণ/বিবরণ','cQty','text','যেমন: ২০ কেজি / লক্ষণ')+field('পরবর্তী করণীয়/তারিখ','cNext','text','প্রয়োজনে লিখুন')+'<label>নোট<textarea id="cNote" rows="2"></textarea></label><button id="cAdd">রেকর্ড সংরক্ষণ</button></div><div class="fmCard"><h3>সাম্প্রতিক রেকর্ড</h3>'+db.care.slice().reverse().map(x=>'<div class="fmItem"><b>'+safe(x.date)+' · '+safe(x.animal)+' · '+safe(x.type)+'</b><div>'+safe(x.qty)+' · পরবর্তী: '+safe(x.next)+'</div><div class="fmMuted">'+safe(x.note)+'</div></div>').join('')+'</div>';
+ }else if(t==='production'){
+  html='<h2>উৎপাদন ও বিক্রির হিসাব</h2><div class="fmCard">'+select('ধরন','pType',['production','sale','cost'])+select('খাত','pTitle',['দুধ','ডিম','গরু','ছাগল','মাছ','ঘাস','আম','সরিষার তেল','নারিকেল তেল','ঘি','খাদ্য','ওষুধ','শ্রমিক','পরিবহন','অন্যান্য'])+field('তারিখ','pDate','date','',today())+field('পরিমাণ','pQty','number','0')+field('একক','pUnit','text','কেজি/লিটার/টি')+field('মোট টাকা','pAmount','number','0')+'<label>বিবরণ<textarea id="pNote" rows="2"></textarea></label><button id="pAdd">হিসাব যোগ করো</button></div><div class="fmCard"><h3>সাম্প্রতিক হিসাব</h3>'+listLogs()+'</div>';
+ }else if(t==='stock'){
+  html='<h2>স্টক ও ক্রয় ব্যবস্থাপনা</h2><div class="fmCard">'+field('পণ্যের নাম','sName','text','যেমন: গরুর খাদ্য')+select('ক্যাটাগরি','sCat',['খাদ্য','ওষুধ','বীজ/পোনা','সার','জ্বালানি','অন্যান্য'])+field('বর্তমান মজুত','sQty','number','0')+field('একক','sUnit','text','কেজি/বস্তা/লিটার')+field('সতর্কতা সীমা','sMin','number','0')+field('ক্রয়মূল্য (মোট)','sCost','number','0')+'<button id="sAdd">স্টক যোগ/আপডেট</button></div><div class="fmCard"><h3>মজুত তালিকা</h3>'+ (db.stocks.map((x,i)=>'<div class="fmItem"><b>'+safe(x.name)+'</b> · '+safe(x.cat)+'<div>মজুত: '+x.qty+' '+safe(x.unit)+' · সতর্কতা সীমা: '+x.min+' · ক্রয়মূল্য: '+money(x.cost)+'</div>'+(x.qty<=x.min?'<b style="color:#ffb18e">⚠ মজুত কম</b>':'')+' <button class="fmDanger" data-delstock="'+i+'">মুছুন</button></div>').join('')||'<p class="fmMuted">স্টক যোগ করা হয়নি।</p>')+'</div>';
+ }else if(t==='season'){
+  html='<h2>মৌসুমভিত্তিক ব্যবস্থাপনা</h2><div class="fmCard"><h3>গ্রীষ্মকাল</h3><ul><li>প্রাণীর জন্য পর্যাপ্ত পরিষ্কার পানি ও ছায়া নিশ্চিত করো।</li><li>গরমের সময় শেডে বাতাস চলাচল ও তাপের চাপ পর্যবেক্ষণ করো।</li><li>পুকুরে ভোরে মাছের আচরণ ও পানির অবস্থা দেখো; অস্বাভাবিকতা হলে বিশেষজ্ঞের পরামর্শ নাও।</li><li>ঘাস ও ফসলে প্রয়োজন অনুযায়ী সেচ দাও।</li></ul></div><div class="fmCard"><h3>বর্ষাকাল</h3><ul><li>শেড, খাদ্যগুদাম ও বৈদ্যুতিক সংযোগ শুকনো ও নিরাপদ রাখো।</li><li>পানি জমা, নোংরা পানি ও রোগ ছড়ানোর ঝুঁকি কমাও।</li><li>পুকুরের পাড়, পানি উপচে পড়া ও ইনলেট-আউটলেট পরীক্ষা করো।</li><li>ভেজা খাদ্য ও ছত্রাকযুক্ত খাবার ব্যবহার কোরো না।</li></ul></div><div class="fmCard"><h3>শীতকাল</h3><ul><li>বাচ্চা ও দুর্বল প্রাণীর ঠান্ডা/বাতাস থেকে সুরক্ষা নিশ্চিত করো।</li><li>শেডে বাতাস চলাচল রাখো, তবে সরাসরি ঠান্ডা বাতাসের ধাক্কা এড়াও।</li><li>পুকুরে খাবার গ্রহণ ও মাছের আচরণ দেখে ব্যবস্থাপনা সমন্বয় করো।</li><li>ফসল ও ঘাসের জমিতে পানি নিষ্কাশন ও পরিচর্যা করো।</li></ul></div><p class="fmMuted">এগুলো সাধারণ ব্যবস্থাপনা নির্দেশনা; স্থানীয় আবহাওয়া, জাত ও খামারের বাস্তব অবস্থা অনুযায়ী কৃষি/প্রাণিসম্পদ কর্মকর্তার পরামর্শ নাও।</p>';
+ }else if(t==='reports'){
+  const month=today().slice(0,7), rows=db.logs.filter(x=>(x.date||'').slice(0,7)===month),sum=k=>rows.filter(x=>x.type===k).reduce((a,x)=>a+x.amount,0),prod=rows.filter(x=>x.type==='production').length;
+  html='<h2>মাসিক রিপোর্ট · '+month+'</h2><div class="fmGrid"><div class="fmStat">বিক্রি<b>'+money(sum('sale'))+'</b></div><div class="fmStat">খরচ/ক্রয়<b>'+money(sum('cost')+sum('purchase'))+'</b></div><div class="fmStat">নথিভুক্ত উৎপাদন<b>'+prod+'</b></div><div class="fmStat">নেট নগদ প্রবাহ<b>'+money(sum('sale')-sum('cost')-sum('purchase'))+'</b></div></div><div class="fmCard"><h3>এই মাসের লেনদেন</h3>'+rows.slice().reverse().map(x=>'<div class="fmItem">'+safe(x.date)+' · '+safe(x.title)+' · '+safe(x.type)+'<b style="float:right">'+money(x.amount)+'</b><div class="fmMuted">'+safe(x.qty)+' '+safe(x.unit)+' '+safe(x.note)+'</div></div>').join('')+'</div><button id="fmCsv">CSV রিপোর্ট ডাউনলোড</button><p class="fmMuted">রিপোর্টে শুধু এই ম্যানেজমেন্ট মডিউলে যোগ করা তথ্য ধরা হয়েছে; ড্যাশবোর্ডের পুরোনো ইনপুট এতে মেশানো হয়নি।</p>';
+ }
+ content.innerHTML=html;
+ content.querySelectorAll('[data-check]').forEach(el=>el.addEventListener('change',()=>{db.checks[today()+'-'+el.dataset.check]=el.checked;save()}));
+ const on=(id,fn)=>{const el=content.querySelector('#'+id);if(el)el.addEventListener('click',fn)};
+ on('cAdd',()=>{db.care.push({animal:$('#cAnimal').value,type:$('#cType').value,date:$('#cDate').value,qty:$('#cQty').value,next:$('#cNext').value,note:$('#cNote').value});save();render('care')});
+ on('pAdd',()=>{db.logs.push({type:$('#pType').value,title:$('#pTitle').value,date:$('#pDate').value,qty:Number($('#pQty').value)||0,unit:$('#pUnit').value,amount:Number($('#pAmount').value)||0,note:$('#pNote').value});save();render('production')});
+ on('sAdd',()=>{let name=$('#sName').value.trim();if(!name){alert('পণ্যের নাম লিখুন');return}let item={name,cat:$('#sCat').value,qty:Number($('#sQty').value)||0,unit:$('#sUnit').value,min:Number($('#sMin').value)||0,cost:Number($('#sCost').value)||0};let old=db.stocks.find(x=>x.name.toLowerCase()===name.toLowerCase());if(old)Object.assign(old,item);else db.stocks.push(item);save();render('stock')});
+ content.querySelectorAll('[data-delstock]').forEach(b=>b.addEventListener('click',()=>{db.stocks.splice(Number(b.dataset.delstock),1);save();render('stock')}));
+ on('fmCsv',()=>{const rows=[['তারিখ','ধরন','খাত','পরিমাণ','একক','টাকা','বিবরণ'],...db.logs.map(x=>[x.date,x.type,x.title,x.qty,x.unit,x.amount,x.note])];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='khamarbari-report.csv';a.click();URL.revokeObjectURL(a.href)});
+}
+})();
+</script>
 
 </body></html>
