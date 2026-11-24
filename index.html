@@ -844,8 +844,11 @@ const _o=new T.Object3D(),_c=new T.Color();
 function placeLine(list,geoFn,varsKey){
   const byV={};list.forEach(d=>{(byV[d.v]=byV[d.v]||[]).push(d);});
   for(const v in byV){const arr=byV[v],im=new T.InstancedMesh(geoOf(varsKey+v,()=>geoFn(v)),VC,arr.length);
-    arr.forEach((d,i)=>{d.i=i;_c.setScalar(d.tint);im.setColorAt(i,_c);});
-    im.frustumCulled=false;im.castShadow=!LITE;im.receiveShadow=true;scene.add(im);lineAnimals.push({im,arr});}}
+    arr.forEach((d,i)=>{d.i=i;_c.setScalar(d.tint);im.setColorAt(i,_c);
+      // লাইট মোডেও প্রথম ফ্রেম থেকেই প্রাণীর সঠিক অবস্থান বসাতে হবে
+      _o.position.set(d.x,d.y||0,d.z);_o.rotation.set(0,d.ry,0);_o.scale.set(d.s,d.s,d.s);_o.updateMatrix();im.setMatrixAt(i,_o.matrix);
+    });
+    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;im.castShadow=!LITE;im.receiveShadow=true;scene.add(im);lineAnimals.push({im,arr});}}
 const COWS=[],GOATL=[];
 {const cv=['bw','br','rd','bk','gr'],gv=['w','b','k','g','w','b'];
  for(let k=0;k<COW_ROWS;k++)for(let i=0;i<COW_PER;i++)COWS.push({x:CATTLE.x0+0.85+i*1.12,z:cowRowZ(k),y:0,ry:-PI/2+R(-0.06,0.06),s:R(0.93,1.05),v:cv[(i+k*2)%5],ph:R(0,6.28),tint:R(0.9,1.06)});
