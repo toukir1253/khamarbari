@@ -228,7 +228,10 @@ window.loadThree=function(){return new Promise(function(res,rej){var i=0,round=0
   document.head.appendChild(s);})();});};
 /* এরর দেখানো: শুধু textContent, innerHTML নয় */
 window.showLoadErr=function(msg){var l=document.getElementById('load');if(l)l.classList.add('off');window.showPlan2D(msg);};
-window.addEventListener('error',function(e){var l=document.getElementById('load');if(l&&!l.classList.contains('off')&&!window.__3dOk)window.showLoadErr('সমস্যা: '+(e.message||'অজানা ত্রুটি')+' (F12 চেপে Console দেখলে বিস্তারিত পাবেন)। নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');});
+window.__retrying3D=false;
+window.clear3DRetryFlag=function(){try{var u=new URL(location.href);if(u.searchParams.has('kb3d_retry')){u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}}catch(e){}};
+window.retry3DStart=function(msg){if(window.__retrying3D)return;window.__retrying3D=true;try{var u=new URL(location.href);if(u.searchParams.get('kb3d_retry')!=='1'){u.searchParams.set('kb3d_retry','1');location.replace(u.href);return;}u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}catch(e){}window.showLoadErr(msg);};
+window.addEventListener('error',function(e){var l=document.getElementById('load');if(l&&!l.classList.contains('off')&&!window.__3dOk)window.retry3DStart('সমস্যা: '+(e.message||'অজানা ত্রুটি')+'। ৩ডি চালু করা যায়নি; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');});
 /* মোবাইল/কম ক্ষমতার ফোন চেনা: শুরুতেই লাইট মোড */
 window.LITE_WEAK=(function(){try{return (navigator.hardwareConcurrency||8)<=2||(navigator.deviceMemory||8)<=2;}catch(e){return false;}})();
 window.LITE0=(function(){var s=window.store.get('khamar.settings',{});if(typeof s.lite==='boolean')return s.lite;
@@ -1335,7 +1338,7 @@ goShot(START_SHOT);document.getElementById('floors').classList.remove('show');
 last=performance.now();requestAnimationFrame(frame);
 setTimeout(()=>{document.getElementById('load').classList.add('off');countUp();},400);
 }
-let booted=false;const go=()=>{if(booted)return;booted=true;window.loadThree().then(()=>{try{boot();window.__3dOk=true;}catch(err){window.showLoadErr('৩ডি দৃশ্য চালু করা যায়নি ('+(err&&err.message?err.message:'অজানা ত্রুটি')+')। ফোন বা ব্রাউজারে WebGL চালু আছে কিনা দেখুন। নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');throw err;}},()=>window.showLoadErr('৩ডি লাইব্রেরি (three.js) আনা যায়নি। ইন্টারনেট ধীর বা বন্ধ থাকতে পারে। নিচে নেট ছাড়াই ২ডি ম্যাপ ও হিসাব দেখানো হলো; নেট ভালো হলে পেজ রিলোড দিন।'));};
+let booted=false;const go=()=>{if(booted)return;booted=true;window.loadThree().then(()=>{try{boot();window.__3dOk=true;window.clear3DRetryFlag();}catch(err){window.retry3DStart('৩ডি দৃশ্য চালু করা যায়নি ('+(err&&err.message?err.message:'অজানা ত্রুটি')+')। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');}},()=>window.retry3DStart('৩ডি লাইব্রেরি (three.js) লোড করা যায়নি। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।'));};
 try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','সমন্বিত কৃষি'),document.fonts.load('600 12px "Hind Siliguri"','অ')]),new Promise(r=>setTimeout(r,2500))]).then(go,go);}catch(e){go();}
 </script>
 
