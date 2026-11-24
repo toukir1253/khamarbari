@@ -218,10 +218,10 @@ window.THREE_SRC=[
  {u:'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',i:'__SRI_CDNJS__'},
  {u:'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'},
  {u:'https://unpkg.com/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'}];
-window.loadThree=function(){return new Promise(function(res,rej){var i=0;
- (function next(){if(window.THREE)return res();if(i>=window.THREE_SRC.length)return rej(new Error('three.js লোড হয়নি'));
+window.loadThree=function(){return new Promise(function(res,rej){var i=0,round=0;
+ (function next(){if(window.THREE)return res();if(i>=window.THREE_SRC.length){if(round<1){round++;i=0;setTimeout(next,900);return;}return rej(new Error('three.js লোড হয়নি'));}
   var src=window.THREE_SRC[i++],s=document.createElement('script'),done=false;
-  var tm=setTimeout(function(){if(done)return;done=true;s.remove();next();},12000);
+  var tm=setTimeout(function(){if(done)return;done=true;s.remove();next();},10000);
   s.src=src.u;if(src.i&&src.i.indexOf('__')!==0)s.integrity=src.i;s.crossOrigin='anonymous';
   s.onload=function(){if(done)return;done=true;clearTimeout(tm);window.THREE?res():next();};
   s.onerror=function(){if(done)return;done=true;clearTimeout(tm);next();};
