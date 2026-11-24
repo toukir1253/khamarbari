@@ -106,7 +106,7 @@ body.rec #scaleNote,body.rec #toast{display:none!important}
 <div id="labels"></div>
 <div id="cap" class="glass"><div class="k" id="capk"></div><h1 id="capt">১০ বিঘা সমন্বিত খামার</h1><p id="capp"></p><div id="stats"><span>🐄 <b data-n="100">০</b> গরু</span><span>🐐 <b data-n="200">০</b> ছাগল</span><span>🐔 <b data-n="10000">০</b> মুরগি</span><span>🐟 <b data-n="3.5">০</b> বিঘা পুকুর</span></div></div>
 <div id="tl">
-  <div style="display:flex;gap:8px"><button class="btn" id="guideBtn" type="button">🚶 গাইড</button><button class="btn on" id="play" type="button">⏸ ট্যুর থামান</button><button class="btn" id="menuBtn" type="button" aria-label="আরও অপশন">⚙</button></div>
+  <div style="display:flex;gap:8px"><button class="btn" id="farmMgmtBtn" type="button" title="খামার পরিচালনা" aria-label="খামার পরিচালনা">🗂️</button><button class="btn" id="guideBtn" type="button">🚶 গাইড</button><button class="btn on" id="play" type="button">⏸ ট্যুর থামান</button><button class="btn" id="menuBtn" type="button" aria-label="আরও অপশন">⚙</button></div>
   <div id="more" class="glass"></div>
 </div>
 <div id="floors" class="glass"><small>ভবনের তলা</small>
@@ -1446,10 +1446,8 @@ attach();new MutationObserver(attach).observe(document.getElementById('labels'),
 @media(max-width:560px){#fmPanel{padding:10px 9px 90px}#fmPanel .fmGrid{grid-template-columns:1fr 1fr}}
 </style>
 <style id="farmMgmtButtonFix">
-#farmMgmtBtn{position:fixed!important;right:14px!important;bottom:205px!important;z-index:75!important;display:block!important;visibility:visible!important;opacity:1!important;background:linear-gradient(135deg,#bd9139,#8d6826)!important;color:#17130a!important;border:1px solid #f0d18a!important;border-radius:14px!important;padding:11px 15px!important;font:700 14px "Hind Siliguri",sans-serif!important;box-shadow:0 5px 18px #0009!important;cursor:pointer!important}
-@media(max-width:600px){#farmMgmtBtn{right:10px!important;bottom:205px!important;padding:10px 12px!important;font-size:13px!important}}
+#farmMgmtBtn{position:static!important;z-index:5!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;background:linear-gradient(135deg,#bd9139,#8d6826)!important;color:#17130a!important;border:1px solid #f0d18a!important;border-radius:50%!important;width:38px!important;height:38px!important;padding:0!important;font:700 18px "Hind Siliguri",sans-serif!important;box-shadow:0 3px 12px #0007!important;cursor:pointer!important;flex:0 0 38px!important}
 </style>
-<button id="farmMgmtBtn" type="button">🗂️ খামার পরিচালনা</button>
 <div id="fmPanel" aria-live="polite">
  <div class="fmHead"><b>খামার পরিচালনা কেন্দ্র</b><button id="fmClose">✕ বন্ধ</button></div>
  <div class="fmTabs" id="fmTabs">
