@@ -243,7 +243,7 @@ function boot(){
 'use strict';
 const T=THREE, PI=Math.PI;
 const canvas=document.getElementById('c');
-const renderer=new T.WebGLRenderer({canvas,antialias:!window.LITE_WEAK,powerPreference:'high-performance'});
+const renderer=new T.WebGLRenderer({canvas,antialias:!window.LITE_WEAK&&!window.LITE0,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.LITE0?1.25:2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=window.LITE0?T.BasicShadowMap:T.PCFSoftShadowMap;
 const scene=new T.Scene();
@@ -1287,7 +1287,7 @@ function applyToggle(k,v){
   else if(k==='time')document.getElementById('tm').style.display=v?'':'none';
   else if(k==='chips')document.getElementById('chips').style.display=v?'':'none';
   else if(k==='scale')document.getElementById('scaleNote').style.display=v?'':'none';
-  else if(k==='lite')applyQuality(v?1:0);}
+  else if(k==='lite')applyQuality(v?2:0);}
 function setToggle(k,v,persist){SET[k]=v;if(swInputs[k])swInputs[k].checked=v;applyToggle(k,v);
   if(persist){const s={};PERSIST.forEach(x=>{s[x]=SET[x];});window.store.set('khamar.settings',s);}}
 function initToggles(){Object.keys(SET).forEach(k=>applyToggle(k,SET[k]));}
@@ -1312,7 +1312,7 @@ function watchFps(dt){if(rec.on||T0<6)return;fpsT+=dt;fpsN++;if(fpsT>=2){const f
 function resize(){if(rec.on)return;const w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 window.addEventListener('resize',resize);resize();
 const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-let last=performance.now(),T0=0;const v3=new T.Vector3(),lk=new T.Vector3();
+let last=performance.now(),T0=0,lastLabelUpdate=0;const v3=new T.Vector3(),lk=new T.Vector3();
 function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)/1000);last=now;T0+=reduce?dt*0.3:dt;
  timeU.value=T0;updaters.forEach(u=>u(T0,dt));watchFps(dt);
  if(tmAutoOn){clock=(clock+dt*0.45)%24;showTime();}
@@ -1327,7 +1327,7 @@ function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)
    if((tour||rec.on)&&cur&&!cur.walk&&!manual)goal.th+=dt*0.025;
    applyCam();}
  // labels
- if(labelsOn){const w=window.innerWidth,h=window.innerHeight;lbObjs.forEach(o=>{v3.copy(o.v).project(camera);const dist=camera.position.distanceTo(o.v);const vis=v3.z<1&&Math.abs(v3.x)<1.05&&Math.abs(v3.y)<1.05&&dist<(walking?90:230);
+ if(labelsOn&&now-lastLabelUpdate>=66){lastLabelUpdate=now;const w=window.innerWidth,h=window.innerHeight;lbObjs.forEach(o=>{v3.copy(o.v).project(camera);const dist=camera.position.distanceTo(o.v);const vis=v3.z<1&&Math.abs(v3.x)<1.05&&Math.abs(v3.y)<1.05&&dist<(walking?90:230);
    if(vis){o.d.style.display='';o.d.classList.toggle('open',dist<(walking?60:78));o.d.style.transform='translate('+((v3.x*0.5+0.5)*w).toFixed(1)+'px,'+((-v3.y*0.5+0.5)*h).toFixed(1)+'px) translate(-50%,-100%)';}else o.d.style.display='none';});}
  renderer.render(scene,camera);if(rec.on)drawVideoFrame();}
 initToggles();showTime();setFloor('all');document.getElementById('floors').classList.remove('show');
