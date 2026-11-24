@@ -1405,4 +1405,23 @@ function attach(){document.querySelectorAll('#labels .lb').forEach(el=>{if(el.da
 attach();new MutationObserver(attach).observe(document.getElementById('labels'),{childList:true});
 })();
 </script>
+
+<style>
+#animalQuickView{position:fixed;right:14px;bottom:142px;z-index:45;border:1px solid rgba(255,255,255,.35);border-radius:14px;padding:11px 15px;background:linear-gradient(135deg,#315f37,#173d28);color:#fff;font:700 14px var(--font);box-shadow:0 5px 18px #0008;cursor:pointer}
+#animalQuickView small{display:block;font-size:11px;font-weight:500;opacity:.9}
+@media(max-width:600px){#animalQuickView{bottom:145px;right:10px;padding:9px 12px}}
+</style>
+<button id="animalQuickView" type="button">🐄 গরু ও ছাগল দেখুন<small>১০০টি গরু · ২০০টি ছাগল</small></button>
+<script>
+(function(){
+ const b=document.getElementById('animalQuickView');
+ if(!b)return;
+ b.addEventListener('click',function(){
+   if(typeof stopTour==='function')stopTour();
+   if(typeof goShot==='function')goShot(7);
+   b.textContent='🐄 গরু ও ছাগলের শেড';
+   const sm=document.createElement('small');sm.textContent='ছাদ সরানো দৃশ্য · ১০০ গরু · ২০০ ছাগল';b.appendChild(sm);
+ });
+})();
+</script>
 </body></html>
