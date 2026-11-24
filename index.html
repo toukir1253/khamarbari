@@ -1129,7 +1129,7 @@ function showTime(){tmR.value=clock;tmO.textContent=fmt(clock);tmI.textContent=(
 tmR.addEventListener('input',()=>{clock=parseFloat(tmR.value);tmAutoOn=false;document.getElementById('tmAuto').classList.remove('on');showTime();});
 document.getElementById('tmAuto').addEventListener('click',e=>{tmAutoOn=!tmAutoOn;e.currentTarget.classList.toggle('on',tmAutoOn);});
 // pointer control
-let ptr=new Map(),pd=0,pang=0,pmy=0;
+let ptr=new Map(),pd=0,pang=0,pmy=0,pendingWheel=0;
 let guideOn=false;
 function setMangoFade(o){const im=scene.userData.mangoIM;if(!im)return;const m=im.material;m.transparent=o<0.99;m.opacity=o;m.depthWrite=o>=0.99;}
 function stopTour(){if(tour){tour=false;setPlay();}if(guideOn)guideStop();manual=true;walking=false;
@@ -1152,7 +1152,7 @@ canvas.addEventListener('pointermove',e=>{const p=ptr.get(e.pointerId);if(!p)ret
   goal.tg.addScaledVector(rx,-dx*s).addScaledVector(fz,-dy*s);goal.tg.x=Math.max(-150,Math.min(150,goal.tg.x));goal.tg.z=Math.max(-110,Math.min(120,goal.tg.z));}});
 function stopTourOnce(){stopTour();}
 const up=e=>{ptr.delete(e.pointerId);};canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('contextmenu',e=>e.preventDefault());
-canvas.addEventListener('wheel',e=>{e.preventDefault();if(guideOn){gd.zoom=Math.min(1.8,Math.max(0.7,gd.zoom*Math.exp(e.deltaY*0.0012)));return;}if(tour||!manual||walking)stopTour();goal.r=Math.min(320,Math.max(8,goal.r*Math.exp(e.deltaY*0.0012)));},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();pendingWheel+=e.deltaY;},{passive:false});
 function ensureGoal(){if(!manual)manual=true;}
 
 // ---------- সংখ্যার কার্ড ----------
@@ -1319,11 +1319,12 @@ function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)
  if(rec.on){const el=(now-rec.t0)/1000;let acc=0,idx=DUR.length-1;for(let i=0;i<DUR.length;i++){acc+=DUR[i];if(el<acc){idx=i;break;}}
    if(idx!==shotI)goShot(idx);clock=9+el*0.085;showTime();recBar(el);if(el>=REC_LEN)stopRec(true);}
  else if(tour){shotT+=dt;if(shotT>(cur?cur.d:9))goShot(shotI+1);}
+ if(pendingWheel){const wd=pendingWheel;pendingWheel=0;if(guideOn){gd.zoom=Math.min(1.8,Math.max(0.7,gd.zoom*Math.exp(wd*0.0012)));}else{if(tour||!manual||walking)stopTour();goal.r=Math.min(320,Math.max(8,goal.r*Math.exp(wd*0.0012)));}}
  if(guideOn){guideCam(dt);}
  else if(walking&&cur&&cur.walk){walkT+=dt;const u=Math.min(0.999,walkT/(rec.on?DUR[DUR.length-1]:cur.d));wCurve.getPoint(u,v3);wCurve.getPoint(Math.min(1,u+0.03),lk);
    camera.position.lerp(v3,0.15);const tg=lk.clone();tg.y=2.2;cam.tg.lerp(tg,0.15);camera.lookAt(cam.tg);if(!rec.on&&walkT>cur.d&&tour){goShot(0);}
  } else {
-   const k=1-Math.exp(-dt*(manual?10:1.8));cam.tg.lerp(goal.tg,k);cam.r+=(goal.r-cam.r)*k;cam.th=angLerp(cam.th,goal.th,k);cam.ph+=(goal.ph-cam.ph)*k;
+   const k=manual?1:1-Math.exp(-dt*1.8);cam.tg.lerp(goal.tg,k);cam.r+=(goal.r-cam.r)*k;cam.th=angLerp(cam.th,goal.th,k);cam.ph+=(goal.ph-cam.ph)*k;
    if((tour||rec.on)&&cur&&!cur.walk&&!manual)goal.th+=dt*0.025;
    applyCam();}
  // labels
