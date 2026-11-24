@@ -1008,12 +1008,12 @@ updaters.push((t,dt)=>{if(!guideOn)return;const p=GP,g=p.g;
  const q=GUIDE[gd.i],dx=q[0]-g.position.x,dz=q[1]-g.position.z,d=Math.hypot(dx,dz);
  if(d<0.3){if(q[2]>0){gd.wait=q[2];document.getElementById('capk').textContent='গাইড ট্যুর · '+bn(GUIDE.filter((a,k)=>k<=gd.i&&a[3]).length)+' / '+bn(GUIDE.filter(a=>a[3]).length);document.getElementById('capt').textContent=q[3];document.getElementById('capp').textContent=q[4];}
   gd.i++;if(gd.i>=GUIDE.length){guideStop();stopTour();goShot(0);tour=false;setPlay();}return;}
- const sp=3.6;g.position.x+=dx/d*sp*dt;g.position.z+=dz/d*sp*dt;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*7));
+ const sp=6.0;g.position.x+=dx/d*sp*dt;g.position.z+=dz/d*sp*dt;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*7));
  gd.hx+=(dx/d-gd.hx)*Math.min(1,dt*2.5);gd.hz+=(dz/d-gd.hz)*Math.min(1,dt*2.5);
  const s=Math.sin(t*sp*4.2);p.legs[0].rotation.z=s*0.65;p.legs[1].rotation.z=-s*0.65;p.arms[0].rotation.z=-s*0.5;p.arms[1].rotation.z=s*0.5;});
 function guideCam(dt){const g=GP.g.position,L=Math.hypot(gd.hx,gd.hz)||1,hx=gd.hx/L,hz=gd.hz/L;
  const a=Math.atan2(-hz,-hx)+gd.off+gd.uth,R=6.5*gd.zoom,H=Math.max(1.4,2.6*gd.uh*gd.zoom),tx=g.x+Math.cos(a)*R,tz=g.z+Math.sin(a)*R;
- const k=1-Math.exp(-dt*2.6);camera.position.x+=(tx-camera.position.x)*k;camera.position.y+=(H-camera.position.y)*k;camera.position.z+=(tz-camera.position.z)*k;
+ const k=1-Math.exp(-dt*3.8);camera.position.x+=(tx-camera.position.x)*k;camera.position.y+=(H-camera.position.y)*k;camera.position.z+=(tz-camera.position.z)*k;
  const lx=g.x+hx*3,lz=g.z+hz*3;cam.tg.x+=(lx-cam.tg.x)*k*1.5;cam.tg.y=1.7;cam.tg.z+=(lz-cam.tg.z)*k*1.5;camera.lookAt(cam.tg);
  const inM=g.x>FM.MANGO.x0-6&&g.x<FM.MANGO.x1+6&&g.z>FM.MANGO.z0-6&&g.z<FM.MANGO.z1+6;
  gd.mf+=((inM?0.45:1)-gd.mf)*Math.min(1,dt*3);setMangoFade(gd.mf);}
