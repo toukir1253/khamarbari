@@ -1389,7 +1389,6 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function open(title,html){document.getElementById('bpTitle').textContent=title;content.innerHTML=html;panel.classList.add('open');panel.scrollTop=0}
 function close(){panel.classList.remove('open')}
 document.getElementById('bpClose').onclick=close;
-document.getElementById('bizDashBtn').onclick=()=>{document.getElementById('fmPanel').classList.add('open');window.dispatchEvent(new Event('khamarbari:open-finance'));};
 window.addEventListener('khamarbari:open-finance',dashboard);
 document.getElementById('bizVisitBtn').onclick=booking;
 function totals(){let inv=0,cost=num(data.otherCost),income=num(data.otherIncome);data.zones.forEach(z=>{inv+=num(z.invest);cost+=num(z.cost);income+=num(z.units)*num(z.price)});income+=num(data.eggsPerDay)*30*12+num(data.milkPerDay)*30*80;return {inv,cost,income,profit:income-cost}}
