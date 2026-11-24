@@ -1047,7 +1047,7 @@ function applyToggle(k,v){
   else if(k==='time')document.getElementById('tm').style.display=v?'':'none';
   else if(k==='chips')document.getElementById('chips').style.display=v?'':'none';
   else if(k==='scale')document.getElementById('scaleNote').style.display=v?'':'none';
-  else if(k==='lite')applyQuality(v?1:0);}
+  else if(k==='lite')applyQuality(v?(window.LITE0?2:1):0);}
 function setToggle(k,v,persist){SET[k]=v;if(swInputs[k])swInputs[k].checked=v;applyToggle(k,v);
   if(persist){const s={};PERSIST.forEach(x=>{s[x]=SET[x];});window.store.set('khamar.settings',s);}}
 function initToggles(){Object.keys(SET).forEach(k=>applyToggle(k,SET[k]));}
