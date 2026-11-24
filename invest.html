@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="১০ বিঘা সমন্বিত খামারের বিনিয়োগ সারসংক্ষেপ — খাতভিত্তিক আয়-খরচ, লাভ, রিটার্ন ও ৩ বছরের প্রক্ষেপণ।">
+<meta property="og:title" content="বিনিয়োগ সারসংক্ষেপ — খামারবাড়ি">
+<meta property="og:description" content="১০ বিঘা সমন্বিত খামারের বিনিয়োগ সারসংক্ষেপ — খাতভিত্তিক আয়-খরচ, লাভ ও রিটার্ন।">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
 <title>বিনিয়োগ সারসংক্ষেপ — খামারবাড়ি</title>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -64,7 +68,7 @@ button.x{padding:9px 11px;color:var(--bad);flex:none}
 <p class="sub">বিনিয়োগ সারসংক্ষেপ</p>
 
 <div class="note" id="sampleNote">
-  <div><b>নমুনা সংখ্যা।</b> নিচের সব টাকার অঙ্ক বানানো। প্রেজেন্টেশনের আগে প্রতিটা ঘরে নিজের আসল হিসাব বসাও।</div>
+  <div><b>নমুনা সংখ্যা — আসল নয়।</b> নিচের সব টাকার অঙ্ক বানানো, এগুলো দিয়ে বিনিয়োগের সিদ্ধান্ত নিও না। প্রেজেন্টেশনের আগে প্রতিটা ঘরে নিজের আসল হিসাব বসাও, তারপর "বসিয়েছি" চাপো।</div>
   <button id="sampleOk">বসিয়েছি</button>
 </div>
 
@@ -103,6 +107,7 @@ button.x{padding:9px 11px;color:var(--bad);flex:none}
 
 <div class="foot">
   <div class="sub">ডেটা এই ফোনের ব্রাউজারেই সেভ হয়। ব্রাউজার ক্লিয়ার করলে মুছে যাবে, তাই মাঝেমধ্যে এক্সপোর্ট করে রাখো।</div>
+  <div class="sub" id="bkNote">শেষ ব্যাকআপ: এখনো নেওয়া হয়নি।</div>
   <div class="tools">
     <button id="exp">এক্সপোর্ট</button>
     <button id="imp">ইমপোর্ট</button>
@@ -122,14 +127,16 @@ var DEF={
   growth:10,
   sample:true,
   sectors:[
-    {n:'মাছ চাষ',inv:500000,inc:600000,exp:300000},
-    {n:'চিংড়ি',inv:800000,inc:1200000,exp:700000},
-    {n:'ডিম (হাঁস/মুরগি)',inv:300000,inc:400000,exp:250000},
-    {n:'দুধ (গরু)',inv:600000,inc:500000,exp:300000},
-    {n:'সবজি ও ফল',inv:100000,inc:150000,exp:70000}
+    {n:'মাছ চাষ (পুকুর ৩.৫ বিঘা)',inv:500000,inc:600000,exp:300000},
+    {n:'ডিম (লেয়ার মুরগি ১০,০০০)',inv:300000,inc:400000,exp:250000},
+    {n:'দুধ (গরু ১০০)',inv:600000,inc:500000,exp:300000},
+    {n:'ছাগল (২০০)',inv:200000,inc:250000,exp:150000},
+    {n:'আম (হিমসাগর, ১ বিঘা)',inv:100000,inc:150000,exp:70000},
+    {n:'তেল ও ঘি মিল',inv:400000,inc:500000,exp:300000}
   ],
   risks:[
-    {r:'মাছ/চিংড়ির রোগ',s:'নিয়মিত পানি পরীক্ষা, ভালো পোনা, রোগ প্রতিরোধের সময়সূচি'},
+    {r:'মাছের রোগ',s:'নিয়মিত পানি পরীক্ষা, ভালো পোনা, রোগ প্রতিরোধের সময়সূচি'},
+    {r:'মুরগি, গরু ও ছাগলের রোগ',s:'টিকা ও কৃমিনাশকের সময়সূচি, অসুস্থ প্রাণী আলাদা রাখা, ভেটেরিনারিয়ানের পরামর্শ'},
     {r:'বাজারদর পড়ে যাওয়া',s:'একাধিক খাতে আয়, সরাসরি ক্রেতার সঙ্গে চুক্তি'},
     {r:'ঝড়, জলোচ্ছ্বাস, লবণাক্ততা',s:'বাঁধ মজবুত করা, বীমা বা সঞ্চয় তহবিল'}
   ]
@@ -137,7 +144,11 @@ var DEF={
 function clone(o){return JSON.parse(JSON.stringify(o));}
 function valid(o){return o&&typeof o==='object'&&Array.isArray(o.sectors)&&Array.isArray(o.risks);}
 function load(){
-  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(valid(o))return o;}}catch(e){}
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(valid(o)){
+    // পুরনো নমুনা (চিংড়ি/সবজি) থাকলে নতুন খামারের খাতে বদলে দাও — ৩ডি দৃশ্যের সাথে মেলানোর জন্য
+    var names=o.sectors.map(function(s){return String(s.n||'');}).join('|');
+    if(/চিংড়ি|সবজি|হাঁস/.test(names))return clone(DEF);
+    return o;}}}catch(e){}
   return clone(DEF);
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -257,6 +268,8 @@ function syncStatic(){
   $('title').value=S.title||'';
   $('growth').value=S.growth;
   $('sampleNote').hidden=!S.sample;
+  var bk=null;try{bk=localStorage.getItem(KEY+'_backup');}catch(e){}
+  var n=$('bkNote');if(n)n.textContent=bk?('শেষ ব্যাকআপ: '+bk):'শেষ ব্যাকআপ: এখনো নেওয়া হয়নি।';
 }
 function rebuild(){syncStatic();buildSectors();buildRisks();upd();}
 
@@ -275,6 +288,8 @@ $('exp').onclick=function(){
     var u=URL.createObjectURL(blob);var a=document.createElement('a');
     a.href=u;a.download='khamarbari-invest.json';document.body.appendChild(a);a.click();a.remove();
     setTimeout(function(){URL.revokeObjectURL(u);},1500);
+    try{localStorage.setItem(KEY+'_backup',new Date().toLocaleString('bn-BD'));}catch(e){}
+    syncStatic();
   }catch(e){alert('এক্সপোর্ট হয়নি। অন্য ব্রাউজারে চেষ্টা করো।');}
 };
 $('imp').onclick=function(){$('file').click();};
