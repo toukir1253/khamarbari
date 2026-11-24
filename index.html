@@ -106,7 +106,7 @@ body.rec #scaleNote,body.rec #toast{display:none!important}
 <div id="labels"></div>
 <div id="cap" class="glass"><div class="k" id="capk"></div><h1 id="capt">১০ বিঘা সমন্বিত খামার</h1><p id="capp"></p><div id="stats"><span>🐄 <b data-n="100">০</b> গরু</span><span>🐐 <b data-n="200">০</b> ছাগল</span><span>🐔 <b data-n="10000">০</b> মুরগি</span><span>🐟 <b data-n="3.5">০</b> বিঘা পুকুর</span></div></div>
 <div id="tl">
-  <div style="display:flex;gap:8px"><button class="btn" id="farmMgmtBtn" type="button" title="খামার পরিচালনা" aria-label="খামার পরিচালনা">🗂️</button><button class="btn" id="guideBtn" type="button">🚶 গাইড</button><button class="btn on" id="play" type="button">⏸ ট্যুর থামান</button><button class="btn" id="menuBtn" type="button" aria-label="আরও অপশন">⚙</button></div>
+  <div style="display:flex;gap:8px"><button class="btn" id="farmMgmtBtn" type="button" title="খামার পরিচালনা" aria-label="খামার পরিচালনা">🗂️</button><button class="btn" id="investBtn" type="button" title="বিনিয়োগ সারসংক্ষেপ" aria-label="বিনিয়োগ সারসংক্ষেপ">📈</button><button class="btn" id="guideBtn" type="button">🚶 গাইড</button><button class="btn on" id="play" type="button">⏸ ট্যুর থামান</button><button class="btn" id="menuBtn" type="button" aria-label="আরও অপশন">⚙</button></div>
   <div id="more" class="glass"></div>
 </div>
 <div id="floors" class="glass"><small>ভবনের তলা</small>
@@ -1451,6 +1451,18 @@ attach();new MutationObserver(attach).observe(document.getElementById('labels'),
 <style id="farmMgmtButtonFix">
 #farmMgmtBtn{position:static!important;z-index:5!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;background:linear-gradient(135deg,#bd9139,#8d6826)!important;color:#17130a!important;border:1px solid #f0d18a!important;border-radius:50%!important;width:38px!important;height:38px!important;padding:0!important;font:700 18px "Hind Siliguri",sans-serif!important;box-shadow:0 3px 12px #0007!important;cursor:pointer!important;flex:0 0 38px!important}
 </style>
+<style id="investmentModalStyle">
+#investBtn{position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(135deg,#bd9139,#8d6826)!important;color:#17130a!important;border:1px solid #f0d18a!important;border-radius:50%!important;width:38px!important;height:38px!important;padding:0!important;font-size:18px!important;box-shadow:0 3px 12px #0007!important;flex:0 0 38px!important}
+#investModal{position:fixed;inset:0;z-index:120;display:none;flex-direction:column;background:#0d1a13;color:#f4f7ef}
+#investModal.open{display:flex}
+#investModal .investHead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#102318;border-bottom:1px solid rgba(255,255,255,.16);font:700 15px "Hind Siliguri",sans-serif}
+#investModal .investHead button{border:0;border-radius:9px;padding:8px 13px;background:#bd9139;color:#17130a;font:700 13px "Hind Siliguri",sans-serif}
+#investFrame{display:block;flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;background:#0d1a13}
+</style>
+<div id="investModal" aria-hidden="true">
+ <div class="investHead"><b>📈 বিনিয়োগ সারসংক্ষেপ</b><button id="investClose" type="button">✕ বন্ধ</button></div>
+ <iframe id="investFrame" title="বিনিয়োগ সারসংক্ষেপ" src="about:blank"></iframe>
+</div>
 <div id="fmPanel" aria-live="polite">
  <div class="fmHead"><b>খামার পরিচালনা কেন্দ্র</b><button id="fmClose">✕ বন্ধ</button></div>
  <div class="fmTabs" id="fmTabs">
@@ -1509,4 +1521,18 @@ function render(t){
 })();
 </script>
 
+<script id="investmentModalControl">
+(function(){
+ const modal=document.getElementById('investModal'),frame=document.getElementById('investFrame');
+ function openInvest(){
+  if(!frame.src||frame.getAttribute('src')==='about:blank')frame.src='invest.html';
+  modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+  const more=document.getElementById('more');if(more)more.classList.remove('show');
+ }
+ function closeInvest(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+ document.getElementById('investBtn').addEventListener('click',openInvest);
+ document.getElementById('investClose').addEventListener('click',closeInvest);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeInvest();});
+})();
+</script>
 </body></html>
