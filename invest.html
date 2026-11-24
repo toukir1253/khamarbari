@@ -9,7 +9,7 @@
 :root{--bg:#0d1a13;--panel:#14281d;--panel2:#193325;--line:rgba(255,255,255,.14);--fg:#f4f7ef;--mute:#a9bcab;--accent:#f0b84a;--leaf:#86d492;--bad:#ef8a7a;--font:'Hind Siliguri','Noto Sans Bengali','Segoe UI',system-ui,sans-serif;color-scheme:dark;box-sizing:border-box}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--fg);font:500 15px/1.5 var(--font);padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font:500 15px/1.5 var(--font);padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y}
 .wrap{max-width:760px;margin:0 auto;padding:16px 14px 48px}
 h1,h2{margin:0;font-weight:700;line-height:1.25}
 h2{font-size:18px;margin:28px 0 10px}
