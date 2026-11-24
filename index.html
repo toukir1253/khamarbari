@@ -1340,6 +1340,8 @@ try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','�
 
 
 <style id="farmBizStyle">
+#bizDashBtn{display:none!important}
+#bizPanel{z-index:110!important}
 #bizDock{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;pointer-events:none}
 #bizDock button{pointer-events:auto;background:#173d2b;color:#fff;border:1px solid #c89b43;border-radius:14px;padding:12px 15px;font:700 14px "Hind Siliguri",sans-serif;box-shadow:0 4px 18px #0008}
 #bizDock .gold{background:#bd9139;color:#17130a}
@@ -1387,7 +1389,8 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function open(title,html){document.getElementById('bpTitle').textContent=title;content.innerHTML=html;panel.classList.add('open');panel.scrollTop=0}
 function close(){panel.classList.remove('open')}
 document.getElementById('bpClose').onclick=close;
-document.getElementById('bizDashBtn').onclick=dashboard;
+document.getElementById('bizDashBtn').onclick=()=>{document.getElementById('fmPanel').classList.add('open');window.dispatchEvent(new Event('khamarbari:open-finance'));};
+window.addEventListener('khamarbari:open-finance',dashboard);
 document.getElementById('bizVisitBtn').onclick=booking;
 function totals(){let inv=0,cost=num(data.otherCost),income=num(data.otherIncome);data.zones.forEach(z=>{inv+=num(z.invest);cost+=num(z.cost);income+=num(z.units)*num(z.price)});income+=num(data.eggsPerDay)*30*12+num(data.milkPerDay)*30*80;return {inv,cost,income,profit:income-cost}}
 function dashboard(){
@@ -1453,7 +1456,7 @@ attach();new MutationObserver(attach).observe(document.getElementById('labels'),
 <div id="fmPanel" aria-live="polite">
  <div class="fmHead"><b>খামার পরিচালনা কেন্দ্র</b><button id="fmClose">✕ বন্ধ</button></div>
  <div class="fmTabs" id="fmTabs">
-  <button data-tab="home" class="active">সারসংক্ষেপ</button><button data-tab="routine">দৈনিক রুটিন</button><button data-tab="care">খাদ্য ও স্বাস্থ্য</button><button data-tab="production">উৎপাদন/বিক্রি</button><button data-tab="stock">স্টক/ক্রয়</button><button data-tab="season">মৌসুম</button><button data-tab="reports">রিপোর্ট</button>
+  <button data-tab="home" class="active">সারসংক্ষেপ</button><button data-tab="finance">আয়-ব্যয়ের হিসাব</button><button data-tab="routine">দৈনিক রুটিন</button><button data-tab="care">খাদ্য ও স্বাস্থ্য</button><button data-tab="production">উৎপাদন/বিক্রি</button><button data-tab="stock">স্টক/ক্রয়</button><button data-tab="season">মৌসুম</button><button data-tab="reports">রিপোর্ট</button>
  </div>
  <div id="fmContent"></div>
 </div>
@@ -1471,7 +1474,7 @@ const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
 const open=()=>{panel.classList.add('open');render('home')};
 const close=()=>panel.classList.remove('open');
 $('#farmMgmtBtn').addEventListener('click',open);$('#fmClose').addEventListener('click',close);
-$('#fmTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;render(b.dataset.tab)});
+$('#fmTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;if(b.dataset.tab==='finance'){tabActive('finance');window.dispatchEvent(new Event('khamarbari:open-finance'));return;}render(b.dataset.tab)});
 function tabActive(t){$('#fmTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t))}
 function field(label,id,type='text',placeholder='',value=''){return '<label>'+label+'<input id="'+id+'" type="'+type+'" placeholder="'+placeholder+'" value="'+safe(value)+'"></label>'}
 function select(label,id,opts){return '<label>'+label+'<select id="'+id+'">'+opts.map(x=>'<option>'+safe(x)+'</option>').join('')+'</select></label>'}
