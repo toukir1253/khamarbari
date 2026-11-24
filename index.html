@@ -1390,7 +1390,7 @@ function open(title,html){document.getElementById('bpTitle').textContent=title;c
 function close(){panel.classList.remove('open')}
 document.getElementById('bpClose').onclick=close;
 window.addEventListener('khamarbari:open-finance',dashboard);
-document.getElementById('bizVisitBtn').onclick=booking;
+document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#bizVisitBtn'))booking()});
 function totals(){let inv=0,cost=num(data.otherCost),income=num(data.otherIncome);data.zones.forEach(z=>{inv+=num(z.invest);cost+=num(z.cost);income+=num(z.units)*num(z.price)});income+=num(data.eggsPerDay)*30*12+num(data.milkPerDay)*30*80;return {inv,cost,income,profit:income-cost}}
 function dashboard(){
 const t=totals(),pay=t.profit>0?t.inv/t.profit:0;
