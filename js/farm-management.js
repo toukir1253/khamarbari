@@ -1,0 +1,49 @@
+
+(function(){
+'use strict';
+const KEY='khamarbari.management.v1';
+const $=s=>document.querySelector(s), panel=$('#fmPanel'), content=$('#fmContent');
+const today=()=>new Date().toISOString().slice(0,10);
+const money=n=>'৳'+Math.round(Number(n)||0).toLocaleString('en-BD');
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let db;try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!db||!Array.isArray(db.logs))db={logs:[],stocks:[],care:[],checks:{}};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
+const open=()=>{panel.classList.add('open');render('home')};
+const close=()=>panel.classList.remove('open');
+$('#farmMgmtBtn').addEventListener('click',open);$('#fmClose').addEventListener('click',close);
+$('#fmTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;if(b.dataset.tab==='finance'){tabActive('finance');window.dispatchEvent(new Event('khamarbari:open-finance'));return;}render(b.dataset.tab)});
+function tabActive(t){$('#fmTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t))}
+function field(label,id,type='text',placeholder='',value=''){return '<label>'+label+'<input id="'+id+'" type="'+type+'" placeholder="'+placeholder+'" value="'+safe(value)+'"></label>'}
+function select(label,id,opts){return '<label>'+label+'<select id="'+id+'">'+opts.map(x=>'<option>'+safe(x)+'</option>').join('')+'</select></label>'}
+function listLogs(type){return db.logs.filter(x=>!type||x.type===type).slice().reverse().map(x=>'<div class="fmItem"><b>'+safe(x.date)+' · '+safe(x.title)+'</b><div>'+safe(x.qty||'')+' '+safe(x.unit||'')+' · '+money(x.amount)+'</div><div class="fmMuted">'+safe(x.note||'')+'</div></div>').join('')||'<p class="fmMuted">এখনো কোনো তথ্য যোগ করা হয়নি।</p>'}
+function render(t){
+ tabActive(t);let html='';
+ if(t==='home'){
+  const sales=db.logs.filter(x=>x.type==='sale').reduce((a,x)=>a+x.amount,0),cost=db.logs.filter(x=>x.type==='cost'||x.type==='purchase').reduce((a,x)=>a+x.amount,0),prod=db.logs.filter(x=>x.type==='production').length;
+  html='<h2>খামারের পরিচালনা সারসংক্ষেপ</h2><div class="fmGrid"><div class="fmStat">নথিভুক্ত বিক্রি<b>'+money(sales)+'</b></div><div class="fmStat">নথিভুক্ত খরচ<b>'+money(cost)+'</b></div><div class="fmStat">উৎপাদন এন্ট্রি<b>'+prod+'</b></div><div class="fmStat">স্টক আইটেম<b>'+db.stocks.length+'</b></div></div><div class="fmCard"><b>ব্যবহার শুরু</b><p class="fmMuted">প্রতিদিনের কাজ টিক দাও, খাদ্য/স্বাস্থ্য রেকর্ড রাখো, উৎপাদন ও বিক্রির তথ্য যোগ করো। এই তথ্য এই ডিভাইসের ব্রাউজারে সেভ থাকবে।</p><p class="fmMuted">গুরুত্বপূর্ণ: পশুর ওষুধ/টিকার নির্দিষ্ট ডোজ এখানে স্বয়ংক্রিয়ভাবে নির্ধারণ করা হয় না। প্রাণীর ধরন, বয়স ও ওজন অনুযায়ী ভেটেরিনারিয়ানের পরামর্শ নাও।</p></div><div class="fmCard"><h3>সাম্প্রতিক নথি</h3>'+listLogs()+'</div>';
+ }else if(t==='routine'){
+  const tasks=['সকালে সব প্রাণীর স্বাস্থ্য ও আচরণ পর্যবেক্ষণ','পরিষ্কার পানি ও খাবার সরবরাহ','গরু-ছাগলের শেড পরিষ্কার ও শুকনো রাখা','মুরগির ঘর, বাতাস চলাচল ও ডিম সংগ্রহ পরীক্ষা','পুকুরের পানি, মাছের আচরণ ও খাবার পর্যবেক্ষণ','ঘাস/ফসলের জমি ও সেচ পরীক্ষা','খাদ্য, ডিম, দুধ ও উৎপাদনের হিসাব লেখা','সন্ধ্যায় পুনরায় প্রাণী ও নিরাপত্তা পরীক্ষা'];
+  html='<h2>দৈনিক কাজের রুটিন</h2><div class="fmCard"><p>'+today()+' — প্রতিটি কাজ শেষ হলে টিক দাও।</p>'+tasks.map((x,i)=>'<label><input type="checkbox" data-check="'+i+'" style="width:auto;margin-right:8px" '+(db.checks[today()+'-'+i]?'checked':'')+'>'+x+'</label>').join('<hr style="border-color:#34513a">')+'<p class="fmMuted">টিকগুলো এই ডিভাইসে সংরক্ষিত হবে।</p></div>';
+ }else if(t==='care'){
+  html='<h2>খাদ্য ও স্বাস্থ্য রেকর্ড</h2><div class="fmCard">'+select('প্রাণী/বিভাগ','cAnimal',['গরু','ছাগল','মুরগি','মাছ','ঘাস/ফসল','অন্যান্য'])+select('রেকর্ডের ধরন','cType',['খাদ্য সরবরাহ','টিকা','কৃমিনাশক','চিকিৎসা','স্বাস্থ্য পর্যবেক্ষণ','পরিষ্কার-পরিচ্ছন্নতা'])+field('তারিখ','cDate','date','',today())+field('পরিমাণ/বিবরণ','cQty','text','যেমন: ২০ কেজি / লক্ষণ')+field('পরবর্তী করণীয়/তারিখ','cNext','text','প্রয়োজনে লিখুন')+'<label>নোট<textarea id="cNote" rows="2"></textarea></label><button id="cAdd">রেকর্ড সংরক্ষণ</button></div><div class="fmCard"><h3>সাম্প্রতিক রেকর্ড</h3>'+db.care.slice().reverse().map(x=>'<div class="fmItem"><b>'+safe(x.date)+' · '+safe(x.animal)+' · '+safe(x.type)+'</b><div>'+safe(x.qty)+' · পরবর্তী: '+safe(x.next)+'</div><div class="fmMuted">'+safe(x.note)+'</div></div>').join('')+'</div>';
+ }else if(t==='production'){
+  html='<h2>উৎপাদন ও বিক্রির হিসাব</h2><div class="fmCard">'+select('ধরন','pType',['production','sale','cost'])+select('খাত','pTitle',['দুধ','ডিম','গরু','ছাগল','মাছ','ঘাস','আম','সরিষার তেল','নারিকেল তেল','ঘি','খাদ্য','ওষুধ','শ্রমিক','পরিবহন','অন্যান্য'])+field('তারিখ','pDate','date','',today())+field('পরিমাণ','pQty','number','0')+field('একক','pUnit','text','কেজি/লিটার/টি')+field('মোট টাকা','pAmount','number','0')+'<label>বিবরণ<textarea id="pNote" rows="2"></textarea></label><button id="pAdd">হিসাব যোগ করো</button></div><div class="fmCard"><h3>সাম্প্রতিক হিসাব</h3>'+listLogs()+'</div>';
+ }else if(t==='stock'){
+  html='<h2>স্টক ও ক্রয় ব্যবস্থাপনা</h2><div class="fmCard">'+field('পণ্যের নাম','sName','text','যেমন: গরুর খাদ্য')+select('ক্যাটাগরি','sCat',['খাদ্য','ওষুধ','বীজ/পোনা','সার','জ্বালানি','অন্যান্য'])+field('বর্তমান মজুত','sQty','number','0')+field('একক','sUnit','text','কেজি/বস্তা/লিটার')+field('সতর্কতা সীমা','sMin','number','0')+field('ক্রয়মূল্য (মোট)','sCost','number','0')+'<button id="sAdd">স্টক যোগ/আপডেট</button></div><div class="fmCard"><h3>মজুত তালিকা</h3>'+ (db.stocks.map((x,i)=>'<div class="fmItem"><b>'+safe(x.name)+'</b> · '+safe(x.cat)+'<div>মজুত: '+x.qty+' '+safe(x.unit)+' · সতর্কতা সীমা: '+x.min+' · ক্রয়মূল্য: '+money(x.cost)+'</div>'+(x.qty<=x.min?'<b style="color:#ffb18e">⚠ মজুত কম</b>':'')+' <button class="fmDanger" data-delstock="'+i+'">মুছুন</button></div>').join('')||'<p class="fmMuted">স্টক যোগ করা হয়নি।</p>')+'</div>';
+ }else if(t==='season'){
+  html='<h2>মৌসুমভিত্তিক ব্যবস্থাপনা</h2><div class="fmCard"><h3>গ্রীষ্মকাল</h3><ul><li>প্রাণীর জন্য পর্যাপ্ত পরিষ্কার পানি ও ছায়া নিশ্চিত করো।</li><li>গরমের সময় শেডে বাতাস চলাচল ও তাপের চাপ পর্যবেক্ষণ করো।</li><li>পুকুরে ভোরে মাছের আচরণ ও পানির অবস্থা দেখো; অস্বাভাবিকতা হলে বিশেষজ্ঞের পরামর্শ নাও।</li><li>ঘাস ও ফসলে প্রয়োজন অনুযায়ী সেচ দাও।</li></ul></div><div class="fmCard"><h3>বর্ষাকাল</h3><ul><li>শেড, খাদ্যগুদাম ও বৈদ্যুতিক সংযোগ শুকনো ও নিরাপদ রাখো।</li><li>পানি জমা, নোংরা পানি ও রোগ ছড়ানোর ঝুঁকি কমাও।</li><li>পুকুরের পাড়, পানি উপচে পড়া ও ইনলেট-আউটলেট পরীক্ষা করো।</li><li>ভেজা খাদ্য ও ছত্রাকযুক্ত খাবার ব্যবহার কোরো না।</li></ul></div><div class="fmCard"><h3>শীতকাল</h3><ul><li>বাচ্চা ও দুর্বল প্রাণীর ঠান্ডা/বাতাস থেকে সুরক্ষা নিশ্চিত করো।</li><li>শেডে বাতাস চলাচল রাখো, তবে সরাসরি ঠান্ডা বাতাসের ধাক্কা এড়াও।</li><li>পুকুরে খাবার গ্রহণ ও মাছের আচরণ দেখে ব্যবস্থাপনা সমন্বয় করো।</li><li>ফসল ও ঘাসের জমিতে পানি নিষ্কাশন ও পরিচর্যা করো।</li></ul></div><p class="fmMuted">এগুলো সাধারণ ব্যবস্থাপনা নির্দেশনা; স্থানীয় আবহাওয়া, জাত ও খামারের বাস্তব অবস্থা অনুযায়ী কৃষি/প্রাণিসম্পদ কর্মকর্তার পরামর্শ নাও।</p>';
+ }else if(t==='reports'){
+  const month=today().slice(0,7), rows=db.logs.filter(x=>(x.date||'').slice(0,7)===month),sum=k=>rows.filter(x=>x.type===k).reduce((a,x)=>a+x.amount,0),prod=rows.filter(x=>x.type==='production').length;
+  html='<h2>মাসিক রিপোর্ট · '+month+'</h2><div class="fmGrid"><div class="fmStat">বিক্রি<b>'+money(sum('sale'))+'</b></div><div class="fmStat">খরচ/ক্রয়<b>'+money(sum('cost')+sum('purchase'))+'</b></div><div class="fmStat">নথিভুক্ত উৎপাদন<b>'+prod+'</b></div><div class="fmStat">নেট নগদ প্রবাহ<b>'+money(sum('sale')-sum('cost')-sum('purchase'))+'</b></div></div><div class="fmCard"><h3>এই মাসের লেনদেন</h3>'+rows.slice().reverse().map(x=>'<div class="fmItem">'+safe(x.date)+' · '+safe(x.title)+' · '+safe(x.type)+'<b style="float:right">'+money(x.amount)+'</b><div class="fmMuted">'+safe(x.qty)+' '+safe(x.unit)+' '+safe(x.note)+'</div></div>').join('')+'</div><button id="fmCsv">CSV রিপোর্ট ডাউনলোড</button><p class="fmMuted">রিপোর্টে শুধু এই ম্যানেজমেন্ট মডিউলে যোগ করা তথ্য ধরা হয়েছে; ড্যাশবোর্ডের পুরোনো ইনপুট এতে মেশানো হয়নি।</p>';
+ }
+ content.innerHTML=html;
+ content.querySelectorAll('[data-check]').forEach(el=>el.addEventListener('change',()=>{db.checks[today()+'-'+el.dataset.check]=el.checked;save()}));
+ const on=(id,fn)=>{const el=content.querySelector('#'+id);if(el)el.addEventListener('click',fn)};
+ on('cAdd',()=>{db.care.push({animal:$('#cAnimal').value,type:$('#cType').value,date:$('#cDate').value,qty:$('#cQty').value,next:$('#cNext').value,note:$('#cNote').value});save();render('care')});
+ on('pAdd',()=>{db.logs.push({type:$('#pType').value,title:$('#pTitle').value,date:$('#pDate').value,qty:Number($('#pQty').value)||0,unit:$('#pUnit').value,amount:Number($('#pAmount').value)||0,note:$('#pNote').value});save();render('production')});
+ on('sAdd',()=>{let name=$('#sName').value.trim();if(!name){alert('পণ্যের নাম লিখুন');return}let item={name,cat:$('#sCat').value,qty:Number($('#sQty').value)||0,unit:$('#sUnit').value,min:Number($('#sMin').value)||0,cost:Number($('#sCost').value)||0};let old=db.stocks.find(x=>x.name.toLowerCase()===name.toLowerCase());if(old)Object.assign(old,item);else db.stocks.push(item);save();render('stock')});
+ content.querySelectorAll('[data-delstock]').forEach(b=>b.addEventListener('click',()=>{db.stocks.splice(Number(b.dataset.delstock),1);save();render('stock')}));
+ on('fmCsv',()=>{const rows=[['তারিখ','ধরন','খাত','পরিমাণ','একক','টাকা','বিবরণ'],...db.logs.map(x=>[x.date,x.type,x.title,x.qty,x.unit,x.amount,x.note])];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='khamarbari-report.csv';a.click();URL.revokeObjectURL(a.href)});
+}
+})();
