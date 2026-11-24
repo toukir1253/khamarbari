@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>১০ বিঘা সমন্বিত খামার</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Layout: full-screen 3D canvas, glass overlays: caption top-left, controls top-right, floor selector right, zone dock bottom */
@@ -219,9 +221,9 @@ window.THREE_SRC=[
  {u:'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'},
  {u:'https://unpkg.com/three@0.128.0/build/three.min.js',i:'__SRI_JSD__'}];
 window.loadThree=function(){return new Promise(function(res,rej){var i=0,round=0;
- (function next(){if(window.THREE)return res();if(i>=window.THREE_SRC.length){if(round<1){round++;i=0;setTimeout(next,900);return;}return rej(new Error('three.js লোড হয়নি'));}
+ (function next(){if(window.THREE)return res();if(i>=window.THREE_SRC.length){return rej(new Error('three.js লোড হয়নি'));}
   var src=window.THREE_SRC[i++],s=document.createElement('script'),done=false;
-  var tm=setTimeout(function(){if(done)return;done=true;s.remove();next();},10000);
+  var tm=setTimeout(function(){if(done)return;done=true;s.remove();next();},3500);
   s.src=src.u;if(src.i&&src.i.indexOf('__')!==0)s.integrity=src.i;s.crossOrigin='anonymous';
   s.onload=function(){if(done)return;done=true;clearTimeout(tm);window.THREE?res():next();};
   s.onerror=function(){if(done)return;done=true;clearTimeout(tm);next();};
@@ -230,7 +232,7 @@ window.loadThree=function(){return new Promise(function(res,rej){var i=0,round=0
 window.showLoadErr=function(msg){var l=document.getElementById('load');if(l)l.classList.add('off');window.showPlan2D(msg);};
 window.__retrying3D=false;
 window.clear3DRetryFlag=function(){try{var u=new URL(location.href);if(u.searchParams.has('kb3d_retry')){u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}}catch(e){}};
-window.retry3DStart=function(msg){if(window.__retrying3D)return;window.__retrying3D=true;try{var u=new URL(location.href);if(u.searchParams.get('kb3d_retry')!=='1'){u.searchParams.set('kb3d_retry','1');location.replace(u.href);return;}u.searchParams.delete('kb3d_retry');history.replaceState(null,'',u.pathname+(u.search?u.search:'')+u.hash);}catch(e){}window.showLoadErr(msg);};
+window.retry3DStart=function(msg){if(window.__retrying3D)return;window.__retrying3D=true;window.showLoadErr(msg);};
 window.addEventListener('error',function(e){var l=document.getElementById('load');if(l&&!l.classList.contains('off')&&!window.__3dOk)window.retry3DStart('সমস্যা: '+(e.message||'অজানা ত্রুটি')+'। ৩ডি চালু করা যায়নি; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');});
 /* মোবাইল/কম ক্ষমতার ফোন চেনা: শুরুতেই লাইট মোড */
 window.LITE_WEAK=(function(){try{return (navigator.hardwareConcurrency||8)<=2||(navigator.deviceMemory||8)<=2;}catch(e){return false;}})();
@@ -244,8 +246,8 @@ function boot(){
 const T=THREE, PI=Math.PI;
 const canvas=document.getElementById('c');
 const renderer=new T.WebGLRenderer({canvas,antialias:!window.LITE_WEAK&&!window.LITE0,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.LITE0?1.25:2));
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=window.LITE0?T.BasicShadowMap:T.PCFSoftShadowMap;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.LITE0?1:1.5));
+renderer.shadowMap.enabled=!window.LITE0; renderer.shadowMap.type=window.LITE0?T.BasicShadowMap:T.PCFSoftShadowMap;
 const scene=new T.Scene();
 const camera=new T.PerspectiveCamera(50,1,0.5,1400);
 const timeU={value:0};const waterDay={value:1};
@@ -327,7 +329,7 @@ function inst(geo,mat,list){
 
 // ---------- lights & sky ----------
 const hemi=new T.HemisphereLight(0xcfe6ff,0x6d8a4c,0.95);scene.add(hemi);
-const sun=new T.DirectionalLight(0xfff0d4,1.0);sun.castShadow=true;sun.shadow.mapSize.set(window.LITE0?1024:2048,window.LITE0?1024:2048);
+const sun=new T.DirectionalLight(0xfff0d4,1.0);sun.castShadow=!window.LITE0;sun.shadow.mapSize.set(window.LITE0?1024:2048,window.LITE0?1024:2048);
 {const s=sun.shadow.camera;s.left=-135;s.right=135;s.top=115;s.bottom=-115;s.near=10;s.far=600;sun.shadow.bias=-0.0008;sun.shadow.normalBias=0.6;}
 scene.add(sun,sun.target);sun.target.position.set(0,0,0);
 const moon=new T.DirectionalLight(0x8fa8ff,0);scene.add(moon);
@@ -830,6 +832,7 @@ let henIM=null;
  const cm=vmesh(cages,new T.MeshLambertMaterial({vertexColors:true}),false);polG.add(cm);
  // ১০,০০০ মুরগি (ইনস্ট্যান্স), এলোমেলো সাজিয়ে রাখা যাতে লাইট মোডে সমানভাবে কমে
  for(let i=hensList.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));const t=hensList[i];hensList[i]=hensList[j];hensList[j]=t;}
+ if(LITE)hensList.length=Math.min(hensList.length,2500); // ফোনে ১০,০০০ মুরগির বদলে ২,৫০০
  henIM=new T.InstancedMesh(henGeoCage(),new T.MeshLambertMaterial({vertexColors:true}),hensList.length);
  const o=new T.Object3D(),cc=new T.Color();
  hensList.forEach((h,i)=>{o.position.set(h.x,h.y,h.z);o.rotation.set(0,h.ry,0);o.scale.setScalar(0.95+h.c*0.1);o.updateMatrix();henIM.setMatrixAt(i,o.matrix);
@@ -1270,7 +1273,7 @@ function applyQuality(level){
   const sh=level<2;renderer.shadowMap.enabled=sh;sun.castShadow=sh;
   renderer.shadowMap.type=level===0?T.PCFSoftShadowMap:T.BasicShadowMap;
   const sz=level===0?2048:1024;if(sun.shadow.mapSize.x!==sz){sun.shadow.mapSize.set(sz,sz);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,level===0?2:level===1?1.25:1));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,level===0?1.5:1));
   if(henIM)henIM.count=level===0?scene.userData.henCount:Math.floor(scene.userData.henCount*(level===1?0.5:0.3));
   clouds.forEach((c,i)=>{c.visible=level===0||i%2===0;});
   scene.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{m.needsUpdate=true;});});
@@ -1340,7 +1343,7 @@ last=performance.now();requestAnimationFrame(frame);
 setTimeout(()=>{document.getElementById('load').classList.add('off');countUp();},400);
 }
 let booted=false;const go=()=>{if(booted)return;booted=true;window.loadThree().then(()=>{try{boot();window.__3dOk=true;window.clear3DRetryFlag();}catch(err){window.retry3DStart('৩ডি দৃশ্য চালু করা যায়নি ('+(err&&err.message?err.message:'অজানা ত্রুটি')+')। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।');}},()=>window.retry3DStart('৩ডি লাইব্রেরি (three.js) লোড করা যায়নি। আবার চেষ্টা করা হয়েছে; নিচে ২ডি ম্যাপ ও হিসাব দেখানো হলো।'));};
-try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','সমন্বিত কৃষি'),document.fonts.load('600 12px "Hind Siliguri"','অ')]),new Promise(r=>setTimeout(r,2500))]).then(go,go);}catch(e){go();}
+try{Promise.race([Promise.all([document.fonts.load('700 40px "Hind Siliguri"','সমন্বিত কৃষি'),document.fonts.load('600 12px "Hind Siliguri"','অ')]),new Promise(r=>setTimeout(r,400))]).then(go,go);}catch(e){go();}
 </script>
 
 
