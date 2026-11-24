@@ -1327,9 +1327,10 @@ function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)
    if(vis){o.d.style.display='';o.d.classList.toggle('open',dist<(walking?60:78));o.d.style.transform='translate('+((v3.x*0.5+0.5)*w).toFixed(1)+'px,'+((-v3.y*0.5+0.5)*h).toFixed(1)+'px) translate(-50%,-100%)';}else o.d.style.display='none';});}
  renderer.render(scene,camera);if(rec.on)drawVideoFrame();}
 initToggles();showTime();setFloor('all');document.getElementById('floors').classList.remove('show');
-// start state
-const g0=fromPosTg(SHOTS[0].pos,SHOTS[0].tg);cam.tg.copy(g0.tg);cam.r=g0.r;cam.th=g0.th;cam.ph=g0.ph;
-goShot(0);document.getElementById('floors').classList.remove('show');
+// start state: প্রথমেই গরু ও ছাগলের শেড দেখাও
+const START_SHOT=7;
+const g0=fromPosTg(SHOTS[START_SHOT].pos,SHOTS[START_SHOT].tg);cam.tg.copy(g0.tg);cam.r=g0.r;cam.th=g0.th;cam.ph=g0.ph;
+goShot(START_SHOT);document.getElementById('floors').classList.remove('show');
 last=performance.now();requestAnimationFrame(frame);
 setTimeout(()=>{document.getElementById('load').classList.add('off');countUp();},400);
 }
