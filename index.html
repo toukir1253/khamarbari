@@ -363,6 +363,8 @@ function setTime(h){
   lampLights.forEach(l=>l.intensity=nightF*1.4);
 }
 // ---------- ground ----------
+// পানির ঢেউ (স্থানীয় একক স্থানাঙ্কে; নিচের শেডারের সংখ্যার সাথে মিলিয়ে রাখা)
+function waveY(x,z,t){return 0.09*Math.sin(x*7.0+t*1.4)*Math.sin(z*6.0-t*1.1)+0.05*Math.sin((x+z)*9.0+t*1.9);}
 function sqDisc(s0,s1,rad,ang,y){const pos=[],idx=[];
  for(let i=0;i<=rad;i++){const s=s0+(s1-s0)*i/rad;for(let j=0;j<=ang;j++){const q=sqP(j/ang*PI*2,s);pos.push(q[0],y,q[1]);}}
  for(let i=0;i<rad;i++)for(let j=0;j<ang;j++){const a=i*(ang+1)+j,b=a+ang+1;idx.push(a,a+1,b,a+1,b+1,b);}
@@ -378,6 +380,12 @@ const outer=new T.Mesh(new T.PlaneGeometry(3000,3000).rotateX(-PI/2),M(0xa3bd6b)
  const bowl=new T.Mesh(sqBowl(),new T.MeshLambertMaterial({color:0x5b4a34,side:T.DoubleSide}));bowl.scale.set(POND.a,1,POND.b);bowl.position.set(POND.cx,0,POND.cz);bowl.receiveShadow=true;scene.add(bowl);
  const wg=sqDisc(0.02,1,48,96,0);
  const wm=new T.MeshLambertMaterial({color:0x2b8fd0,side:T.DoubleSide}); // একরঙা পানি; y=-0.02: বাইরের মাটির তল (y=-0.1) থেকে উপরে, নইলে মাটি পানিকে ঢেকে ফেলে
+ // পানিতে ঢেউ: ভার্টেক্স শেডারে হালকা sine ঢেউ (GPU-তে চলে, ফোনে ভারী নয়); ঢেউয়ের সাথে আলো-ছায়াও বদলায়
+ wm.onBeforeCompile=s=>{s.uniforms.uTime=timeU;
+  s.vertexShader='uniform float uTime;\n'+s.vertexShader
+   .replace('#include <beginnormal_vertex>','#include <beginnormal_vertex>\nfloat dwx=0.63*cos(position.x*7.0+uTime*1.4)*sin(position.z*6.0-uTime*1.1)+0.45*cos((position.x+position.z)*9.0+uTime*1.9);\nfloat dwz=0.54*sin(position.x*7.0+uTime*1.4)*cos(position.z*6.0-uTime*1.1)+0.45*cos((position.x+position.z)*9.0+uTime*1.9);\nobjectNormal=normalize(vec3(-dwx,1.0,-dwz));')
+   .replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.y+=0.09*sin(position.x*7.0+uTime*1.4)*sin(position.z*6.0-uTime*1.1)+0.05*sin((position.x+position.z)*9.0+uTime*1.9);');};
+ wm.customProgramCacheKey=()=>'waterWave';
  const water=new T.Mesh(wg,wm);water.scale.set(POND.a*0.995,1,POND.b*0.995);water.position.set(POND.cx,-0.02,POND.cz);water.receiveShadow=true;scene.add(water);
  const bank=new T.Mesh(sqDisc(0.995,1.03,2,96,0),M(0x9cc468));bank.scale.set(POND.a,1,POND.b);bank.position.set(POND.cx,0.03,POND.cz);bank.receiveShadow=true;scene.add(bank);
  scene.userData.water=water;}
@@ -939,13 +947,13 @@ updaters.push((t,dt)=>{walkers.forEach(w=>{const p=w.p;
 const duckHouse=new T.Group();duckHouse.position.set(-40,0.02,-8);scene.add(duckHouse);
 {bx(5.5,0.3,4,0x8b6a47,0,0,0,duckHouse);[[-2.4,-1.7],[2.4,-1.7],[-2.4,1.7],[2.4,1.7]].forEach(p=>cyl(0.12,0.12,2.2,0x6b5236,p[0],0.3,p[1],duckHouse,6));
  const r=new T.Mesh(new T.BoxGeometry(6.4,0.15,2.5),M(0xb4492f));r.position.set(0,2.6,-0.95);r.rotation.x=0.3;const r2=r.clone();r2.position.z=0.95;r2.rotation.x=-0.3;duckHouse.add(r,r2);bx(3,0.6,2.4,0xe6dccb,0,0.3,0,duckHouse);
- updaters.push(t=>{duckHouse.position.y=0.02+Math.sin(t*0.9)*0.05;duckHouse.rotation.z=Math.sin(t*0.7)*0.015;});}
+ updaters.push(t=>{duckHouse.position.y=-0.02+waveY((-40-POND.cx)/POND.a,(-8-POND.cz)/POND.b,t)+0.04+Math.sin(t*0.9)*0.02;duckHouse.rotation.z=Math.sin(t*0.7)*0.015;});}
 const duckGeo=duckGeo2('w'),duckGeoM=duckGeo2('m');
 const ducks=[];for(let i=0;i<24;i++){const g=new T.Mesh(i%3===0?duckGeoM:duckGeo,VC);g.castShadow=true;const a=R(0,6.28),r=R(4,24);g.position.set(-42+Math.cos(a)*r*1.3,0.02,-13+Math.sin(a)*r*1.1);scene.add(g);ducks.push({g,tx:g.position.x,tz:g.position.z,w:R(0,3),ry:R(0,6.28)});}
 updaters.push((t,dt)=>{ducks.forEach(d=>{const p=d.g.position;
   if(d.w>0)d.w-=dt;if(Math.hypot(d.tx-p.x,d.tz-p.z)<0.6||d.w<-12){d.tx=POND.cx+R(-POND.a*0.8,POND.a*0.8);d.tz=POND.cz+R(-POND.b*0.8,POND.b*0.8);if(pondD(d.tx,d.tz)>0.7){d.tx=-42;d.tz=-13;}d.w=R(0,4);}
   if(d.w<=0){const dx=d.tx-p.x,dz=d.tz-p.z,L=Math.hypot(dx,dz)||1;p.x+=dx/L*0.9*dt;p.z+=dz/L*0.9*dt;d.ry=angLerp(d.ry,-Math.atan2(dz,dx),dt*2);}
-  d.g.rotation.y=d.ry;p.y=0.02+Math.sin(t*1.6+d.w*3)*0.03;});});
+  d.g.rotation.y=d.ry;p.y=-0.02+waveY((p.x-POND.cx)/POND.a,(p.z-POND.cz)/POND.b,t)+0.04+Math.sin(t*1.6+d.w*3)*0.015;});});
 const FISHN=60,fishGeo=(()=>{const m=new Merger();m.add(new T.IcosahedronGeometry(0.3,0),0xffffff,mx(0,0,0,0,0,0,1.6,0.6,0.5));m.add(new T.ConeGeometry(0.2,0.4,3),0xffffff,mx(-0.55,0,0,0,0,PI/2));return m.build();})();
 const fishM=new T.InstancedMesh(fishGeo,new T.MeshLambertMaterial({vertexColors:true}),FISHN);fishM.frustumCulled=false;scene.add(fishM);
 function fpt(){for(let k=0;k<60;k++){const x=POND.cx+R(-POND.a*0.9,POND.a*0.9),z=POND.cz+R(-POND.b*0.9,POND.b*0.9);if(pondD(x,z)<0.45)return {cx:x,cz:z};}return {cx:POND.cx,cz:POND.cz};}
@@ -965,7 +973,7 @@ updaters.push((t,dt)=>{
     if(pondD(x,z)>0.8){x=f.cx;z=f.cz;}
     o.position.set(x,f.y+(feeding?0.15:0),z);o.rotation.set(0,-(f.a+(f.sp>0?PI/2:-PI/2)),0);o.scale.setScalar(1);o.updateMatrix();fishM.setMatrixAt(i,o.matrix);});
   fishM.instanceMatrix.needsUpdate=true;
-  ripples.forEach(r=>{r.t+=dt;const k=r.t/1.6;r.m.visible=k<1;if(k<1){r.m.scale.setScalar(0.3+k*2.4);r.m.material.opacity=0.55*(1-k);}});
+  ripples.forEach(r=>{r.t+=dt;const k=r.t/1.6;r.m.visible=k<1;if(k<1){r.m.position.y=-0.02+waveY((r.m.position.x-POND.cx)/POND.a,(r.m.position.z-POND.cz)/POND.b,t)+0.05;r.m.scale.setScalar(0.3+k*2.4);r.m.material.opacity=0.55*(1-k);}});
 });
 // ---------- vehicles ----------
 const vehicles=[];
