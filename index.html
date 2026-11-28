@@ -1090,20 +1090,20 @@ document.getElementById('flClose').addEventListener('click',()=>floorSel('all'))
   znEl().textContent=selZ<0?'কোনো সারিতে ট্যাপ করলে জমিতে সেই অংশ জ্বলে উঠবে':ZONES[selZ].n+': '+bn(ZONES[selZ].a.toFixed(1))+' বিঘা = '+fmtN(ZONES[selZ].m2)+' বর্গমিটার';});}
 // ---------- camera tour ----------
 const SHOTS=[
- {k:'দৃশ্য ১',t:'আকাশ থেকে পুরো ১০ বিঘা',p:'আনুমানিক জমি বণ্টন সহ পুরো জমির মাস্টার প্ল্যান।',pos:[10,178,128],tg:[0,0,-4],d:9,lg:true,f:'all'},
- {k:'দৃশ্য ২',t:'প্রধান সড়ক থেকে শাখা রাস্তা ও ফটক',p:'প্রধান সড়ক ছেড়ে শাখা রাস্তা ধরে খামারের গেটে পৌঁছানো।',pos:[46,8,78],tg:[46,4,42],d:8,f:'all'},
- {k:'দৃশ্য ৩',t:'ডুপ্লেক্স, অফিস ও নিচতলার গোডাউন',p:'পুকুরের সামনের কোণে ডুপ্লেক্স। নিচতলায় অফিস ও গোডাউন, উপরে দুই তলার আবাসন, সামনে পার্কিং।',pos:[-56,18,68],tg:[-58,5,30],d:8,f:'all'},
- {k:'দৃশ্য ৪',t:'নিচতলা: অফিস ও গোডাউন',p:'বাম দিকে অফিস, ডান দিকে ধান ও সরিষার বস্তার গোডাউন।',pos:[-58,11,62],tg:[-58,2,31],d:7,f:'0'},
- {k:'দৃশ্য ৫',t:'১ম তল: বসার ঘর, খাবার ঘর, রান্নাঘর',p:'নিচতলার ওপরের তলা, ছাদ সরিয়ে ভেতরটা দেখা যাচ্ছে।',pos:[-58,15,62],tg:[-58,5.5,31],d:7,f:'1'},
- {k:'দৃশ্য ৬',t:'২য় তল: শোবার ঘর',p:'শোবার ঘর ও আলমারি। ওপরে ছাদে সোলার প্যানেল ও পানির ট্যাংক।',pos:[-58,19,62],tg:[-58,9,31],d:7,f:'2'},
- {k:'দৃশ্য ৭',t:'সরিষার তেল, নারিকেল তেল ও ঘিয়ের মিল',p:'সরিষা ও নারিকেলের ঘানি, কোপরা শুকানোর তাক, তেলের ট্যাংক, জার ও ঘি তৈরির কেটলি।',pos:[66,19,54],tg:[66,2,27],d:8,f:'all'},
-{k:'দৃশ্য ৮',t:'গরু ও ছাগলের খামার: লাইন করে সাজানো',p:'১০০টি গরু ৫টি লাইনে (প্রতি লাইনে ২০টি) আর ২০০টি ছাগল ৪টি লাইনে (প্রতি লাইনে ৫০টি)। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।',pos:[66,34,20],tg:[66,0,-12],d:10,f:'all'},
-{k:'দৃশ্য ৯',t:'মুরগির ৪ তলা বিল্ডিং: ১০,০০০ লেয়ার',p:'প্রতি তলায় ২,৫০০টি ডিম পাড়া মুরগি, খাঁচার লাইন একটার ওপর আরেকটা। ৪ তলায় মোট ১০,০০০টি।',pos:[66,18,-16],tg:[66,7,-40],d:10,f:'all'},
- {k:'দৃশ্য ১০',t:'৩.৫ বিঘার পুকুর, হাঁস ও গোল ঘর',p:'মাছের ঝাঁক, ভাসমান হাঁসের ঘর, নারিকেল গাছের সারি ও পাড়ের গোল ঘর।',pos:[8,46,44],tg:[-42,0,-12],d:9,f:'all'},
- {k:'দৃশ্য ১১',t:'আম বাগান ও নেপিয়ার ঘাস',p:'ফলবতী হিমসাগর আমগাছ আর বাতাসে দোলা ঘাসের ক্ষেত। ১ বিঘা আম, ১.৫ বিঘা ঘাস, পুকুর থেকে সেচ লাইন।',pos:[30,42,54],tg:[14,2,-10],d:9,f:'all',fl:true},
- {k:'দৃশ্য ১২',t:'ওয়াকথ্রু: গেট থেকে ভেতরে',p:'ফটক দিয়ে ঢুকে বাড়ি, পুকুর ও খামারের পাশ ঘেঁষে হাঁটা।',walk:true,d:34,f:'all',fl:false},
+ {k:'দৃশ্য ১',t:'আকাশ থেকে পুরো ১০ বিঘা',p:'আনুমানিক জমি বণ্টন সহ পুরো জমির মাস্টার প্ল্যান।',pos:[10,178,128],tg:[0,0,-4],d:14,lg:true,f:'all'},
+ {k:'দৃশ্য ২',t:'প্রধান সড়ক থেকে শাখা রাস্তা ও ফটক',p:'প্রধান সড়ক ছেড়ে শাখা রাস্তা ধরে খামারের গেটে পৌঁছানো।',pos:[46,8,78],tg:[46,4,42],d:13,f:'all'},
+ {k:'দৃশ্য ৩',t:'ডুপ্লেক্স, অফিস ও নিচতলার গোডাউন',p:'পুকুরের সামনের কোণে ডুপ্লেক্স। নিচতলায় অফিস ও গোডাউন, উপরে দুই তলার আবাসন, সামনে পার্কিং।',pos:[-56,18,68],tg:[-58,5,30],d:13,f:'all'},
+ {k:'দৃশ্য ৪',t:'নিচতলা: অফিস ও গোডাউন',p:'বাম দিকে অফিস, ডান দিকে ধান ও সরিষার বস্তার গোডাউন।',pos:[-58,11,62],tg:[-58,2,31],d:12,f:'0'},
+ {k:'দৃশ্য ৫',t:'১ম তল: বসার ঘর, খাবার ঘর, রান্নাঘর',p:'নিচতলার ওপরের তলা, ছাদ সরিয়ে ভেতরটা দেখা যাচ্ছে।',pos:[-58,15,62],tg:[-58,5.5,31],d:12,f:'1'},
+ {k:'দৃশ্য ৬',t:'২য় তল: শোবার ঘর',p:'শোবার ঘর ও আলমারি। ওপরে ছাদে সোলার প্যানেল ও পানির ট্যাংক।',pos:[-58,19,62],tg:[-58,9,31],d:12,f:'2'},
+ {k:'দৃশ্য ৭',t:'সরিষার তেল, নারিকেল তেল ও ঘিয়ের মিল',p:'সরিষা ও নারিকেলের ঘানি, কোপরা শুকানোর তাক, তেলের ট্যাংক, জার ও ঘি তৈরির কেটলি।',pos:[66,7,52],tg:[66,3,28],d:13,f:'all'},
+{k:'দৃশ্য ৮',t:'গরু ও ছাগলের খামার: লাইন করে সাজানো',p:'১০০টি গরু ৫টি লাইনে (প্রতি লাইনে ২০টি) আর ২০০টি ছাগল ৪টি লাইনে (প্রতি লাইনে ৫০টি)। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।',pos:[30,12,-11],tg:[66,2,-11],d:15,f:'all',roof:true},
+{k:'দৃশ্য ৯',t:'মুরগির ৪ তলা বিল্ডিং: ১০,০০০ লেয়ার',p:'প্রতি তলায় ২,৫০০টি ডিম পাড়া মুরগি, খাঁচার লাইন একটার ওপর আরেকটা। ৪ তলায় মোট ১০,০০০টি।',pos:[66,18,-16],tg:[66,7,-40],d:15,f:'all'},
+ {k:'দৃশ্য ১০',t:'৩.৫ বিঘার পুকুর, হাঁস ও গোল ঘর',p:'মাছের ঝাঁক, ভাসমান হাঁসের ঘর, নারিকেল গাছের সারি ও পাড়ের গোল ঘর।',pos:[8,46,44],tg:[-42,0,-12],d:14,f:'all'},
+ {k:'দৃশ্য ১১',t:'আম বাগান ও নেপিয়ার ঘাস',p:'ফলবতী হিমসাগর আমগাছ আর বাতাসে দোলা ঘাসের ক্ষেত। ১ বিঘা আম, ১.৫ বিঘা ঘাস, পুকুর থেকে সেচ লাইন।',pos:[30,42,54],tg:[14,2,-10],d:14,f:'all',fl:true},
+ {k:'দৃশ্য ১২',t:'ওয়াকথ্রু: গেট থেকে ভেতরে',p:'ফটক দিয়ে ঢুকে বাড়ি, পুকুর ও খামারের পাশ ঘেঁষে হাঁটা।',walk:true,d:48,f:'all',fl:false},
 ];
-const WALK=[[GX,1.8,W.z1+14],[GX,1.8,38],[30,1.8,34],[0,1.8,34],[-26,1.8,33],[-36,1.8,28],[-34,1.8,18],[-26,1.8,13]];
+const WALK=[[GX,1.8,44],[GX,1.8,38],[30,1.8,31],[0,1.8,31],[-8,1.8,31],[-8,1.8,24],[-26,1.8,24],[-36,1.8,28],[-34,1.8,18],[-26,1.8,13]];
 const wCurve=new T.CatmullRomCurve3(WALK.map(a=>new T.Vector3(a[0],a[1],a[2])));
 // manual orbit
 const cam={tg:new T.Vector3(0,0,12),th:0.3,ph:0.95,r:210};
@@ -1128,7 +1128,7 @@ SHOTS.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b
 function setPlay(){const b=document.getElementById('play');b.classList.toggle('on',tour);b.textContent=tour?'⏸ ট্যুর থামান':'▶ ট্যুর চালান';}
 document.getElementById('menuBtn').addEventListener('click',e=>{const m=document.getElementById('more');m.classList.toggle('show');e.currentTarget.classList.toggle('on',m.classList.contains('show'));});
 document.getElementById('cap').addEventListener('click',e=>e.currentTarget.classList.toggle('more'));
-document.getElementById('play').addEventListener('click',()=>{if(guideOn){guideStop();goShot(shotI<0?0:shotI);}tour=!tour;if(tour){shotT=0;if(manual)goShot(shotI);}setPlay();});
+document.getElementById('play').addEventListener('click',()=>{if(guideOn)guideStop();tour=!tour;if(tour)goShot(0);setPlay();});
 document.querySelectorAll('#floors .btn[data-f]').forEach(b=>b.addEventListener('click',()=>{if(guideOn)stopTour();tour=false;setPlay();manual=true;floorSel(b.dataset.f);const f=b.dataset.f;if(f!=='all'){goal.tg.set(-58,+f*FH+2.2,31);goal.r=42;goal.ph=0.95;goal.th=0.05;walking=false;}}));
 // time of day
 let clock=10.5;const tmR=document.getElementById('tmR'),tmO=document.getElementById('tmO'),tmI=document.getElementById('tmIcon');
@@ -1223,32 +1223,31 @@ const GUIDE=[
  [46,45,5.5,'প্রধান ফটক','প্রধান সড়ক ছেড়ে শাখা রাস্তা ধরে খামারে ঢুকছি। চারপাশে ইটের পাঁচিল, ওপরে কাঁটাতার ও সিকিউরিটি লাইট।'],
  [46,38,0],[30,34.5,0],
  [-20,34.5,6,'পার্কিং ও ট্রাক আনলোডিং','অতিথির গাড়ি এখানে দাঁড়ায়। ট্রাক এসে গোডাউনে ধান-সরিষার বস্তা নামায়।'],
- [-30,40.6,0],
- [-58,40.6,7,'ডুপ্লেক্স, অফিস ও গোডাউন','নিচতলায় অফিস আর গোডাউন, ওপরে দুই তলার আবাসন। ছাদে সোলার প্যানেল।'],
- [-30,40.6,0],[-5,40.6,0],[-5,33,0],
- [-12,22.4,7,'৩.৫ বিঘার পুকুর ও গোল ঘর','পুকুরে মাছ আর হাঁস। পুকুরের ভেতরে কাঠের সাঁকো দিয়ে যাওয়া গোল ঘর।'],
+ [-34,34.5,7,'ডুপ্লেক্স, অফিস ও গোডাউন','নিচতলায় অফিস আর গোডাউন, ওপরে দুই তলার আবাসন। ছাদে সোলার প্যানেল।'],
+ [-5,34.5,0],[-5,33,0],
+ [-12,24,7,'৩.৫ বিঘার পুকুর ও গোল ঘর','পুকুরে মাছ আর হাঁস। পুকুরের ভেতরে কাঠের সাঁকো দিয়ে যাওয়া গোল ঘর।'],
  [-5,24,0],[2.4,24,0],[2.4,0,0],
  [2.4,-30,7,'হিমসাগর আম বাগান','এক বিঘা জমিতে ফলবতী আমগাছ। পুকুর থেকে সেচ লাইনে পানি আসে।'],
- [2.4,5,0],[8.6,5,0],[8.6,-3,0],[20,-3,0],
- [30,-3,7,'নেপিয়ার ঘাসের জমি','দেড় বিঘার ঘাস কেটে সরাসরি গরুর খাবার হিসেবে নেওয়া হয়।'],
- [44,-3,0],[50.8,0,0],[50.8,7.5,0],
- [66,7.5,7,'গরুর শেড: ১০০টি গরু','৫টি লাইনে প্রতি লাইনে ২০টি। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।'],
+ [2.4,5,0],[8.6,5,0],[8.6,-3,0],
+ [14,-3,7,'নেপিয়ার ঘাসের জমি','দেড় বিঘার ঘাস কেটে সরাসরি গরুর খাবার হিসেবে নেওয়া হয়।'],
+ [14,31,0],[50.8,31,0],[50.8,7.5,0],
+ [52,7.5,7,'গরুর শেড: ১০০টি গরু','৫টি লাইনে প্রতি লাইনে ২০টি। লাইনের মাঝে কর্মীর হাঁটার পথ, লাইন ধরে খাবারের পাত্র।'],
  [50.8,7.5,0],[50.8,-23.7,0],
- [66,-23.7,7,'ছাগলের শেড: ২০০টি ছাগল','৪টি লাইনে প্রতি লাইনে ৫০টি। কর্মী নিয়মিত খাবার দেন।'],
- [50.8,-31.4,0],
- [66,-31.4,7,'মুরগির ৪ তলা বিল্ডিং','প্রতি তলায় ২,৫০০টি, ৪ তলায় মোট ১০,০০০ ডিম পাড়া মুরগি। খাঁচার থাকে থাকে লাইন।'],
+ [52,-23.7,7,'ছাগলের শেড: ২০০টি ছাগল','৪টি লাইনে প্রতি লাইনে ৫০টি। কর্মী নিয়মিত খাবার দেন।'],
+ [50.8,-31.4,0],[65,-31.4,0],
+ [65,-30,7,'মুরগির ৪ তলা বিল্ডিং','প্রতি তলায় ২,৫০০টি, ৪ তলায় মোট ১০,০০০ ডিম পাড়া মুরগি। খাঁচার থাকে থাকে লাইন।'],
  [50.8,-31.4,0],[50.8,12,0],[50.8,34,0],
- [62,40.6,7,'সরিষা, নারিকেল তেল ও ঘিয়ের মিল','সরিষা ও নারিকেলের ঘানি, তেলের ট্যাংক আর ঘি তৈরির কেটলি এখানে।'],
+ [62,38,7,'সরিষা, নারিকেল তেল ও ঘিয়ের মিল','সরিষা ও নারিকেলের ঘানি, তেলের ট্যাংক আর ঘি তৈরির কেটলি এখানে।'],
  [46,44,0],[46,66,0]];
 const gd={i:1,wait:0,hx:0,hz:-1,off:0,t:0,uth:0,zoom:1,uh:1,mf:1};
 function guideStart(){if(rec.on)return;tour=false;setPlay();guideOn=true;walking=false;manual=false;
  gd.roofWas=SET.roof;setToggle('legend',false);floorSel('all');flowsOn(false);setToggle('roof',false);
- GP.g.visible=true;gd.i=1;gd.wait=0;gd.hx=0;gd.hz=-1;gd.off=0;gd.uth=0;gd.zoom=1;gd.uh=1;gd.mf=1;GP.g.position.set(GUIDE[0][0],0,GUIDE[0][1]);GP.carry.visible=false;
- camera.position.set(GUIDE[0][0],2.6,GUIDE[0][1]+6.5);cam.tg.set(GUIDE[0][0],1.6,GUIDE[0][1]);
+ GP.g.visible=true;gd.i=1;gd.wait=0;gd.hx=0;gd.hz=-1;gd.off=0;gd.uth=0;gd.zoom=1;gd.uh=1;gd.mf=1;GP.g.position.set(GUIDE[0][0],0,GUIDE[0][1]);GP.carry.visible=false;walkers.forEach(w=>{if(!w.stat)w.p.g.visible=false;});
+ camera.position.set(GUIDE[0][0],3.2,GUIDE[0][1]+5.5);cam.tg.set(GUIDE[0][0],1.6,GUIDE[0][1]);
  document.getElementById('capk').textContent='গাইড ট্যুর';document.getElementById('capt').textContent='চলুন, ঘুরে দেখি';document.getElementById('capp').textContent='গাইড আপনাকে ফটক থেকে শুরু করে পুরো খামার ঘুরিয়ে দেখাবেন।';
  document.querySelectorAll('#chips .btn').forEach(b=>b.classList.remove('cur'));
  const b=document.getElementById('guideBtn');b.classList.add('on');b.textContent='■ গাইড বন্ধ';}
-function guideStop(){setMangoFade(1);if(guideOn&&typeof gd.roofWas==='boolean'){setToggle('roof',gd.roofWas);gd.roofWas=undefined;}guideOn=false;GP.g.visible=false;const b=document.getElementById('guideBtn');b.classList.remove('on');b.textContent='🚶 গাইড';}
+function guideStop(){setMangoFade(1);if(guideOn&&typeof gd.roofWas==='boolean'){setToggle('roof',gd.roofWas);gd.roofWas=undefined;}guideOn=false;GP.g.visible=false;walkers.forEach(w=>{if(!w.stat)w.p.g.visible=true;});const b=document.getElementById('guideBtn');b.classList.remove('on');b.textContent='🚶 গাইড';}
 document.getElementById('guideBtn').addEventListener('click',()=>{if(guideOn){stopTour();}else guideStart();});
 updaters.push((t,dt)=>{if(!guideOn)return;const p=GP,g=p.g;
  if(gd.wait>0){gd.wait-=dt;p.legs.forEach(l=>l.rotation.z*=0.8);p.arms[0].rotation.z*=0.9;p.arms[1].rotation.z=-2.3+Math.sin(t*6)*0.45;gd.off+=(1.0-gd.off)*Math.min(1,dt*1.5);return;}
@@ -1256,11 +1255,13 @@ updaters.push((t,dt)=>{if(!guideOn)return;const p=GP,g=p.g;
  const q=GUIDE[gd.i],dx=q[0]-g.position.x,dz=q[1]-g.position.z,d=Math.hypot(dx,dz);
  if(d<0.3){if(q[2]>0){gd.wait=q[2];document.getElementById('capk').textContent='গাইড ট্যুর · '+bn(GUIDE.filter((a,k)=>k<=gd.i&&a[3]).length)+' / '+bn(GUIDE.filter(a=>a[3]).length);document.getElementById('capt').textContent=q[3];document.getElementById('capp').textContent=q[4];}
   gd.i++;if(gd.i>=GUIDE.length){guideStop();stopTour();goShot(0);tour=false;setPlay();}return;}
- const sp=3.6;g.position.x+=dx/d*sp*dt;g.position.z+=dz/d*sp*dt;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*7));
+ const sp=5.5,mv=Math.min(sp*dt,d);g.position.x+=dx/d*mv;g.position.z+=dz/d*mv;g.position.y=0;g.rotation.y=angLerp(g.rotation.y,-Math.atan2(dz,dx),Math.min(1,dt*7));
  gd.hx+=(dx/d-gd.hx)*Math.min(1,dt*2.5);gd.hz+=(dz/d-gd.hz)*Math.min(1,dt*2.5);
- const s=Math.sin(t*sp*4.2);p.legs[0].rotation.z=s*0.65;p.legs[1].rotation.z=-s*0.65;p.arms[0].rotation.z=-s*0.5;p.arms[1].rotation.z=s*0.5;});
+ const s=Math.sin(t*sp*4.2);p.legs[0].rotation.z=s*0.5;p.legs[1].rotation.z=-s*0.5;p.arms[0].rotation.z=-s*0.5;p.arms[1].rotation.z=s*0.5;});
 function guideCam(dt){const g=GP.g.position,L=Math.hypot(gd.hx,gd.hz)||1,hx=gd.hx/L,hz=gd.hz/L;
- const a=Math.atan2(-hz,-hx)+gd.off+gd.uth,R=6.5*gd.zoom,H=Math.max(1.4,2.6*gd.uh*gd.zoom),tx=g.x+Math.cos(a)*R,tz=g.z+Math.sin(a)*R;
+ const a=Math.atan2(-hz,-hx)+gd.off+gd.uth,R=5.5*gd.zoom,H=Math.max(1.4,3.2*gd.uh*gd.zoom);
+ let tx=g.x+Math.cos(a)*R,tz=g.z+Math.sin(a)*R;
+ tx=Math.max(-77,Math.min(77,tx));tz=Math.max(-45,Math.min(40,tz)); // keep the follow camera inside the farm so it cannot sit inside walls/buildings
  const k=1-Math.exp(-dt*2.6);camera.position.x+=(tx-camera.position.x)*k;camera.position.y+=(H-camera.position.y)*k;camera.position.z+=(tz-camera.position.z)*k;
  const lx=g.x+hx*3,lz=g.z+hz*3;cam.tg.x+=(lx-cam.tg.x)*k*1.5;cam.tg.y=1.7;cam.tg.z+=(lz-cam.tg.z)*k*1.5;camera.lookAt(cam.tg);
  const inM=g.x>FM.MANGO.x0-6&&g.x<FM.MANGO.x1+6&&g.z>FM.MANGO.z0-6&&g.z<FM.MANGO.z1+6;
@@ -1321,7 +1322,7 @@ function resize(){if(rec.on)return;const w=window.innerWidth,h=window.innerHeigh
 window.addEventListener('resize',resize);resize();
 const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 let last=performance.now(),T0=0,lastLabelUpdate=0;const v3=new T.Vector3(),lk=new T.Vector3();
-function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.05,(now-last)/1000);last=now;T0+=reduce?dt*0.3:dt;
+function frame(now){requestAnimationFrame(frame);let dt=Math.min(0.25,(now-last)/1000);last=now;T0+=reduce?dt*0.3:dt; // dt clamp 0.25: at 0.05 a slow device ran tour/guide at ~1/10 speed (0.05/real dt); 0.25 keeps real-time down to ~4fps
  timeU.value=T0;updaters.forEach(u=>u(T0,dt));watchFps(dt);
  if(tmAutoOn){clock=(clock+dt*0.45)%24;showTime();}
  if(rec.on){const el=(now-rec.t0)/1000;let acc=0,idx=DUR.length-1;for(let i=0;i<DUR.length;i++){acc+=DUR[i];if(el<acc){idx=i;break;}}
